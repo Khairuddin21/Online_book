@@ -1,6 +1,143 @@
 // Landing Page JavaScript - Interactive & Smooth Animations
 
 document.addEventListener('DOMContentLoaded', function() {
+    
+    // ========== ADVANCED HERO EFFECTS ==========
+    
+    // Generate floating particles
+    const generateParticles = () => {
+        const heroSection = document.querySelector('.hero-section');
+        if (!heroSection) return;
+        
+        // Create particles container
+        if (!document.querySelector('.hero-particles')) {
+            const particlesContainer = document.createElement('div');
+            particlesContainer.className = 'hero-particles';
+            
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'light-particle';
+                particlesContainer.appendChild(particle);
+            }
+            
+            heroSection.appendChild(particlesContainer);
+        }
+    };
+    
+    // Mouse tracking parallax effect
+    const heroParallax = () => {
+        const heroSection = document.querySelector('.hero-section');
+        if (!heroSection) return;
+        
+        heroSection.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            const { innerWidth, innerHeight } = window;
+            
+            const xPercent = (clientX / innerWidth - 0.5) * 2;
+            const yPercent = (clientY / innerHeight - 0.5) * 2;
+            
+            // Move orbit particles
+            const orbitRings = document.querySelectorAll('.orbit-ring');
+            orbitRings.forEach((ring, index) => {
+                const speed = (index + 1) * 5;
+                ring.style.transform = `translate(-50%, -50%) rotate(${xPercent * speed}deg)`;
+            });
+            
+            // Move hero image
+            const heroImage = document.querySelector('.hero-image img');
+            if (heroImage) {
+                heroImage.style.transform = `translate(${xPercent * 15}px, ${yPercent * 15}px)`;
+            }
+            
+            // Move particles
+            const particles = document.querySelectorAll('.light-particle');
+            particles.forEach((particle, index) => {
+                const speed = (index % 3 + 1) * 3;
+                particle.style.transform = `translate(${xPercent * speed}px, ${yPercent * speed}px)`;
+            });
+        });
+        
+        // Reset on mouse leave
+        heroSection.addEventListener('mouseleave', () => {
+            const heroImage = document.querySelector('.hero-image img');
+            if (heroImage) {
+                heroImage.style.transform = 'translate(0, 0)';
+            }
+        });
+    };
+    
+    // Magnetic button effect (exclude CTA buttons)
+    const magneticButtons = () => {
+        const buttons = document.querySelectorAll('.btn:not(.btn-cta-primary):not(.btn-cta-outline)');
+        
+        buttons.forEach(button => {
+            button.addEventListener('mousemove', (e) => {
+                const rect = button.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                
+                button.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+            });
+            
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = 'translate(0, 0)';
+            });
+        });
+    };
+    
+    // 3D tilt effect for cards
+    const tiltCards = () => {
+        const cards = document.querySelectorAll('.book-card, .feature-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = (y - centerY) / 10;
+                const rotateY = (centerX - x) / 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale(1)';
+            });
+        });
+    };
+    
+    // Scroll-based parallax
+    const scrollParallax = () => {
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            
+            // Parallax for hero background
+            const heroSection = document.querySelector('.hero-section');
+            if (heroSection) {
+                heroSection.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+            
+            // Parallax for orbit container
+            const orbitContainer = document.querySelector('.orbit-container');
+            if (orbitContainer) {
+                orbitContainer.style.transform = `translate(-50%, -50%) scale(${1 - scrolled * 0.0005})`;
+            }
+        });
+    };
+    
+    // Initialize advanced effects
+    generateParticles();
+    heroParallax();
+    magneticButtons();
+    tiltCards();
+    scrollParallax();
+    
+    // ========== EXISTING EFFECTS ==========
+    
     // Navbar scroll effect
     const navbar = document.querySelector('.landing-navbar');
     
@@ -89,16 +226,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.addEventListener('scroll', animateStats);
     animateStats();
-
-    // Parallax effect for hero section
-    window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
-        const heroImage = document.querySelector('.hero-image img');
-        
-        if (heroImage) {
-            heroImage.style.transform = `translateY(${scrolled * 0.3}px)`;
-        }
-    });
 
     // Book card hover effect
     const bookCards = document.querySelectorAll('.book-card');
@@ -299,30 +426,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     images.forEach(img => imageObserver.observe(img));
 
-    // Typing effect for hero title (optional)
-    const typeWriter = (element, text, speed = 100) => {
-        let i = 0;
-        element.textContent = '';
-        
-        const type = () => {
-            if (i < text.length) {
-                element.textContent += text.charAt(i);
-                i++;
-                setTimeout(type, speed);
-            }
-        };
-        
-        type();
-    };
-
-    // Uncomment to enable typing effect
-    // const heroTitle = document.querySelector('.hero-text h1');
-    // if (heroTitle) {
-    //     const originalText = heroTitle.textContent;
-    //     typeWriter(heroTitle, originalText, 50);
-    // }
-
-    console.log('✨ Landing page loaded successfully!');
+    console.log('✨ Landing page loaded with advanced effects!');
 });
 
 // Scroll progress indicator

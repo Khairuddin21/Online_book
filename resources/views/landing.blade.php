@@ -42,7 +42,7 @@
                     <i class="fas fa-sign-in-alt"></i> Masuk
                 </a>
                 <a href="{{ route('register') }}" class="btn btn-primary">
-                    <i class="fas fa-user-plus"></i> Daftar
+                    <i class="fas fa-user-plus"></i> Daftar Sekarang
                 </a>
             </div>
         </div>
@@ -50,10 +50,6 @@
 
     <!-- Hero Section -->
     <section class="hero-section" id="home">
-        <!-- 3D Decorations -->
-        <img src="{{ asset('gambar/decorations/girl.png') }}" alt="" class="decoration-girl">
-        <img src="{{ asset('gambar/decorations/pencil.png') }}" alt="" class="decoration-pencil">
-        
         <div class="hero-content">
             <div class="hero-text">
                 <h1>
@@ -135,9 +131,6 @@
 
     <!-- Features Section -->
     <section class="features-section" id="features">
-        <!-- Flying Plane Decoration -->
-        <img src="{{ asset('gambar/decorations/plane.png') }}" alt="" class="decoration-plane">
-        
         <div class="features-container">
             <div class="section-header reveal">
                 <h2>Mengapa Memilih Kami?</h2>
@@ -351,11 +344,11 @@
                 Daftar sekarang dan nikmati berbagai promo menarik khusus untuk member baru!
             </p>
             <div class="cta-buttons">
-                <a href="{{ route('register') }}" class="btn btn-white">
-                    <i class="fas fa-user-plus"></i> Daftar Gratis
+                <a href="{{ route('register') }}" class="btn btn-cta-primary">
+                    <i class="fas fa-rocket"></i> Daftar Gratis Sekarang
                 </a>
-                <a href="#books" class="btn btn-outline" style="border-color: white; color: white;">
-                    <i class="fas fa-search"></i> Jelajahi Katalog
+                <a href="#books" class="btn btn-cta-outline">
+                    <i class="fas fa-compass"></i> Jelajahi Katalog
                 </a>
             </div>
         </div>
