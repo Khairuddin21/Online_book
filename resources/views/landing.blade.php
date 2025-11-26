@@ -50,6 +50,10 @@
 
     <!-- Hero Section -->
     <section class="hero-section" id="home">
+        <!-- 3D Decorations -->
+        <img src="{{ asset('gambar/decorations/girl.png') }}" alt="" class="decoration-girl">
+        <img src="{{ asset('gambar/decorations/pencil.png') }}" alt="" class="decoration-pencil">
+        
         <div class="hero-content">
             <div class="hero-text">
                 <h1>
@@ -71,6 +75,33 @@
             </div>
 
             <div class="hero-image">
+                <!-- Orbit Particles Animation -->
+                <div class="orbit-container">
+                    <!-- Orbit Rings -->
+                    <div class="orbit-ring orbit-ring-1">
+                        <div class="orbit-particle orbit-particle-1"></div>
+                        <div class="orbit-particle orbit-particle-2"></div>
+                    </div>
+                    <div class="orbit-ring orbit-ring-2">
+                        <div class="orbit-particle orbit-particle-3"></div>
+                        <div class="orbit-particle orbit-particle-4"></div>
+                    </div>
+                    <div class="orbit-ring orbit-ring-3">
+                        <div class="orbit-particle orbit-particle-5"></div>
+                        <div class="orbit-particle orbit-particle-6"></div>
+                        <div class="orbit-particle orbit-particle-7"></div>
+                        <div class="orbit-particle orbit-particle-8"></div>
+                    </div>
+                    
+                    <!-- Floating Stars -->
+                    <div class="orbit-star orbit-star-1"></div>
+                    <div class="orbit-star orbit-star-2"></div>
+                    <div class="orbit-star orbit-star-3"></div>
+                    <div class="orbit-star orbit-star-4"></div>
+                    <div class="orbit-star orbit-star-5"></div>
+                    <div class="orbit-star orbit-star-6"></div>
+                </div>
+                
                 <img src="{{ asset('gambar/books-landing.png') }}" alt="Koleksi Buku">
             </div>
         </div>
@@ -104,6 +135,9 @@
 
     <!-- Features Section -->
     <section class="features-section" id="features">
+        <!-- Flying Plane Decoration -->
+        <img src="{{ asset('gambar/decorations/plane.png') }}" alt="" class="decoration-plane">
+        
         <div class="features-container">
             <div class="section-header reveal">
                 <h2>Mengapa Memilih Kami?</h2>
