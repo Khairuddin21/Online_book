@@ -207,7 +207,7 @@
                         <p class="book-author">Andrea Hirata</p>
                         <div class="book-footer">
                             <div class="book-price">Rp 89.000</div>
-                            <button class="book-btn">
+                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
                                 <i class="fas fa-cart-plus"></i>
                             </button>
                         </div>
@@ -223,7 +223,7 @@
                         <p class="book-author">Dr. Budi Raharjo</p>
                         <div class="book-footer">
                             <div class="book-price">Rp 125.000</div>
-                            <button class="book-btn">
+                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
                                 <i class="fas fa-cart-plus"></i>
                             </button>
                         </div>
@@ -239,7 +239,7 @@
                         <p class="book-author">Sapardi Djoko Damono</p>
                         <div class="book-footer">
                             <div class="book-price">Rp 75.000</div>
-                            <button class="book-btn">
+                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
                                 <i class="fas fa-cart-plus"></i>
                             </button>
                         </div>
@@ -255,7 +255,7 @@
                         <p class="book-author">James Clear</p>
                         <div class="book-footer">
                             <div class="book-price">Rp 98.000</div>
-                            <button class="book-btn">
+                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
                                 <i class="fas fa-cart-plus"></i>
                             </button>
                         </div>
@@ -271,7 +271,7 @@
                         <p class="book-author">Yuval Noah Harari</p>
                         <div class="book-footer">
                             <div class="book-price">Rp 135.000</div>
-                            <button class="book-btn">
+                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
                                 <i class="fas fa-cart-plus"></i>
                             </button>
                         </div>
@@ -287,7 +287,7 @@
                         <p class="book-author">Robert T. Kiyosaki</p>
                         <div class="book-footer">
                             <div class="book-price">Rp 110.000</div>
-                            <button class="book-btn">
+                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
                                 <i class="fas fa-cart-plus"></i>
                             </button>
                         </div>
@@ -303,7 +303,7 @@
                         <p class="book-author">Stuart Russell</p>
                         <div class="book-footer">
                             <div class="book-price">Rp 145.000</div>
-                            <button class="book-btn">
+                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
                                 <i class="fas fa-cart-plus"></i>
                             </button>
                         </div>
@@ -319,7 +319,7 @@
                         <p class="book-author">Pramoedya Ananta Toer</p>
                         <div class="book-footer">
                             <div class="book-price">Rp 95.000</div>
-                            <button class="book-btn">
+                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
                                 <i class="fas fa-cart-plus"></i>
                             </button>
                         </div>
@@ -411,5 +411,13 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/landing.js') }}?v={{ time() }}" defer></script>
+    
+    <script>
+        // Handle guest user clicking cart button - redirect to login without alert
+        function handleGuestCart() {
+            // Redirect to login page directly
+            window.location.href = "{{ route('login') }}";
+        }
+    </script>
 </body>
 </html>

@@ -2,6 +2,11 @@
 
 @section('title', 'Pembayaran')
 
+@push('styles')
+<!-- SweetAlert2 CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+@endpush
+
 @section('content')
 <div class="user-container" style="min-height: 60vh; padding: 40px 20px;">
     <h1 class="section-title" style="text-align: center; margin-bottom: 40px;">Pembayaran</h1>
@@ -166,9 +171,12 @@
                 <span style="font-weight: 700; font-size: 20px; color: var(--user-primary);">Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}</span>
             </div>
             
-            <button type="submit" form="paymentForm" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 25px;">
+            <button type="button" id="btnPayment" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 25px; opacity: 0.6; cursor: not-allowed;" disabled>
                 <i class="fas fa-check-circle"></i> Bayar
             </button>
+            <p id="paymentHint" style="color: #e74c3c; font-size: 13px; margin-top: 10px; text-align: center;">
+                Pilih metode pembayaran terlebih dahulu
+            </p>
         </div>
     </div>
 </div>
@@ -453,12 +461,124 @@
 @endpush
 
 @push('scripts')
+<!-- SweetAlert2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
 function copyPromoCode(code) {
     navigator.clipboard.writeText(code).then(() => {
-        alert('Kode promo berhasil disalin: ' + code);
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: 'Kode promo berhasil disalin: ' + code,
+            timer: 2000,
+            showConfirmButton: false
+        });
     });
 }
+
+// Enable/disable payment button based on payment method selection
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentMethods = document.querySelectorAll('input[name="metode_pembayaran"]');
+    const btnPayment = document.getElementById('btnPayment');
+    const paymentHint = document.getElementById('paymentHint');
+    const paymentForm = document.getElementById('paymentForm');
+    
+    // Listen to payment method changes
+    paymentMethods.forEach(method => {
+        method.addEventListener('change', function() {
+            if (this.checked) {
+                // Enable button
+                btnPayment.disabled = false;
+                btnPayment.style.opacity = '1';
+                btnPayment.style.cursor = 'pointer';
+                paymentHint.style.display = 'none';
+            }
+        });
+    });
+    
+    // Handle payment button click
+    btnPayment.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        if (this.disabled) return;
+        
+        const selectedMethod = document.querySelector('input[name="metode_pembayaran"]:checked');
+        if (!selectedMethod) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Perhatian',
+                text: 'Pilih metode pembayaran terlebih dahulu!'
+            });
+            return;
+        }
+        
+        const methodNames = {
+            'e-wallet': 'Uang Elektronik',
+            'transfer': 'Virtual Account',
+            'kartu_kredit': 'Kartu Kredit/Debit'
+        };
+        
+        const selectedMethodName = methodNames[selectedMethod.value];
+        const totalAmount = 'Rp {{ number_format($pesanan->total_harga, 0, ",", ".") }}';
+        
+        // First Alert: Confirmation
+        Swal.fire({
+            title: 'Konfirmasi Pembayaran',
+            html: `
+                <div style="text-align: left; padding: 10px;">
+                    <p><strong>Metode Pembayaran:</strong> ${selectedMethodName}</p>
+                    <p><strong>Total Pembayaran:</strong> ${totalAmount}</p>
+                    <hr style="margin: 15px 0;">
+                    <p style="color: #666; font-size: 14px;">Apakah Anda yakin ingin melanjutkan pembayaran?</p>
+                </div>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#1e40af',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Ya, Bayar Sekarang',
+            cancelButtonText: 'Batal',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading
+                Swal.fire({
+                    title: 'Memproses Pembayaran...',
+                    html: 'Mohon tunggu sebentar',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Simulate payment processing delay
+                setTimeout(() => {
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pembayaran Berhasil!',
+                        html: `
+                            <div style="text-align: center; padding: 10px;">
+                                <p style="font-size: 16px; margin-bottom: 10px;">Terima kasih atas pembelian Anda!</p>
+                                <p style="color: #666; font-size: 14px;">Pesanan Anda sedang diproses.</p>
+                                <p style="color: #666; font-size: 14px;">Anda akan dialihkan ke halaman pesanan...</p>
+                            </div>
+                        `,
+                        confirmButtonColor: '#1e40af',
+                        confirmButtonText: 'Lihat Pesanan',
+                        allowOutsideClick: false,
+                        timer: 3000,
+                        timerProgressBar: true
+                    }).then(() => {
+                        // Submit form after success message
+                        paymentForm.submit();
+                    });
+                }, 1500);
+            }
+        });
+    });
+});
 </script>
 @endpush
 @endsection

@@ -14,16 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update cart badge on page load
     updateCartBadge();
 
-    // Add to cart functionality
-    const addToCartButtons = document.querySelectorAll('.add-to-cart');
-    addToCartButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const bookId = this.dataset.bookId;
-            const buttonElement = this;
-            addToCart(bookId, buttonElement);
-        });
-    });
+    // Add to cart functionality - use event delegation to prevent duplicate listeners
+    document.body.removeEventListener('click', handleAddToCart); // Remove any existing listener
+    document.body.addEventListener('click', handleAddToCart);
 
     // Search functionality
     const searchInput = document.querySelector('.navbar-search input');
@@ -121,13 +114,36 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Handle add to cart with event delegation (prevents duplicate listeners)
+function handleAddToCart(e) {
+    const button = e.target.closest('.add-to-cart');
+    if (!button) return;
+    
+    e.preventDefault();
+    const bookId = button.dataset.bookId;
+    addToCart(bookId, button);
+}
+
+// Track ongoing requests to prevent double submission
+const ongoingRequests = new Set();
+
 // Add to cart function with visual feedback
 function addToCart(bookId, buttonElement) {
+    // Prevent duplicate requests for the same book
+    const requestKey = `cart-${bookId}`;
+    if (ongoingRequests.has(requestKey)) {
+        console.log('Request already in progress for book:', bookId);
+        return;
+    }
+    
     const originalHTML = buttonElement.innerHTML;
     
     // Show loading state
     buttonElement.disabled = true;
     buttonElement.innerHTML = '<span class="loading"></span> Menambahkan...';
+    
+    // Mark request as ongoing
+    ongoingRequests.add(requestKey);
     
     fetch('/api/cart/add', {
         method: 'POST',
@@ -154,6 +170,8 @@ function addToCart(bookId, buttonElement) {
                 buttonElement.innerHTML = originalHTML;
                 buttonElement.style.background = '';
                 buttonElement.disabled = false;
+                // Remove from ongoing requests
+                ongoingRequests.delete(requestKey);
             }, 2000);
         } else {
             throw new Error(data.message || 'Gagal menambahkan ke keranjang');
@@ -164,6 +182,8 @@ function addToCart(bookId, buttonElement) {
         showNotification(error.message || 'Terjadi kesalahan', 'error');
         buttonElement.innerHTML = originalHTML;
         buttonElement.disabled = false;
+        // Remove from ongoing requests on error
+        ongoingRequests.delete(requestKey);
     });
 }
 

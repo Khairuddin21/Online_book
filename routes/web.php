@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 
 // Landing Page
 Route::get('/', function () {
@@ -21,21 +22,25 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Admin Routes (Placeholder)
+// Admin Routes
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     
-    // Kategori
-    Route::get('/kategori', function () {})->name('admin.kategori.index');
+    // Kategori CRUD
+    Route::get('/kategori', [AdminController::class, 'indexKategori'])->name('admin.kategori.index');
+    Route::get('/kategori/create', [AdminController::class, 'createKategori'])->name('admin.kategori.create');
+    Route::post('/kategori', [AdminController::class, 'storeKategori'])->name('admin.kategori.store');
+    Route::get('/kategori/{id}/edit', [AdminController::class, 'editKategori'])->name('admin.kategori.edit');
+    Route::put('/kategori/{id}', [AdminController::class, 'updateKategori'])->name('admin.kategori.update');
+    Route::delete('/kategori/{id}', [AdminController::class, 'destroyKategori'])->name('admin.kategori.destroy');
     
     // Buku
     Route::get('/buku', function () {})->name('admin.buku.index');
     
     // Pesanan
     Route::get('/pesanan', function () {})->name('admin.pesanan.index');
-    Route::get('/pesanan/{id}', function () {})->name('admin.pesanan.show');
+    Route::get('/pesanan/{id}', [AdminController::class, 'showPesanan'])->name('admin.pesanan.show');
+    Route::delete('/pesanan/{id}', [AdminController::class, 'deletePesanan'])->name('admin.pesanan.delete');
     
     // Pembayaran
     Route::get('/pembayaran', function () {})->name('admin.pembayaran.index');
@@ -58,7 +63,9 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/cart', [UserController::class, 'cart'])->name('user.cart');
     Route::get('/orders', [UserController::class, 'orders'])->name('user.orders');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
+    Route::get('/inbox', [UserController::class, 'inbox'])->name('user.inbox');
     Route::get('/contact', [UserController::class, 'contact'])->name('user.contact');
+    Route::post('/contact/submit', [UserController::class, 'submitContact'])->name('user.contact.submit');
     
     // Checkout & Payment Routes
     Route::get('/checkout', [UserController::class, 'showCheckout'])->name('user.checkout');

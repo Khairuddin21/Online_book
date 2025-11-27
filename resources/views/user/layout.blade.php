@@ -54,6 +54,7 @@
                     <div class="dropdown" role="menu" aria-labelledby="userMenuButton">
                         <a href="{{ route('user.profile') }}">Profil</a>
                         <a href="{{ route('user.orders') }}">Pesanan</a>
+                        <a href="{{ route('user.inbox') }}">Pesan</a>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit">Logout</button>

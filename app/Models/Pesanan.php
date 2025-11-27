@@ -39,6 +39,14 @@ class Pesanan extends Model
     {
         return $this->hasMany(PesananDetail::class, 'id_pesanan', 'id_pesanan');
     }
+    
+    /**
+     * Alias for details relationship
+     */
+    public function pesananDetails(): HasMany
+    {
+        return $this->hasMany(PesananDetail::class, 'id_pesanan', 'id_pesanan');
+    }
 
     /**
      * Get the pembayaran for this pesanan
@@ -46,5 +54,16 @@ class Pesanan extends Model
     public function pembayaran(): HasOne
     {
         return $this->hasOne(Pembayaran::class, 'id_pesanan', 'id_pesanan');
+    }
+    
+    /**
+     * Get the alamat pengiriman (if exists in session or related data)
+     * Note: alamat stored in session during checkout
+     */
+    public function alamatPengiriman()
+    {
+        // Return null for now as alamat is stored in session
+        // Could be enhanced to store id_alamat in pesanan table
+        return null;
     }
 }

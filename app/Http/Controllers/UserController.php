@@ -9,6 +9,7 @@ use App\Models\Pesanan;
 use App\Models\PesananDetail;
 use App\Models\Pembayaran;
 use App\Models\AlamatPengiriman;
+use App\Models\PesanKontak;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -296,11 +297,62 @@ class UserController extends Controller
     }
     
     /**
+     * Display inbox page with messages
+     */
+    public function inbox()
+    {
+        $messages = PesanKontak::where('id_user', Auth::id())
+                               ->whereNotNull('balasan_admin')
+                               ->orderBy('tanggal_balas', 'desc')
+                               ->paginate(10);
+        
+        return view('user.inbox', compact('messages'));
+    }
+    
+    /**
      * Display contact page
      */
     public function contact()
     {
         return view('user.contact');
+    }
+    
+    /**
+     * Submit contact form
+     */
+    public function submitContact(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:150',
+            'email' => 'required|email|max:255',
+            'subjek' => 'required|string|max:150',
+            'pesan' => 'required|string|min:10',
+        ], [
+            'nama.required' => 'Nama wajib diisi',
+            'email.required' => 'Email wajib diisi',
+            'email.email' => 'Format email tidak valid',
+            'subjek.required' => 'Subjek wajib diisi',
+            'pesan.required' => 'Pesan wajib diisi',
+            'pesan.min' => 'Pesan minimal 10 karakter',
+        ]);
+        
+        try {
+            // Create contact message
+            PesanKontak::create([
+                'id_user' => Auth::id(),
+                'subjek' => $request->subjek,
+                'isi_pesan' => "Nama: {$request->nama}\nEmail: {$request->email}\n\n{$request->pesan}",
+                'tanggal' => now(),
+            ]);
+            
+            return redirect()->back()
+                ->with('success', 'Pesan Anda berhasil dikirim. Kami akan segera menghubungi Anda.');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal mengirim pesan: ' . $e->getMessage())
+                ->withInput();
+        }
     }
     
     /**
@@ -443,20 +495,21 @@ class UserController extends Controller
                 ->where('id_user', Auth::id())
                 ->firstOrFail();
             
-            // Create payment record
+            // Create payment record (dummy payment - auto valid)
             Pembayaran::create([
                 'id_pesanan' => $orderId,
-                'metode_pembayaran' => $request->metode_pembayaran,
-                'status_pembayaran' => 'menunggu',
+                'metode' => $request->metode_pembayaran,
+                'jumlah' => $pesanan->total_harga,
+                'status_verifikasi' => 'valid', // Auto valid for dummy payment
             ]);
             
-            // Update order status
-            $pesanan->update(['status' => 'menunggu']);
+            // Update order status to 'selesai' since payment is auto valid
+            $pesanan->update(['status' => 'selesai']);
             
             DB::commit();
             
             return redirect()->route('user.orders')
-                ->with('success', 'Pembayaran berhasil diproses. Silakan tunggu konfirmasi.');
+                ->with('success', 'Pembayaran berhasil! Pesanan Anda sedang diproses.');
             
         } catch (\Exception $e) {
             DB::rollBack();
@@ -567,10 +620,26 @@ class UserController extends Controller
             
             $address->delete();
             
+            // Return JSON for AJAX requests
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Alamat berhasil dihapus'
+                ]);
+            }
+            
             return redirect()->back()
                 ->with('success', 'Alamat berhasil dihapus');
                 
         } catch (\Exception $e) {
+            // Return JSON for AJAX requests
+            if (request()->expectsJson() || request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal menghapus alamat: ' . $e->getMessage()
+                ], 500);
+            }
+            
             return redirect()->back()
                 ->with('error', 'Gagal menghapus alamat: ' . $e->getMessage());
         }

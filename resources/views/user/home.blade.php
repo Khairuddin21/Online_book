@@ -378,36 +378,8 @@
     setInterval(nextSlide, slideInterval);
 })();
 
-// Add to cart functionality
-document.querySelectorAll('.add-to-cart').forEach(button => {
-    button.addEventListener('click', function() {
-        const bookId = this.getAttribute('data-book-id');
-        const originalText = this.innerHTML;
-        
-        // Disable button and show loading
-        this.disabled = true;
-        this.innerHTML = '<span class="loading"></span> Menambahkan...';
-        
-        // Simulate cart addition (replace with actual AJAX call)
-        setTimeout(() => {
-            this.innerHTML = '<i class="fas fa-check"></i> Ditambahkan!';
-            this.style.background = 'var(--user-success)';
-            
-            // Update cart badge
-            const cartBadge = document.querySelector('.cart-badge');
-            if (cartBadge) {
-                const currentCount = parseInt(cartBadge.textContent) || 0;
-                cartBadge.textContent = currentCount + 1;
-            }
-            
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.style.background = '';
-                this.disabled = false;
-            }, 2000);
-        }, 500);
-    });
-});
+// Add to cart functionality is handled by user.js globally
+// No need for duplicate event listener here
 
 // Newsletter form
 document.getElementById('newsletterForm')?.addEventListener('submit', function(e) {

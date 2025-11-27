@@ -42,18 +42,6 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('admin.pesanan.index') }}" class="{{ request()->routeIs('admin.pesanan.*') ? 'active' : '' }}">
-                        <i class="fas fa-shopping-cart"></i>
-                        Pesanan
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.pembayaran.index') }}" class="{{ request()->routeIs('admin.pembayaran.*') ? 'active' : '' }}">
-                        <i class="fas fa-money-bill"></i>
-                        Pembayaran
-                    </a>
-                </li>
-                <li>
                     <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                         <i class="fas fa-users"></i>
                         Pengguna

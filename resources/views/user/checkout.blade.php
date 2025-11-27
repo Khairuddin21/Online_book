@@ -127,14 +127,11 @@
                                     <button type="button" class="btn-edit-address" data-id="{{ $address->id_alamat }}">
                                         <i class="fas fa-edit"></i> Ubah
                                     </button>
-                                    <form action="{{ route('user.address.delete', $address->id_alamat) }}" method="POST" style="display: inline;" 
-                                          onsubmit="return confirm('Yakin hapus alamat ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-delete-address">
-                                            <i class="fas fa-trash"></i> Hapus
-                                        </button>
-                                    </form>
+                                    <button type="button" class="btn-delete-address" 
+                                            data-address-id="{{ $address->id_alamat }}"
+                                            onclick="deleteAddress({{ $address->id_alamat }})">
+                                        <i class="fas fa-trash"></i> Hapus
+                                    </button>
                                 </div>
                             </div>
                         </label>
@@ -625,6 +622,34 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// Delete address function
+function deleteAddress(addressId) {
+    if (!confirm('Yakin ingin menghapus alamat ini?')) {
+        return;
+    }
+    
+    fetch(`/address/delete/${addressId}`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success || data.message.includes('berhasil')) {
+            // Reload page to refresh address list
+            window.location.reload();
+        } else {
+            alert(data.message || 'Gagal menghapus alamat');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Terjadi kesalahan saat menghapus alamat');
+    });
+}
 </script>
 @endpush
 @endsection
