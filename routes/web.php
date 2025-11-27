@@ -1,32 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 
 // Landing Page
 Route::get('/', function () {
     return view('landing');
 })->name('home');
 
-// Auth Routes (Placeholder - akan dibuat nanti)
-Route::get('/login', function () {
-    return view('auth.login');
-})->name('login');
-
-Route::get('/register', function () {
-    return view('auth.register');
-})->name('register');
-
-Route::post('/login', function () {
-    // Login logic akan ditambahkan nanti
-})->name('login.post');
-
-Route::post('/register', function () {
-    // Register logic akan ditambahkan nanti
-})->name('register.post');
-
-Route::post('/logout', function () {
-    // Logout logic akan ditambahkan nanti
-})->name('logout');
+// Auth Routes
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Admin Routes (Placeholder)
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {

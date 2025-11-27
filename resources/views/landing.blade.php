@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/landing.css') }}?v={{ time() }}">
 </head>
 <body>
     <!-- Scroll Progress Bar -->
@@ -410,6 +410,6 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/landing.js') }}" defer></script>
+    <script src="{{ asset('js/landing.js') }}?v={{ time() }}" defer></script>
 </body>
 </html>

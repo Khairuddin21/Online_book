@@ -7,7 +7,7 @@
     <title>@yield('title', 'Beranda') - Toko Buku Online</title>
     
     <!-- Styles -->
-    <link rel="stylesheet" href="{{ asset('css/user/user.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/user/user.css') }}?v={{ time() }}">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -121,7 +121,7 @@
     </footer>
 
     <!-- Scripts -->
-    <script src="{{ asset('js/user/user.js') }}"></script>
+    <script src="{{ asset('js/user/user.js') }}?v={{ time() }}"></script>
     @stack('scripts')
 </body>
 </html>

@@ -3,6 +3,13 @@
 @section('title', 'Beranda')
 
 @section('content')
+@if(session('success'))
+<div class="alert alert-success" style="margin: 20px auto; max-width: 1200px; padding: 15px 20px; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 8px; display: flex; align-items: center; gap: 10px;">
+    <i class="fas fa-check-circle" style="font-size: 20px;"></i>
+    <span>{{ session('success') }}</span>
+</div>
+@endif
+
 <!-- Hero Section -->
 <section class="hero-section">
     <h2>Selamat Datang di Toko Buku Online</h2>
