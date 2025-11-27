@@ -7,7 +7,11 @@ use App\Http\Controllers\AdminController;
 
 // Landing Page
 Route::get('/', function () {
-    return view('landing');
+    $books = \App\Models\Buku::with('kategori')
+        ->orderBy('id_buku', 'desc')
+        ->take(8)
+        ->get();
+    return view('landing', compact('books'));
 })->name('home');
 
 // About Page
@@ -34,8 +38,13 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::put('/kategori/{id}', [AdminController::class, 'updateKategori'])->name('admin.kategori.update');
     Route::delete('/kategori/{id}', [AdminController::class, 'destroyKategori'])->name('admin.kategori.destroy');
     
-    // Buku
-    Route::get('/buku', function () {})->name('admin.buku.index');
+    // Buku CRUD
+    Route::get('/buku', [AdminController::class, 'indexBuku'])->name('admin.buku.index');
+    Route::get('/buku/create', [AdminController::class, 'createBuku'])->name('admin.buku.create');
+    Route::post('/buku', [AdminController::class, 'storeBuku'])->name('admin.buku.store');
+    Route::get('/buku/{id}/edit', [AdminController::class, 'editBuku'])->name('admin.buku.edit');
+    Route::put('/buku/{id}', [AdminController::class, 'updateBuku'])->name('admin.buku.update');
+    Route::delete('/buku/{id}', [AdminController::class, 'destroyBuku'])->name('admin.buku.destroy');
     
     // Pesanan
     Route::get('/pesanan', function () {})->name('admin.pesanan.index');
@@ -45,11 +54,15 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Pembayaran
     Route::get('/pembayaran', function () {})->name('admin.pembayaran.index');
     
-    // Users
-    Route::get('/users', function () {})->name('admin.users.index');
+    // Users Management
+    Route::get('/users', [AdminController::class, 'indexUsers'])->name('admin.users.index');
+    Route::post('/users/{id}/update-role', [AdminController::class, 'updateUserRole'])->name('admin.users.updateRole');
     
-    // Pesan
-    Route::get('/pesan', function () {})->name('admin.pesan.index');
+    // Pesan Kontak
+    Route::get('/pesan', [AdminController::class, 'indexPesan'])->name('admin.pesan.index');
+    Route::get('/pesan/{id}', [AdminController::class, 'showPesan'])->name('admin.pesan.show');
+    Route::post('/pesan/{id}/reply', [AdminController::class, 'replyPesan'])->name('admin.pesan.reply');
+    Route::delete('/pesan/{id}', [AdminController::class, 'deletePesan'])->name('admin.pesan.delete');
     
     // Laporan
     Route::get('/laporan', function () {})->name('admin.laporan');

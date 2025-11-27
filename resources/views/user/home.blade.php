@@ -140,9 +140,10 @@
         <div class="books-grid">
             @forelse($books ?? [] as $book)
             <div class="book-card">
-                <img src="{{ $book->cover ? asset('storage/' . $book->cover) : 'https://via.placeholder.com/220x300?text=No+Cover' }}" 
+                <img src="{{ $book->cover ?: 'https://via.placeholder.com/220x300?text=No+Cover' }}" 
                      alt="{{ $book->judul }}" 
-                     class="book-cover">
+                     class="book-cover"
+                     onerror="this.src='https://via.placeholder.com/220x300?text=No+Cover'">
                 <div class="book-info">
                     <h3 class="book-title">{{ $book->judul }}</h3>
                     <p class="book-author">{{ $book->penulis }}</p>

@@ -10,9 +10,6 @@ class PesanKontak extends Model
     protected $table = 'pesan_kontak';
     protected $primaryKey = 'id_pesan';
     public $timestamps = false;
-    
-    const CREATED_AT = 'tanggal';
-    const UPDATED_AT = null;
 
     protected $fillable = [
         'id_user',

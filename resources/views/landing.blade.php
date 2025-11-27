@@ -198,133 +198,43 @@
             </div>
 
             <div class="books-grid">
-                <!-- Sample Book Card 1 -->
+                @forelse($books ?? [] as $book)
                 <div class="book-card reveal">
-                    <img src="https://via.placeholder.com/250x350/3b82f6/ffffff?text=Novel+Fiksi" alt="Book Cover" class="book-cover">
+                    <img src="{{ $book->cover ?: 'https://via.placeholder.com/250x350?text=No+Cover' }}" 
+                         alt="{{ $book->judul }}" 
+                         class="book-cover"
+                         onerror="this.src='https://via.placeholder.com/250x350?text=No+Cover'">
                     <div class="book-details">
-                        <div class="book-category">Fiksi</div>
-                        <h3 class="book-title">Laskar Pelangi</h3>
-                        <p class="book-author">Andrea Hirata</p>
+                        @if($book->kategori)
+                        <div class="book-category">{{ $book->kategori->nama_kategori }}</div>
+                        @endif
+                        <h3 class="book-title">{{ Str::limit($book->judul, 40) }}</h3>
+                        <p class="book-author">{{ $book->penulis }}</p>
                         <div class="book-footer">
-                            <div class="book-price">Rp 89.000</div>
+                            <div class="book-price">Rp {{ number_format($book->harga, 0, ',', '.') }}</div>
                             <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
                                 <i class="fas fa-cart-plus"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Sample Book Card 2 -->
+                @empty
+                <!-- Fallback: Show placeholder if no books -->
                 <div class="book-card reveal">
-                    <img src="https://via.placeholder.com/250x350/1e40af/ffffff?text=Pendidikan" alt="Book Cover" class="book-cover">
+                    <img src="https://via.placeholder.com/250x350/3b82f6/ffffff?text=Coming+Soon" alt="Book Cover" class="book-cover">
                     <div class="book-details">
-                        <div class="book-category">Pendidikan</div>
-                        <h3 class="book-title">Algoritma & Pemrograman</h3>
-                        <p class="book-author">Dr. Budi Raharjo</p>
+                        <div class="book-category">Segera Hadir</div>
+                        <h3 class="book-title">Koleksi Buku Terbaru</h3>
+                        <p class="book-author">Tunggu Update Kami</p>
                         <div class="book-footer">
-                            <div class="book-price">Rp 125.000</div>
-                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
-                                <i class="fas fa-cart-plus"></i>
+                            <div class="book-price">-</div>
+                            <button class="book-btn guest-cart-btn" disabled>
+                                <i class="fas fa-clock"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Sample Book Card 3 -->
-                <div class="book-card reveal">
-                    <img src="https://via.placeholder.com/250x350/60a5fa/ffffff?text=Romance" alt="Book Cover" class="book-cover">
-                    <div class="book-details">
-                        <div class="book-category">Romance</div>
-                        <h3 class="book-title">Hujan Bulan Juni</h3>
-                        <p class="book-author">Sapardi Djoko Damono</p>
-                        <div class="book-footer">
-                            <div class="book-price">Rp 75.000</div>
-                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
-                                <i class="fas fa-cart-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sample Book Card 4 -->
-                <div class="book-card reveal">
-                    <img src="https://via.placeholder.com/250x350/0ea5e9/ffffff?text=Motivasi" alt="Book Cover" class="book-cover">
-                    <div class="book-details">
-                        <div class="book-category">Motivasi</div>
-                        <h3 class="book-title">Atomic Habits</h3>
-                        <p class="book-author">James Clear</p>
-                        <div class="book-footer">
-                            <div class="book-price">Rp 98.000</div>
-                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
-                                <i class="fas fa-cart-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sample Book Card 5 -->
-                <div class="book-card reveal">
-                    <img src="https://via.placeholder.com/250x350/1e3a8a/ffffff?text=Sejarah" alt="Book Cover" class="book-cover">
-                    <div class="book-details">
-                        <div class="book-category">Sejarah</div>
-                        <h3 class="book-title">Sapiens: Riwayat Singkat Umat Manusia</h3>
-                        <p class="book-author">Yuval Noah Harari</p>
-                        <div class="book-footer">
-                            <div class="book-price">Rp 135.000</div>
-                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
-                                <i class="fas fa-cart-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sample Book Card 6 -->
-                <div class="book-card reveal">
-                    <img src="https://via.placeholder.com/250x350/3b82f6/ffffff?text=Bisnis" alt="Book Cover" class="book-cover">
-                    <div class="book-details">
-                        <div class="book-category">Bisnis</div>
-                        <h3 class="book-title">Rich Dad Poor Dad</h3>
-                        <p class="book-author">Robert T. Kiyosaki</p>
-                        <div class="book-footer">
-                            <div class="book-price">Rp 110.000</div>
-                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
-                                <i class="fas fa-cart-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sample Book Card 7 -->
-                <div class="book-card reveal">
-                    <img src="https://via.placeholder.com/250x350/60a5fa/ffffff?text=Teknologi" alt="Book Cover" class="book-cover">
-                    <div class="book-details">
-                        <div class="book-category">Teknologi</div>
-                        <h3 class="book-title">AI Artificial Intelligence</h3>
-                        <p class="book-author">Stuart Russell</p>
-                        <div class="book-footer">
-                            <div class="book-price">Rp 145.000</div>
-                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
-                                <i class="fas fa-cart-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sample Book Card 8 -->
-                <div class="book-card reveal">
-                    <img src="https://via.placeholder.com/250x350/0ea5e9/ffffff?text=Sastra" alt="Book Cover" class="book-cover">
-                    <div class="book-details">
-                        <div class="book-category">Sastra</div>
-                        <h3 class="book-title">Bumi Manusia</h3>
-                        <p class="book-author">Pramoedya Ananta Toer</p>
-                        <div class="book-footer">
-                            <div class="book-price">Rp 95.000</div>
-                            <button class="book-btn guest-cart-btn" onclick="handleGuestCart()">
-                                <i class="fas fa-cart-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                @endforelse
             </div>
 
             <div style="text-align: center; margin-top: 60px;">

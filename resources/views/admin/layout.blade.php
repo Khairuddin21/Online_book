@@ -53,12 +53,6 @@
                         Pesan Kontak
                     </a>
                 </li>
-                <li>
-                    <a href="{{ route('admin.laporan') }}" class="{{ request()->routeIs('admin.laporan') ? 'active' : '' }}">
-                        <i class="fas fa-chart-bar"></i>
-                        Laporan
-                    </a>
-                </li>
             </ul>
         </nav>
     </aside>

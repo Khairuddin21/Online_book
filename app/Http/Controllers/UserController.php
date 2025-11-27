@@ -21,10 +21,10 @@ class UserController extends Controller
      */
     public function home()
     {
-        // Get latest books (limit to 8 for homepage) - order by id_buku since no timestamps
+        // Get latest books (limit to 10 for homepage) - order by id_buku since no timestamps
         $books = Buku::with('kategori')
             ->orderBy('id_buku', 'desc')
-            ->take(8)
+            ->take(10)
             ->get();
         
         // Get all categories with book count
