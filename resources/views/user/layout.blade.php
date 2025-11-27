@@ -47,11 +47,11 @@
                     <span class="cart-badge">0</span>
                 </a>
 
-                <div class="user-menu">
-                    <button class="btn btn-outline">
+                <div class="user-menu" aria-haspopup="true" aria-expanded="false">
+                    <button class="btn btn-outline" type="button" id="userMenuButton">
                         <i class="fas fa-user"></i> {{ Auth::user()->nama }}
                     </button>
-                    <div class="dropdown">
+                    <div class="dropdown" role="menu" aria-labelledby="userMenuButton">
                         <a href="{{ route('user.profile') }}">Profil</a>
                         <a href="{{ route('user.orders') }}">Pesanan</a>
                         <form action="{{ route('logout') }}" method="POST">

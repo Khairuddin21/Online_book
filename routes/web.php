@@ -2,11 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
 
 // Landing Page
 Route::get('/', function () {
     return view('landing');
 })->name('home');
+
+// About Page
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
 
 // Auth Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -44,16 +50,19 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/laporan', function () {})->name('admin.laporan');
 });
 
-// User Routes (Placeholder)
+// User Routes
 Route::middleware(['auth', 'user'])->group(function () {
-    Route::get('/home', function () {
-        return view('user.home');
-    })->name('user.home');
+    Route::get('/home', [UserController::class, 'home'])->name('user.home');
+    Route::get('/books', [UserController::class, 'books'])->name('user.books');
+    Route::get('/categories', [UserController::class, 'categories'])->name('user.categories');
+    Route::get('/cart', [UserController::class, 'cart'])->name('user.cart');
+    Route::get('/orders', [UserController::class, 'orders'])->name('user.orders');
+    Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
+    Route::get('/contact', [UserController::class, 'contact'])->name('user.contact');
     
-    Route::get('/books', function () {})->name('user.books');
-    Route::get('/categories', function () {})->name('user.categories');
-    Route::get('/cart', function () {})->name('user.cart');
-    Route::get('/orders', function () {})->name('user.orders');
-    Route::get('/profile', function () {})->name('user.profile');
-    Route::get('/contact', function () {})->name('user.contact');
+    // Cart API Routes
+    Route::post('/api/cart/add', [UserController::class, 'addToCart'])->name('api.cart.add');
+    Route::get('/api/cart/count', [UserController::class, 'getCartCount'])->name('api.cart.count');
+    Route::post('/api/cart/update', [UserController::class, 'updateCart'])->name('api.cart.update');
+    Route::delete('/api/cart/delete/{id}', [UserController::class, 'removeFromCart'])->name('api.cart.delete');
 });
