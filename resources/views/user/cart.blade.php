@@ -81,9 +81,9 @@
                 <span>Total:</span>
                 <span id="total-price">Rp {{ number_format($total, 0, ',', '.') }}</span>
             </div>
-            <button class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 20px;">
+            <a href="{{ route('user.checkout') }}" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 20px; text-align: center; text-decoration: none; display: block;">
                 <i class="fas fa-shopping-bag"></i> Checkout
-            </button>
+            </a>
             <a href="{{ route('user.books') }}" class="btn btn-accent" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 10px; text-align: center; display: block; text-decoration: none;">
                 <i class="fas fa-arrow-left"></i> Lanjut Belanja
             </a>

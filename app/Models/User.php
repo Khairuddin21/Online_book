@@ -75,4 +75,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Pesanan::class, 'id_user', 'id_user');
     }
+
+    /**
+     * Get all shipping addresses for this user
+     */
+    public function alamatPengiriman(): HasMany
+    {
+        return $this->hasMany(AlamatPengiriman::class, 'id_user', 'id_user');
+    }
 }

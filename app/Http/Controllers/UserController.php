@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\Buku;
 use App\Models\KategoriBuku;
 use App\Models\Keranjang;
+use App\Models\Pesanan;
+use App\Models\PesananDetail;
+use App\Models\Pembayaran;
+use App\Models\AlamatPengiriman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -297,5 +301,278 @@ class UserController extends Controller
     public function contact()
     {
         return view('user.contact');
+    }
+    
+    /**
+     * Show checkout page with address form
+     */
+    public function showCheckout()
+    {
+        $cartItems = Keranjang::where('id_user', Auth::id())
+            ->with('buku')
+            ->get();
+        
+        if ($cartItems->count() === 0) {
+            return redirect()->route('user.cart')
+                ->with('error', 'Keranjang Anda kosong');
+        }
+        
+        $total = $cartItems->sum(function($item) {
+            return $item->buku->harga * $item->qty;
+        });
+        
+        $user = Auth::user();
+        $addresses = AlamatPengiriman::where('id_user', Auth::id())
+            ->orderBy('is_default', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('user.checkout', compact('cartItems', 'total', 'user', 'addresses'));
+    }
+    
+    /**
+     * Process checkout and create order
+     */
+    public function processCheckout(Request $request)
+    {
+        $request->validate([
+            'id_alamat' => 'required|exists:alamat_pengiriman,id_alamat',
+        ], [
+            'id_alamat.required' => 'Pilih alamat pengiriman',
+            'id_alamat.exists' => 'Alamat tidak valid',
+        ]);
+        
+        DB::beginTransaction();
+        
+        try {
+            $userId = Auth::id();
+            
+            // Verify address belongs to user
+            $alamat = AlamatPengiriman::where('id_alamat', $request->id_alamat)
+                ->where('id_user', $userId)
+                ->firstOrFail();
+            
+            // Get cart items
+            $cartItems = Keranjang::where('id_user', $userId)
+                ->with('buku')
+                ->lockForUpdate()
+                ->get();
+            
+            if ($cartItems->count() === 0) {
+                DB::rollBack();
+                return redirect()->route('user.cart')
+                    ->with('error', 'Keranjang Anda kosong');
+            }
+            
+            // Calculate total
+            $total = $cartItems->sum(function($item) {
+                return $item->buku->harga * $item->qty;
+            });
+            
+            // Create order
+            $pesanan = Pesanan::create([
+                'id_user' => $userId,
+                'tanggal_pesanan' => now(),
+                'total_harga' => $total,
+                'status' => 'menunggu',
+            ]);
+            
+            // Create order details and reduce stock
+            foreach ($cartItems as $item) {
+                // Check stock availability
+                if ($item->buku->stok < $item->qty) {
+                    DB::rollBack();
+                    return redirect()->route('user.cart')
+                        ->with('error', "Stok {$item->buku->judul} tidak mencukupi");
+                }
+                
+                // Create order detail
+                PesananDetail::create([
+                    'id_pesanan' => $pesanan->id_pesanan,
+                    'id_buku' => $item->id_buku,
+                    'qty' => $item->qty,
+                    'harga' => $item->buku->harga,
+                ]);
+                
+                // Reduce stock
+                $item->buku->decrement('stok', $item->qty);
+            }
+            
+            // Clear cart
+            Keranjang::where('id_user', $userId)->delete();
+            
+            DB::commit();
+            
+            return redirect()->route('user.payment', $pesanan->id_pesanan)
+                ->with('success', 'Pesanan berhasil dibuat. Silakan lakukan pembayaran.');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+    
+    /**
+     * Show payment page
+     */
+    public function showPayment($orderId)
+    {
+        $pesanan = Pesanan::with(['details.buku', 'user'])
+            ->where('id_pesanan', $orderId)
+            ->where('id_user', Auth::id())
+            ->firstOrFail();
+        
+        return view('user.payment', compact('pesanan'));
+    }
+    
+    /**
+     * Process payment
+     */
+    public function processPayment(Request $request, $orderId)
+    {
+        $request->validate([
+            'metode_pembayaran' => 'required|in:transfer,e-wallet,kartu_kredit',
+        ]);
+        
+        DB::beginTransaction();
+        
+        try {
+            $pesanan = Pesanan::where('id_pesanan', $orderId)
+                ->where('id_user', Auth::id())
+                ->firstOrFail();
+            
+            // Create payment record
+            Pembayaran::create([
+                'id_pesanan' => $orderId,
+                'metode_pembayaran' => $request->metode_pembayaran,
+                'status_pembayaran' => 'menunggu',
+            ]);
+            
+            // Update order status
+            $pesanan->update(['status' => 'menunggu']);
+            
+            DB::commit();
+            
+            return redirect()->route('user.orders')
+                ->with('success', 'Pembayaran berhasil diproses. Silakan tunggu konfirmasi.');
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+    
+    /**
+     * Store new shipping address
+     */
+    public function storeAddress(Request $request)
+    {
+        $request->validate([
+            'label' => 'required|string|max:50',
+            'nama_penerima' => 'required|string|max:150',
+            'no_hp' => 'required|string|max:20',
+            'alamat_lengkap' => 'required|string',
+        ]);
+        
+        DB::beginTransaction();
+        
+        try {
+            // If this is set as default, unset other defaults
+            if ($request->has('is_default') && $request->is_default) {
+                AlamatPengiriman::where('id_user', Auth::id())
+                    ->update(['is_default' => false]);
+            }
+            
+            AlamatPengiriman::create([
+                'id_user' => Auth::id(),
+                'label' => $request->label,
+                'nama_penerima' => $request->nama_penerima,
+                'no_hp' => $request->no_hp,
+                'alamat_lengkap' => $request->alamat_lengkap,
+                'is_default' => $request->has('is_default') ? true : false,
+            ]);
+            
+            DB::commit();
+            
+            return redirect()->back()
+                ->with('success', 'Alamat berhasil ditambahkan');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Gagal menambahkan alamat: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+    
+    /**
+     * Update shipping address
+     */
+    public function updateAddress(Request $request, $id)
+    {
+        $request->validate([
+            'label' => 'required|string|max:50',
+            'nama_penerima' => 'required|string|max:150',
+            'no_hp' => 'required|string|max:20',
+            'alamat_lengkap' => 'required|string',
+        ]);
+        
+        DB::beginTransaction();
+        
+        try {
+            $address = AlamatPengiriman::where('id_alamat', $id)
+                ->where('id_user', Auth::id())
+                ->firstOrFail();
+            
+            // If this is set as default, unset other defaults
+            if ($request->has('is_default') && $request->is_default) {
+                AlamatPengiriman::where('id_user', Auth::id())
+                    ->where('id_alamat', '!=', $id)
+                    ->update(['is_default' => false]);
+            }
+            
+            $address->update([
+                'label' => $request->label,
+                'nama_penerima' => $request->nama_penerima,
+                'no_hp' => $request->no_hp,
+                'alamat_lengkap' => $request->alamat_lengkap,
+                'is_default' => $request->has('is_default') ? true : false,
+            ]);
+            
+            DB::commit();
+            
+            return redirect()->back()
+                ->with('success', 'Alamat berhasil diperbarui');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Gagal memperbarui alamat: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+    
+    /**
+     * Delete shipping address
+     */
+    public function deleteAddress($id)
+    {
+        try {
+            $address = AlamatPengiriman::where('id_alamat', $id)
+                ->where('id_user', Auth::id())
+                ->firstOrFail();
+            
+            $address->delete();
+            
+            return redirect()->back()
+                ->with('success', 'Alamat berhasil dihapus');
+                
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menghapus alamat: ' . $e->getMessage());
+        }
     }
 }

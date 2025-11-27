@@ -60,6 +60,17 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
     Route::get('/contact', [UserController::class, 'contact'])->name('user.contact');
     
+    // Checkout & Payment Routes
+    Route::get('/checkout', [UserController::class, 'showCheckout'])->name('user.checkout');
+    Route::post('/checkout/process', [UserController::class, 'processCheckout'])->name('user.checkout.process');
+    Route::get('/payment/{order_id}', [UserController::class, 'showPayment'])->name('user.payment');
+    Route::post('/payment/{order_id}/process', [UserController::class, 'processPayment'])->name('user.payment.process');
+    
+    // Address Management Routes
+    Route::post('/address/store', [UserController::class, 'storeAddress'])->name('user.address.store');
+    Route::post('/address/update/{id}', [UserController::class, 'updateAddress'])->name('user.address.update');
+    Route::delete('/address/delete/{id}', [UserController::class, 'deleteAddress'])->name('user.address.delete');
+    
     // Cart API Routes
     Route::post('/api/cart/add', [UserController::class, 'addToCart'])->name('api.cart.add');
     Route::get('/api/cart/count', [UserController::class, 'getCartCount'])->name('api.cart.count');
