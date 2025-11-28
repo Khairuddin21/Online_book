@@ -8,6 +8,7 @@
     max-width: 1000px;
     margin: 40px auto;
     padding: 0 20px;
+    min-height: calc(100vh - 200px);
 }
 
 .inbox-header {
@@ -41,6 +42,7 @@
     border-radius: 0 0 15px 15px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     overflow: hidden;
+    min-height: 400px;
 }
 
 .inbox-empty {
@@ -144,7 +146,7 @@
 }
 
 .message-body.active {
-    max-height: 1000px;
+    max-height: fit-content;
 }
 
 .message-content {
