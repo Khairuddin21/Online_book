@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var autoRotateId = null;
 
         function updateTransform() {
-            bookStack.style.transform = 'rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+            bookStack.style.transform = 'rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) scale(1.35)';
         }
 
         function onPointerDown(e) {
@@ -108,9 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
             previousX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
             previousY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
             bookStack.classList.add('dragging');
-            // Hide hint on first interaction
-            var hint = bookScene.querySelector('.book3d-hint');
-            if (hint) hint.style.opacity = '0';
         }
 
         function onPointerMove(e) {

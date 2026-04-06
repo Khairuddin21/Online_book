@@ -112,9 +112,7 @@
                             <div class="book3d-face book3d-bottom"></div>
                         </div>
                     </div>
-                    <div class="book3d-hint">
-                        <i class="fas fa-hand-pointer"></i> Drag to rotate
-                    </div>
+
                 </div>
             </div>
         </div>
