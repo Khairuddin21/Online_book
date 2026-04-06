@@ -74,17 +74,16 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.zIndex = '1';
             this.style.transform = '';
         });
-        
+
         card.addEventListener('mousemove', function(e) {
             const rect = this.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
-            const rotateY = ((x - centerX) / centerX) * -12;
-            const rotateX = ((y - centerY) / centerY) * 8;
-            
-            this.style.transform = 'rotateY(' + rotateY + 'deg) rotateX(' + rotateX + 'deg) translateY(-12px) scale(1.02)';
+            const rotateY = ((x - centerX) / centerX) * 8;
+            const rotateX = ((y - centerY) / centerY) * -6;
+            this.style.transform = 'rotateY(' + rotateY + 'deg) rotateX(' + rotateX + 'deg) translateY(-8px) scale(1.02)';
         });
     });
 

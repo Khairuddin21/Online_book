@@ -630,87 +630,37 @@ body {
     margin-top: 50px;
 }
 
-/* 3D BOOK CARDS */
+/* BOOK CARDS */
 .books-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 30px;
     margin-top: 50px;
-    perspective: 1200px;
+    perspective: 1000px;
 }
 
 .book-card {
     background: #fff;
     border-radius: 16px;
-    overflow: visible;
+    overflow: hidden;
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.15s ease, box-shadow 0.35s ease;
     border: 1px solid rgba(0, 0, 0, 0.04);
     transform-style: preserve-3d;
     position: relative;
 }
 
-.book-card::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: -4px;
-    width: 8px;
-    height: calc(100% - 16px);
-    background: linear-gradient(to right, #c9b99a, #e0d5c0, #d4c8ae);
-    border-radius: 3px 0 0 3px;
-    transform: rotateY(-30deg);
-    transform-origin: right center;
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: -1;
-}
-
-.book-card::after {
-    content: '';
-    position: absolute;
-    top: 4px;
-    right: -3px;
-    width: 6px;
-    height: calc(100% - 8px);
-    background: linear-gradient(to left, 
-        #f5f0e8 0%, 
-        #e8e2d8 20%, 
-        #f0ebe3 40%, 
-        #e8e2d8 60%, 
-        #f5f0e8 80%, 
-        #e8e2d8 100%);
-    background-size: 6px 4px;
-    border-radius: 0 2px 2px 0;
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: -1;
-}
-
 .book-card:hover {
-    transform: rotateY(-8deg) rotateX(4deg) translateY(-12px) scale(1.02);
-    box-shadow: 
-        15px 15px 30px rgba(0, 0, 0, 0.12),
-        5px 5px 15px rgba(0, 0, 0, 0.08),
-        inset -2px 0 4px rgba(0, 0, 0, 0.02);
-}
-
-.book-card:hover::before {
-    opacity: 1;
-    transform: rotateY(-20deg);
-}
-
-.book-card:hover::after {
-    opacity: 1;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
 }
 
 .book-card .book-cover {
-    transition: all 0.4s ease;
-    border-radius: 16px 16px 0 0;
+    transition: transform 0.35s ease, filter 0.35s ease;
 }
 
 .book-card:hover .book-cover {
-    filter: brightness(1.03) saturate(1.1);
+    transform: scale(1.03);
+    filter: brightness(1.03) saturate(1.05);
 }
 
 .book-cover {
