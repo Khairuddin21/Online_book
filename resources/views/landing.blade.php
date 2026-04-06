@@ -28,7 +28,6 @@
             <ul class="navbar-menu">
                 <li><a href="#home">Book Types</a></li>
                 <li><a href="#books">Recommendations</a></li>
-                <li><a href="#features">Popular</a></li>
                 <li><a href="#about">About Us</a></li>
             </ul>
 
@@ -52,22 +51,32 @@
             </div>
 
             <div class="hero-image">
-                <!-- Floating geometric icons -->
+                <!-- Floating decorative icons -->
                 <div class="floating-icon icon-idea">
-                    <i class="fas fa-lightbulb"></i>
+                    <i class="fas fa-book"></i>
                 </div>
                 <div class="floating-icon icon-medal">
-                    <i class="fas fa-award"></i>
+                    <i class="fas fa-globe-americas"></i>
                 </div>
                 <div class="floating-icon icon-target">
-                    <i class="fas fa-bullseye"></i>
+                    <i class="fas fa-mug-hot"></i>
                 </div>
                 
                 <!-- 3D Book Stack -->
                 <div class="book3d-scene" id="book3dScene">
                     <div class="book3d-stack" id="book3dStack">
+                        <!-- Wooden Shelf -->
+                        <div class="shelf3d">
+                            <div class="shelf3d-face shelf3d-top"></div>
+                            <div class="shelf3d-face shelf3d-bottom"></div>
+                            <div class="shelf3d-face shelf3d-front"></div>
+                            <div class="shelf3d-face shelf3d-back"></div>
+                            <div class="shelf3d-face shelf3d-left"></div>
+                            <div class="shelf3d-face shelf3d-right"></div>
+                        </div>
+
                         <!-- Book 5 (bottom) - Teal -->
-                        <div class="book3d" style="--book-color: #2a9d8f; --book-color-dark: #1f7a6e; --book-pages: #f5f0e8; --book-height: 36px; --book-width: 180px; --book-depth: 130px; transform: translateY(0px);">
+                        <div class="book3d" style="--book-color: #2a9d8f; --book-color-dark: #1f7a6e; --book-pages: #f5f0e8; --book-height: 36px; --book-width: 180px; --book-depth: 130px; transform: translateY(-10px);">
                             <div class="book3d-face book3d-front"></div>
                             <div class="book3d-face book3d-back"></div>
                             <div class="book3d-face book3d-spine"></div>
@@ -76,7 +85,7 @@
                             <div class="book3d-face book3d-bottom"></div>
                         </div>
                         <!-- Book 4 - Gold -->
-                        <div class="book3d" style="--book-color: #e9b44c; --book-color-dark: #c89a3a; --book-pages: #f8f3ea; --book-height: 34px; --book-width: 170px; --book-depth: 125px; transform: translateY(-36px) rotateY(6deg);">
+                        <div class="book3d" style="--book-color: #e9b44c; --book-color-dark: #c89a3a; --book-pages: #f8f3ea; --book-height: 34px; --book-width: 170px; --book-depth: 125px; transform: translateY(-46px) rotateY(6deg);">
                             <div class="book3d-face book3d-front"></div>
                             <div class="book3d-face book3d-back"></div>
                             <div class="book3d-face book3d-spine"></div>
@@ -85,7 +94,7 @@
                             <div class="book3d-face book3d-bottom"></div>
                         </div>
                         <!-- Book 3 - Pink -->
-                        <div class="book3d" style="--book-color: #e8a0bf; --book-color-dark: #d18aaa; --book-pages: #faf5f8; --book-height: 30px; --book-width: 165px; --book-depth: 120px; transform: translateY(-70px) rotateY(-4deg);">
+                        <div class="book3d" style="--book-color: #e8a0bf; --book-color-dark: #d18aaa; --book-pages: #faf5f8; --book-height: 30px; --book-width: 165px; --book-depth: 120px; transform: translateY(-80px) rotateY(-4deg);">
                             <div class="book3d-face book3d-front"></div>
                             <div class="book3d-face book3d-back"></div>
                             <div class="book3d-face book3d-spine"></div>
@@ -94,7 +103,7 @@
                             <div class="book3d-face book3d-bottom"></div>
                         </div>
                         <!-- Book 2 - Red/Coral -->
-                        <div class="book3d" style="--book-color: #e07a5f; --book-color-dark: #c4654a; --book-pages: #f5f0e8; --book-height: 28px; --book-width: 160px; --book-depth: 118px; transform: translateY(-100px) rotateY(3deg);">
+                        <div class="book3d" style="--book-color: #e07a5f; --book-color-dark: #c4654a; --book-pages: #f5f0e8; --book-height: 28px; --book-width: 160px; --book-depth: 118px; transform: translateY(-110px) rotateY(3deg);">
                             <div class="book3d-face book3d-front"></div>
                             <div class="book3d-face book3d-back"></div>
                             <div class="book3d-face book3d-spine"></div>
@@ -103,13 +112,31 @@
                             <div class="book3d-face book3d-bottom"></div>
                         </div>
                         <!-- Book 1 (top) - Blue -->
-                        <div class="book3d" style="--book-color: #3d5a80; --book-color-dark: #2c4360; --book-pages: #f0ece4; --book-height: 32px; --book-width: 168px; --book-depth: 122px; transform: translateY(-128px) rotateY(-3deg);">
+                        <div class="book3d" style="--book-color: #3d5a80; --book-color-dark: #2c4360; --book-pages: #f0ece4; --book-height: 32px; --book-width: 168px; --book-depth: 122px; transform: translateY(-138px) rotateY(-3deg);">
                             <div class="book3d-face book3d-front"></div>
                             <div class="book3d-face book3d-back"></div>
                             <div class="book3d-face book3d-spine"></div>
                             <div class="book3d-face book3d-edge"></div>
                             <div class="book3d-face book3d-top"></div>
                             <div class="book3d-face book3d-bottom"></div>
+                        </div>
+
+                        <!-- Standing books (right side) -->
+                        <div class="standing-book" style="--sb-color: #6b4226; --sb-color-dark: #4a2e1a; --sb-pages: #e8d8c4; --sb-h: 90px; --sb-w: 14px; --sb-d: 60px; transform: translateX(110px) translateY(-10px) translateZ(5px);">
+                            <div class="book3d-face sb-front"></div>
+                            <div class="book3d-face sb-back"></div>
+                            <div class="book3d-face sb-spine"></div>
+                            <div class="book3d-face sb-edge"></div>
+                            <div class="book3d-face sb-top"></div>
+                            <div class="book3d-face sb-bottom"></div>
+                        </div>
+                        <div class="standing-book" style="--sb-color: #7a4f2e; --sb-color-dark: #553520; --sb-pages: #ede0cc; --sb-h: 82px; --sb-w: 12px; --sb-d: 55px; transform: translateX(126px) translateY(-10px) translateZ(5px);">
+                            <div class="book3d-face sb-front"></div>
+                            <div class="book3d-face sb-back"></div>
+                            <div class="book3d-face sb-spine"></div>
+                            <div class="book3d-face sb-edge"></div>
+                            <div class="book3d-face sb-top"></div>
+                            <div class="book3d-face sb-bottom"></div>
                         </div>
                     </div>
 
@@ -361,7 +388,6 @@
                 <ul>
                     <li><a href="#home">Book Types</a></li>
                     <li><a href="#books">Recommendations</a></li>
-                    <li><a href="#features">Popular</a></li>
                     <li><a href="#about">About</a></li>
                 </ul>
             </div>

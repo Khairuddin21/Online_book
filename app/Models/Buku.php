@@ -53,4 +53,14 @@ class Buku extends Model
     {
         return $this->hasMany(PesananDetail::class, 'id_buku', 'id_buku');
     }
+
+    public function favorit(): HasMany
+    {
+        return $this->hasMany(FavoritBuku::class, 'id_buku', 'id_buku');
+    }
+
+    public function ulasan(): HasMany
+    {
+        return $this->hasMany(UlasanBuku::class, 'id_buku', 'id_buku');
+    }
 }

@@ -3,11 +3,40 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Mobile menu toggle
     const menuToggle = document.getElementById('menuToggle');
-    const navbarMenu = document.querySelector('.navbar-menu');
+    const mainNavbar = document.getElementById('mainNavbar');
+    const navMenu = document.getElementById('navMenu');
     
-    if (menuToggle) {
+    if (menuToggle && navMenu) {
         menuToggle.addEventListener('click', function() {
-            navbarMenu.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            const icon = this.querySelector('i');
+            if (icon) {
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            }
+        });
+
+        // Close mobile menu when clicking a nav link
+        navMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                if (icon) {
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                }
+            });
+        });
+    }
+
+    // Navbar scroll effect
+    if (mainNavbar) {
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 20) {
+                mainNavbar.classList.add('scrolled');
+            } else {
+                mainNavbar.classList.remove('scrolled');
+            }
         });
     }
 
@@ -19,8 +48,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.addEventListener('click', handleAddToCart);
 
     // Search functionality
-    const searchInput = document.querySelector('.navbar-search input');
-    const searchButton = document.querySelector('.navbar-search button');
+    const searchInput = document.getElementById('navSearchInput');
+    const searchButton = document.getElementById('navSearchBtn');
     
     if (searchInput) {
         searchInput.addEventListener('keypress', function(e) {
@@ -161,7 +190,7 @@ function addToCart(bookId, buttonElement) {
         if (data.success) {
             // Success state
             buttonElement.innerHTML = '<i class="fas fa-check"></i> Ditambahkan!';
-            buttonElement.style.background = 'var(--user-success)';
+            buttonElement.style.background = 'var(--green-dark)';
             showNotification('Buku berhasil ditambahkan ke keranjang!', 'success');
             updateCartBadge();
             
@@ -240,10 +269,10 @@ function showNotification(message, type = 'info') {
     };
     
     const colors = {
-        success: '#2ecc71',
+        success: '#6b9e65',
         error: '#e74c3c',
         warning: '#f39c12',
-        info: '#3498db'
+        info: '#a8d5a2'
     };
     
     notification.innerHTML = `
@@ -258,8 +287,9 @@ function showNotification(message, type = 'info') {
         padding: 15px 25px;
         background: ${colors[type] || colors.info};
         color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        font-family: 'Inter', sans-serif;
         z-index: 10000;
         display: flex;
         align-items: center;
@@ -330,6 +360,34 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Books Carousel
+(function() {
+    const carousel = document.getElementById('booksCarousel');
+    const prevBtn = document.getElementById('booksCarouselPrev');
+    const nextBtn = document.getElementById('booksCarouselNext');
+    if (!carousel || !prevBtn || !nextBtn) return;
+
+    const scrollAmount = 420; // ~2 cards per click
+
+    function updateButtons() {
+        prevBtn.style.opacity = carousel.scrollLeft <= 10 ? '0' : '1';
+        prevBtn.style.pointerEvents = carousel.scrollLeft <= 10 ? 'none' : 'auto';
+        const maxScroll = carousel.scrollWidth - carousel.clientWidth - 10;
+        nextBtn.style.opacity = carousel.scrollLeft >= maxScroll ? '0' : '1';
+        nextBtn.style.pointerEvents = carousel.scrollLeft >= maxScroll ? 'none' : 'auto';
+    }
+
+    nextBtn.addEventListener('click', () => {
+        carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+    prevBtn.addEventListener('click', () => {
+        carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
+
+    carousel.addEventListener('scroll', updateButtons);
+    updateButtons();
+})();
 
 // Promotional Banners Slider
 (function() {

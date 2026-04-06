@@ -550,6 +550,7 @@ body {
     transition: all 0.2s ease;
     color: var(--gray-600);
     font-size: 18px;
+    text-decoration: none;
 }
 
 .btn-social:hover {

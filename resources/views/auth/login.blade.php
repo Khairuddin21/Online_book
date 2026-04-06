@@ -1,4 +1,4 @@
-@extends('auth.layout')
+﻿@extends('auth.layout')
 
 @section('title', 'Login')
 
@@ -101,15 +101,9 @@
                 </div>
 
                 <div class="social-login">
-                    <button type="button" class="btn-social">
-                        <i class="fab fa-behance"></i>
-                    </button>
-                    <button type="button" class="btn-social">
+                    <a href="{{ route('auth.google') }}" class="btn-social">
                         <i class="fab fa-google"></i>
-                    </button>
-                    <button type="button" class="btn-social">
-                        <i class="fab fa-facebook-f"></i>
-                    </button>
+                    </a>
                 </div>
 
                 <div class="auth-footer">

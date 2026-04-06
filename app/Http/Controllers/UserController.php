@@ -10,6 +10,8 @@ use App\Models\PesananDetail;
 use App\Models\Pembayaran;
 use App\Models\AlamatPengiriman;
 use App\Models\PesanKontak;
+use App\Models\FavoritBuku;
+use App\Models\UlasanBuku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -61,6 +63,84 @@ class UserController extends Controller
         $categories = KategoriBuku::withCount('buku')->get();
         
         return view('user.books', compact('books', 'categories'));
+    }
+    
+    /**
+     * Display book detail page
+     */
+    public function bookDetail($id)
+    {
+        $book = Buku::with(['kategori', 'ulasan.user'])->findOrFail($id);
+        
+        $isFavorited = FavoritBuku::where('id_user', Auth::id())
+            ->where('id_buku', $id)
+            ->exists();
+        
+        $avgRating = $book->ulasan->avg('rating') ?? 0;
+        $reviewCount = $book->ulasan->count();
+        
+        $userReview = UlasanBuku::where('id_user', Auth::id())
+            ->where('id_buku', $id)
+            ->first();
+        
+        // Related books from same category
+        $relatedBooks = Buku::where('id_kategori', $book->id_kategori)
+            ->where('id_buku', '!=', $book->id_buku)
+            ->take(6)
+            ->get();
+        
+        return view('user.book-detail', compact(
+            'book', 'isFavorited', 'avgRating', 'reviewCount', 'userReview', 'relatedBooks'
+        ));
+    }
+    
+    /**
+     * Toggle book favorite
+     */
+    public function toggleFavorite($id)
+    {
+        $userId = Auth::id();
+        $existing = FavoritBuku::where('id_user', $userId)->where('id_buku', $id)->first();
+        
+        if ($existing) {
+            $existing->delete();
+            return response()->json(['success' => true, 'favorited' => false, 'message' => 'Buku dihapus dari favorit']);
+        }
+        
+        FavoritBuku::create(['id_user' => $userId, 'id_buku' => $id]);
+        return response()->json(['success' => true, 'favorited' => true, 'message' => 'Buku ditambahkan ke favorit']);
+    }
+    
+    /**
+     * Submit book review
+     */
+    public function submitReview(Request $request, $id)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'komentar' => 'nullable|string|max:1000',
+        ]);
+        
+        $userId = Auth::id();
+        
+        // Check if user already reviewed this book
+        $existing = UlasanBuku::where('id_user', $userId)->where('id_buku', $id)->first();
+        if ($existing) {
+            $existing->update([
+                'rating' => $request->rating,
+                'komentar' => $request->komentar,
+            ]);
+            return back()->with('success', 'Ulasan berhasil diperbarui!');
+        }
+        
+        UlasanBuku::create([
+            'id_user' => $userId,
+            'id_buku' => $id,
+            'rating' => $request->rating,
+            'komentar' => $request->komentar,
+        ]);
+        
+        return back()->with('success', 'Ulasan berhasil ditambahkan!');
     }
     
     /**

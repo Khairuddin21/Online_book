@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\FavoritBuku;
+use App\Models\UlasanBuku;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
@@ -74,6 +76,16 @@ class User extends Authenticatable
     public function pesanan(): HasMany
     {
         return $this->hasMany(Pesanan::class, 'id_user', 'id_user');
+    }
+
+    public function favorit(): HasMany
+    {
+        return $this->hasMany(FavoritBuku::class, 'id_user', 'id_user');
+    }
+
+    public function ulasan(): HasMany
+    {
+        return $this->hasMany(UlasanBuku::class, 'id_user', 'id_user');
     }
 
     /**

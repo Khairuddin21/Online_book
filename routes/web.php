@@ -26,6 +26,10 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Google OAuth
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/callback/google', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+
 // Admin Routes
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -79,6 +83,11 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/inbox', [UserController::class, 'inbox'])->name('user.inbox');
     Route::get('/contact', [UserController::class, 'contact'])->name('user.contact');
     Route::post('/contact/submit', [UserController::class, 'submitContact'])->name('user.contact.submit');
+    
+    // Book Detail & Related
+    Route::get('/book/{id}', [UserController::class, 'bookDetail'])->name('user.book.detail');
+    Route::post('/book/{id}/favorite', [UserController::class, 'toggleFavorite'])->name('user.book.favorite');
+    Route::post('/book/{id}/review', [UserController::class, 'submitReview'])->name('user.book.review');
     
     // Checkout & Payment Routes
     Route::get('/checkout', [UserController::class, 'showCheckout'])->name('user.checkout');

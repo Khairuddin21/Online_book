@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -91,27 +93,16 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|min:3|max:150',
             'email' => 'required|email|unique:users,email|max:255',
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'confirmed',
-                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/'
-            ],
-            'terms' => 'required|accepted',
+            'password' => 'required|string|min:6|confirmed',
         ], [
             'nama.required' => 'Nama lengkap wajib diisi.',
             'nama.min' => 'Nama minimal 3 karakter.',
-            'nama.max' => 'Nama maksimal 150 karakter.',
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah terdaftar. Silakan gunakan email lain.',
             'password.required' => 'Kata sandi wajib diisi.',
-            'password.min' => 'Kata sandi minimal 8 karakter.',
+            'password.min' => 'Kata sandi minimal 6 karakter.',
             'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
-            'password.regex' => 'Kata sandi harus mengandung huruf kapital, huruf kecil, angka, dan simbol.',
-            'terms.required' => 'Anda harus menyetujui syarat dan ketentuan.',
-            'terms.accepted' => 'Anda harus menyetujui syarat dan ketentuan.',
         ]);
 
         if ($validator->fails()) {
@@ -178,4 +169,36 @@ class AuthController extends Controller
 
         return redirect()->route('user.home');
     }
+
+    // ===== GOOGLE OAUTH =====
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $socialUser = Socialite::driver('google')->user();
+        } catch (\Exception $e) {
+            return redirect()->route('login')->with('error', 'Login dengan Google gagal. Silakan coba lagi.');
+        }
+
+        $user = User::where('email', $socialUser->getEmail())->first();
+
+        if (!$user) {
+            $user = User::create([
+                'nama'     => $socialUser->getName(),
+                'email'    => $socialUser->getEmail(),
+                'password' => Hash::make(Str::random(24)),
+                'role'     => 'user',
+            ]);
+        }
+
+        Auth::login($user, true);
+        request()->session()->regenerate();
+
+        return $this->redirectBasedOnRole();
+    }
+
 }
