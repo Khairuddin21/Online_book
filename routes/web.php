@@ -14,9 +14,9 @@ Route::get('/', function () {
     return view('landing', compact('books'));
 })->name('home');
 
-// About Page
+// About Page - redirect to landing page about section
 Route::get('/about', function () {
-    return view('about');
+    return redirect('/#about');
 })->name('about');
 
 // Auth Routes

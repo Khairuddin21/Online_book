@@ -8,43 +8,26 @@
         <i class="fas fa-times"></i>
     </a>
     <div class="auth-wrapper">
-        <!-- Left Side - Illustration -->
+        <!-- Left Panel - Gradient -->
         <div class="auth-left">
-            <div class="auth-brand">
-                <a href="{{ route('home') }}">
-                    <i class="fas fa-book-reader"></i>
-                    <span>Toko Buku</span>
-                </a>
-            </div>
-            
-            <div class="auth-illustration">
-                <img src="{{ asset('gambar/double-human.png') }}" alt="Register Illustration">
-                <div class="illustration-bg"></div>
-            </div>
-            
-            <div class="auth-info">
-                <h2>Bergabung Bersama Kami!</h2>
-                <p>Daftar sekarang untuk mengakses ribuan koleksi buku terbaik dan nikmati berbagai promo menarik khusus member baru</p>
-            </div>
-            
-            <div class="auth-social-icons">
-                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-tiktok"></i></a>
-            </div>
-            
-            <div class="auth-copyright">
-                <p>© 2025 Toko Buku Online</p>
+            <div class="auth-left-content">
+                <div class="auth-logo-white">
+                    <span class="logo-asterisk">&#10035;</span>
+                </div>
+                <div class="auth-left-bottom">
+                    <p class="auth-left-subtitle">Anda dapat dengan mudah</p>
+                    <h2 class="auth-left-title">Pusat Pribadi Anda untuk Kejelasan dan Produktivitas</h2>
+                </div>
             </div>
         </div>
 
-        <!-- Right Side - Register Form -->
+        <!-- Right Panel - Register Form -->
         <div class="auth-right">
             <div class="auth-form-container">
                 <div class="auth-header">
-                    <h1>Daftar Akun</h1>
-                    <p>Isi formulir di bawah untuk membuat akun baru</p>
+                    <span class="logo-asterisk-dark">&#10035;</span>
+                    <h1>Buat Akun Baru</h1>
+                    <p>Akses tugas, catatan, dan proyek Anda kapan saja, di mana saja.</p>
                 </div>
 
                 @if($errors->any())
@@ -65,15 +48,12 @@
                     @csrf
                     
                     <div class="form-group">
-                        <label for="email">
-                            <i class="fas fa-envelope"></i>
-                            Email
-                        </label>
+                        <label for="email">Email Anda</label>
                         <input 
                             type="email" 
                             id="email" 
                             name="email" 
-                            placeholder="nama@email.com"
+                            placeholder="namaanda@email.com"
                             value="{{ old('email') }}" 
                             required 
                             autofocus
@@ -81,10 +61,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="nama">
-                            <i class="fas fa-user"></i>
-                            Nama Lengkap
-                        </label>
+                        <label for="nama">Nama Lengkap</label>
                         <input 
                             type="text" 
                             id="nama" 
@@ -96,10 +73,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="password">
-                            <i class="fas fa-lock"></i>
-                            Kata Sandi
-                        </label>
+                        <label for="password">Kata Sandi</label>
                         <div class="password-input">
                             <input 
                                 type="password" 
@@ -116,10 +90,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="password_confirmation">
-                            <i class="fas fa-lock"></i>
-                            Konfirmasi Kata Sandi
-                        </label>
+                        <label for="password_confirmation">Konfirmasi Kata Sandi</label>
                         <div class="password-input">
                             <input 
                                 type="password" 
@@ -160,10 +131,25 @@
                     </div>
 
                     <button type="submit" class="btn-submit">
-                        <span>Daftar</span>
-                        <i class="fas fa-arrow-right"></i>
+                        <span>Mulai Sekarang</span>
                     </button>
                 </form>
+
+                <div class="auth-divider">
+                    <span>atau lanjutkan dengan</span>
+                </div>
+
+                <div class="social-login">
+                    <button type="button" class="btn-social">
+                        <i class="fab fa-behance"></i>
+                    </button>
+                    <button type="button" class="btn-social">
+                        <i class="fab fa-google"></i>
+                    </button>
+                    <button type="button" class="btn-social">
+                        <i class="fab fa-facebook-f"></i>
+                    </button>
+                </div>
 
                 <div class="auth-footer">
                     <p>Sudah punya akun? <a href="{{ route('login') }}">Masuk</a></p>
@@ -193,7 +179,6 @@ function togglePasswordRegister(fieldId) {
 function validatePassword() {
     const password = document.getElementById('password').value;
     
-    // Check length (minimum 8 characters)
     const lengthReq = document.getElementById('req-length');
     if (password.length >= 8) {
         lengthReq.classList.remove('invalid');
@@ -205,11 +190,8 @@ function validatePassword() {
         lengthReq.querySelector('i').className = 'fas fa-times-circle';
     }
     
-    // Check uppercase and lowercase
     const caseReq = document.getElementById('req-case');
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    if (hasUpperCase && hasLowerCase) {
+    if (/[A-Z]/.test(password) && /[a-z]/.test(password)) {
         caseReq.classList.remove('invalid');
         caseReq.classList.add('valid');
         caseReq.querySelector('i').className = 'fas fa-check-circle';
@@ -219,11 +201,8 @@ function validatePassword() {
         caseReq.querySelector('i').className = 'fas fa-times-circle';
     }
     
-    // Check number and symbol
     const numberReq = document.getElementById('req-number');
-    const hasNumber = /[0-9]/.test(password);
-    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
-    if (hasNumber && hasSymbol) {
+    if (/[0-9]/.test(password) && /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
         numberReq.classList.remove('invalid');
         numberReq.classList.add('valid');
         numberReq.querySelector('i').className = 'fas fa-check-circle';
