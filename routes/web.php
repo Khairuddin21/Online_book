@@ -30,6 +30,9 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('/callback/google', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
 
+// Midtrans Notification Webhook (no auth, CSRF exempted in middleware)
+Route::post('/midtrans/notification', [UserController::class, 'midtransNotification'])->name('midtrans.notification');
+
 // Admin Routes
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -76,7 +79,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/home', [UserController::class, 'home'])->name('user.home');
     Route::get('/books', [UserController::class, 'books'])->name('user.books');
-    Route::get('/categories', [UserController::class, 'categories'])->name('user.categories');
     Route::get('/cart', [UserController::class, 'cart'])->name('user.cart');
     Route::get('/orders', [UserController::class, 'orders'])->name('user.orders');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');

@@ -15,6 +15,7 @@ use App\Models\UlasanBuku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -364,8 +365,12 @@ class UserController extends Controller
      */
     public function orders()
     {
-        // TODO: Implement orders functionality
-        return view('user.orders');
+        $orders = Pesanan::with(['details.buku', 'pembayaran'])
+            ->where('id_user', Auth::id())
+            ->orderBy('tanggal_pesanan', 'desc')
+            ->get();
+
+        return view('user.orders', compact('orders'));
     }
     
     /**
@@ -523,7 +528,7 @@ class UserController extends Controller
                     'id_pesanan' => $pesanan->id_pesanan,
                     'id_buku' => $item->id_buku,
                     'qty' => $item->qty,
-                    'harga' => $item->buku->harga,
+                    'harga_satuan' => $item->buku->harga,
                 ]);
                 
                 // Reduce stock
@@ -547,7 +552,7 @@ class UserController extends Controller
     }
     
     /**
-     * Show payment page
+     * Show payment page with Midtrans Snap token
      */
     public function showPayment($orderId)
     {
@@ -555,46 +560,210 @@ class UserController extends Controller
             ->where('id_pesanan', $orderId)
             ->where('id_user', Auth::id())
             ->firstOrFail();
-        
-        return view('user.payment', compact('pesanan'));
+
+        // Only allow payment for pending orders
+        if ($pesanan->status !== 'menunggu') {
+            return redirect()->route('user.orders')
+                ->with('error', 'Pesanan ini sudah dibayar atau dibatalkan.');
+        }
+
+        // Reuse existing snap token if available
+        if (!$pesanan->snap_token) {
+            // Configure Midtrans
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+            \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized', true);
+            \Midtrans\Config::$is3ds = config('midtrans.is_3ds', true);
+
+            $orderId_midtrans = 'ORDER-' . $pesanan->id_pesanan . '-' . time();
+
+            $itemDetails = $pesanan->details->map(function ($detail) {
+                return [
+                    'id' => (string) $detail->id_buku,
+                    'price' => (int) $detail->harga_satuan,
+                    'quantity' => (int) $detail->qty,
+                    'name' => substr($detail->buku->judul, 0, 50),
+                ];
+            })->toArray();
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $orderId_midtrans,
+                    'gross_amount' => (int) $pesanan->total_harga,
+                ],
+                'customer_details' => [
+                    'first_name' => $pesanan->user->nama,
+                    'email' => $pesanan->user->email,
+                ],
+                'item_details' => $itemDetails,
+            ];
+
+            try {
+                $snapToken = \Midtrans\Snap::getSnapToken($params);
+                $pesanan->update(['snap_token' => $snapToken]);
+            } catch (\Exception $e) {
+                Log::error('Midtrans Snap Token Error: ' . $e->getMessage());
+                return redirect()->back()
+                    ->with('error', 'Gagal memuat pembayaran. Silakan coba lagi.');
+            }
+        }
+
+        $clientKey = config('midtrans.client_key');
+
+        return view('user.payment', compact('pesanan', 'clientKey'));
     }
     
     /**
-     * Process payment
+     * Process payment after Midtrans Snap success (called via AJAX from frontend)
      */
     public function processPayment(Request $request, $orderId)
     {
-        $request->validate([
-            'metode_pembayaran' => 'required|in:transfer,e-wallet,kartu_kredit',
-        ]);
-        
         DB::beginTransaction();
-        
+
         try {
             $pesanan = Pesanan::where('id_pesanan', $orderId)
                 ->where('id_user', Auth::id())
                 ->firstOrFail();
-            
-            // Create payment record (dummy payment - auto valid)
+
+            if ($pesanan->status !== 'menunggu') {
+                return response()->json(['success' => false, 'message' => 'Pesanan sudah diproses.']);
+            }
+
+            // Create payment record
             Pembayaran::create([
                 'id_pesanan' => $orderId,
-                'metode' => $request->metode_pembayaran,
+                'midtrans_transaction_id' => $request->transaction_id,
+                'midtrans_order_id' => $request->order_id,
+                'metode' => $request->payment_type ?? 'midtrans',
                 'jumlah' => $pesanan->total_harga,
-                'status_verifikasi' => 'valid', // Auto valid for dummy payment
+                'status_verifikasi' => 'valid',
             ]);
-            
-            // Update order status to 'selesai' since payment is auto valid
-            $pesanan->update(['status' => 'selesai']);
-            
+
+            // Update order status to 'diproses' (sedang dikemas)
+            $pesanan->update(['status' => 'diproses']);
+
+            // Create inbox notification for user
+            PesanKontak::create([
+                'id_user' => Auth::id(),
+                'subjek' => 'Pesanan #' . $pesanan->id_pesanan . ' Berhasil Dibayar',
+                'isi_pesan' => 'Pembayaran untuk pesanan #' . $pesanan->id_pesanan . ' sebesar Rp ' . number_format($pesanan->total_harga, 0, ',', '.') . ' telah berhasil dilakukan.',
+                'tanggal' => now(),
+                'balasan_admin' => 'Terima kasih! Pesanan Anda sedang dikemas dan akan segera dikirim. Anda dapat memantau status pesanan di halaman Pesanan Saya.',
+                'tanggal_balas' => now(),
+            ]);
+
             DB::commit();
-            
-            return redirect()->route('user.orders')
-                ->with('success', 'Pembayaran berhasil! Pesanan Anda sedang diproses.');
-            
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembayaran berhasil!',
+                'redirect' => route('user.orders'),
+            ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            Log::error('Process Payment Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan.'], 500);
+        }
+    }
+
+    /**
+     * Handle Midtrans server-to-server notification (webhook)
+     */
+    public function midtransNotification(Request $request)
+    {
+        try {
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+
+            $notification = new \Midtrans\Notification();
+
+            $transactionStatus = $notification->transaction_status;
+            $paymentType = $notification->payment_type;
+            $orderId = $notification->order_id;
+            $fraudStatus = $notification->fraud_status ?? null;
+
+            // Extract pesanan ID from order_id format: ORDER-{id}-{timestamp}
+            $parts = explode('-', $orderId);
+            if (count($parts) < 2) {
+                Log::warning('Midtrans notification: invalid order_id format: ' . $orderId);
+                return response()->json(['status' => 'error'], 400);
+            }
+            $pesananId = $parts[1];
+
+            $pesanan = Pesanan::find($pesananId);
+            if (!$pesanan) {
+                Log::warning('Midtrans notification: pesanan not found: ' . $pesananId);
+                return response()->json(['status' => 'error'], 404);
+            }
+
+            if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+                if ($fraudStatus == 'accept' || $fraudStatus === null) {
+                    // Payment successful
+                    if ($pesanan->status === 'menunggu') {
+                        $pesanan->update(['status' => 'diproses']);
+
+                        // Upsert payment record
+                        Pembayaran::updateOrCreate(
+                            ['id_pesanan' => $pesananId],
+                            [
+                                'midtrans_transaction_id' => $notification->transaction_id,
+                                'midtrans_order_id' => $orderId,
+                                'metode' => $paymentType,
+                                'jumlah' => $pesanan->total_harga,
+                                'status_verifikasi' => 'valid',
+                            ]
+                        );
+
+                        // Create inbox notification if not already created
+                        $existingNotif = PesanKontak::where('id_user', $pesanan->id_user)
+                            ->where('subjek', 'Pesanan #' . $pesanan->id_pesanan . ' Berhasil Dibayar')
+                            ->first();
+
+                        if (!$existingNotif) {
+                            PesanKontak::create([
+                                'id_user' => $pesanan->id_user,
+                                'subjek' => 'Pesanan #' . $pesanan->id_pesanan . ' Berhasil Dibayar',
+                                'isi_pesan' => 'Pembayaran untuk pesanan #' . $pesanan->id_pesanan . ' sebesar Rp ' . number_format($pesanan->total_harga, 0, ',', '.') . ' telah berhasil.',
+                                'tanggal' => now(),
+                                'balasan_admin' => 'Terima kasih! Pesanan Anda sedang dikemas dan akan segera dikirim.',
+                                'tanggal_balas' => now(),
+                            ]);
+                        }
+                    }
+                }
+            } elseif ($transactionStatus == 'pending') {
+                // Payment is pending — keep status as 'menunggu'
+            } elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire'])) {
+                // Payment failed — cancel order and restore stock
+                if ($pesanan->status === 'menunggu') {
+                    $pesanan->update(['status' => 'dibatalkan']);
+
+                    // Restore stock
+                    foreach ($pesanan->details as $detail) {
+                        if ($detail->buku) {
+                            $detail->buku->increment('stok', $detail->qty);
+                        }
+                    }
+
+                    Pembayaran::updateOrCreate(
+                        ['id_pesanan' => $pesananId],
+                        [
+                            'midtrans_transaction_id' => $notification->transaction_id,
+                            'midtrans_order_id' => $orderId,
+                            'metode' => $paymentType,
+                            'jumlah' => $pesanan->total_harga,
+                            'status_verifikasi' => 'invalid',
+                        ]
+                    );
+                }
+            }
+
+            return response()->json(['status' => 'ok']);
+
+        } catch (\Exception $e) {
+            Log::error('Midtrans Notification Error: ' . $e->getMessage());
+            return response()->json(['status' => 'error'], 500);
         }
     }
     

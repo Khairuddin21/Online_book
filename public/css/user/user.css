@@ -45,6 +45,7 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    padding-top: 70px;
 }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--cream); }
@@ -57,8 +58,10 @@ ul, ol { list-style: none; }
    NAVBAR
    ============================================ */
 .user-navbar {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 1000;
     background: rgba(255,255,255,0.92);
     backdrop-filter: blur(20px);

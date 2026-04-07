@@ -30,7 +30,6 @@
             <ul class="navbar-menu" id="navMenu">
                 <li><a href="{{ route('user.home') }}" class="{{ request()->routeIs('user.home') ? 'active' : '' }}">Beranda</a></li>
                 <li><a href="{{ route('user.books') }}" class="{{ request()->routeIs('user.books') ? 'active' : '' }}">Katalog</a></li>
-                <li><a href="{{ route('user.categories') }}" class="{{ request()->routeIs('user.categories') ? 'active' : '' }}">Kategori</a></li>
                 @auth
                 <li><a href="{{ route('user.orders') }}" class="{{ request()->routeIs('user.orders') ? 'active' : '' }}">Pesanan</a></li>
                 @endauth
@@ -117,7 +116,6 @@
                 <ul>
                     <li><a href="{{ route('user.home') }}">Beranda</a></li>
                     <li><a href="{{ route('user.books') }}">Katalog Buku</a></li>
-                    <li><a href="{{ route('user.categories') }}">Kategori</a></li>
                     <li><a href="{{ route('user.contact') }}">Kontak</a></li>
                 </ul>
             </div>
@@ -148,6 +146,9 @@
     </footer>
 
     <!-- Scripts -->
+    <script>
+        window.APP_URL = '{{ rtrim(url('/'), '/') }}';
+    </script>
     <script src="{{ asset('js/user/user.js') }}?v={{ time() }}"></script>
     @stack('scripts')
 </body>

@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function updateCartQuantity(cartId, quantity, cartItem, maxStock) {
-    fetch('/api/cart/update', {
+    fetch('{{ route("api.cart.update") }}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -216,7 +216,7 @@ function updateCartQuantity(cartId, quantity, cartItem, maxStock) {
 }
 
 function deleteCartItem(cartId, cartItem) {
-    fetch(`/api/cart/delete/${cartId}`, {
+    fetch('{{ route("api.cart.delete", "") }}/' + cartId, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -242,7 +242,7 @@ function deleteCartItem(cartId, cartItem) {
 function updateCartBadge() {
     const badge = document.querySelector('.cart-badge');
     if (!badge) return;
-    fetch('/api/cart/count')
+    fetch('{{ route("api.cart.count") }}')
         .then(response => response.json())
         .then(data => {
             if (data.count > 0) {

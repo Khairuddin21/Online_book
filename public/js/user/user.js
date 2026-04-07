@@ -174,7 +174,7 @@ function addToCart(bookId, buttonElement) {
     // Mark request as ongoing
     ongoingRequests.add(requestKey);
     
-    fetch('/api/cart/add', {
+    fetch((window.APP_URL || '') + '/api/cart/add', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -221,7 +221,7 @@ function updateCartBadge() {
     const badge = document.querySelector('.cart-badge');
     if (!badge) return;
     
-    fetch('/api/cart/count')
+    fetch((window.APP_URL || '') + '/api/cart/count')
         .then(response => response.json())
         .then(data => {
             if (data.count > 0) {

@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function() {
             addBtn.disabled = true;
             addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menambahkan...';
 
-            fetch('/api/cart/add', {
+            fetch('{{ route("api.cart.add") }}', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Update cart count in navbar
                     const cartCount = document.querySelector('.cart-count');
                     if (cartCount) {
-                        fetch('/api/cart/count')
+                        fetch('{{ route("api.cart.count") }}')
                             .then(r => r.json())
                             .then(d => cartCount.textContent = d.count);
                     }
@@ -365,7 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const bookId = this.dataset.bookId;
             const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            fetch('/book/' + bookId + '/favorite', {
+            fetch('{{ url("/book/") }}/' + bookId + '/favorite', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
