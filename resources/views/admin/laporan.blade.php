@@ -429,7 +429,9 @@
 
 .chart-center-wrapper {
     max-width: 280px;
+    height: 280px;
     margin: 0 auto;
+    position: relative;
 }
 
 /* Metode Pembayaran */
@@ -875,11 +877,12 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 cutout: '60%',
                 plugins: {
                     legend: {
                         position: 'bottom',
-                        labels: { padding: 16, usePointStyle: true, pointStyleWidth: 10, font: { size: 12 } }
+                        labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 12 } }
                     }
                 }
             }
