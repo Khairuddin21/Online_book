@@ -113,8 +113,8 @@
         <i class="fas fa-shopping-bag"></i>
         <h2>Keranjang Anda Kosong</h2>
         <p>Belum ada buku yang ditambahkan ke keranjang</p>
-        <a href="{{ route('user.books') }}" class="btn btn-green">
-            <i class="fas fa-book"></i> Belanja Sekarang
+        <a href="{{ route('user.books') }}" class="btn btn-green" style="padding: 12px 28px; font-size: 15px;">
+            Belanja Sekarang
         </a>
     </div>
     @endif

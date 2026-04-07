@@ -9,51 +9,59 @@
         <p class="page-subtitle">Balasan dari admin untuk pertanyaan Anda</p>
     </div>
 
+    @if(session('success'))
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; max-width: 800px; margin-left: auto; margin-right: auto;">
+            <i class="fas fa-check-circle"></i> {{ session('success') }}
+        </div>
+    @endif
+
     <div class="inbox-container">
-        <div class="inbox-content">
+        <div class="inbox-content" style="border-radius: var(--radius-lg); border: 1px solid rgba(0,0,0,0.06);">
             @if($messages->count() > 0)
-                @foreach($messages as $message)
-                <div class="message-item">
-                    <div class="message-header" onclick="toggleMessage({{ $message->id_pesan }})">
-                        <div class="message-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        
-                        <div class="message-info">
-                            <div class="message-subject">{{ $message->subjek }}</div>
-                            <div class="message-date">
-                                <i class="fas fa-clock"></i>
-                                {{ $message->tanggal_balas->format('d M Y, H:i') }}
-                            </div>
-                        </div>
-                        
-                        <div class="message-toggle" id="toggle-{{ $message->id_pesan }}">
-                            <i class="fas fa-chevron-down"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="message-body" id="body-{{ $message->id_pesan }}">
-                        <div class="message-content">
-                            <div class="message-section">
-                                <div class="message-section-title">Pesan Anda</div>
-                                <div class="message-text">{{ $message->isi_pesan }}</div>
-                                <div class="message-date" style="margin-top: 10px;">
-                                    <i class="fas fa-paper-plane"></i>
-                                    Dikirim: {{ $message->tanggal->format('d M Y, H:i') }}
+                <div style="display: flex; flex-direction: column; gap: 16px; padding: 24px;">
+                    @foreach($messages as $message)
+                    <div class="inbox-card">
+                        <!-- Header -->
+                        <div class="inbox-card-header">
+                            <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0;">
+                                <div class="message-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div style="font-size: 15px; font-weight: 700; color: var(--text-dark); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $message->subjek }}</div>
+                                    <div style="font-size: 12px; color: var(--text-light); display: flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-clock"></i> Dibalas {{ $message->tanggal_balas->format('d M Y, H:i') }}
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="message-section admin-reply">
-                                <div class="admin-badge">
-                                    <i class="fas fa-shield-alt"></i>
-                                    Balasan Admin
-                                </div>
-                                <div class="message-text">{{ $message->balasan_admin }}</div>
+                            <form action="{{ route('user.inbox.delete', $message->id_pesan) }}" method="POST" onsubmit="return confirm('Hapus pesan ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="inbox-delete-btn" title="Hapus pesan">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Your Message -->
+                        <div class="inbox-card-section">
+                            <div style="font-size: 11px; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Pesan Anda</div>
+                            <div style="font-size: 14px; color: var(--text-medium); line-height: 1.7; white-space: pre-wrap;">{{ $message->isi_pesan }}</div>
+                            <div style="font-size: 12px; color: var(--text-light); margin-top: 10px; display: flex; align-items: center; gap: 4px;">
+                                <i class="fas fa-paper-plane"></i> Dikirim: {{ $message->tanggal->format('d M Y, H:i') }}
                             </div>
                         </div>
+
+                        <!-- Admin Reply -->
+                        <div class="inbox-card-reply">
+                            <div style="display: inline-flex; align-items: center; gap: 4px; background: var(--success); color: #fff; padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; margin-bottom: 10px;">
+                                <i class="fas fa-shield-alt"></i> Balasan Admin
+                            </div>
+                            <div style="font-size: 14px; color: var(--text-dark); line-height: 1.7; white-space: pre-wrap;">{{ $message->balasan_admin }}</div>
+                        </div>
                     </div>
+                    @endforeach
                 </div>
-                @endforeach
 
                 @if($messages->hasPages())
                 <div class="pagination-wrapper">
@@ -87,32 +95,12 @@
                     <i class="fas fa-inbox"></i>
                     <h3>Belum Ada Pesan</h3>
                     <p>Anda belum memiliki pesan balasan dari admin</p>
-                    <a href="{{ route('user.contact') }}" class="btn btn-outline-green btn-sm" style="margin-top: 16px;">
-                        <i class="fas fa-paper-plane"></i> Kirim Pesan
+                    <a href="{{ route('user.contact') }}" class="btn btn-green" style="padding: 10px 24px; font-size: 14px; margin-top: 16px;">
+                        Kirim Pesan
                     </a>
                 </div>
             @endif
         </div>
     </div>
 </div>
-
-@push('scripts')
-<script>
-function toggleMessage(id) {
-    const body = document.getElementById('body-' + id);
-    const toggle = document.getElementById('toggle-' + id);
-    const icon = toggle.querySelector('i');
-    
-    body.classList.toggle('active');
-    
-    if (body.classList.contains('active')) {
-        icon.classList.remove('fa-chevron-down');
-        icon.classList.add('fa-chevron-up');
-    } else {
-        icon.classList.remove('fa-chevron-up');
-        icon.classList.add('fa-chevron-down');
-    }
-}
-</script>
-@endpush
 @endsection

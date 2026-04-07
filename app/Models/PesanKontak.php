@@ -18,11 +18,13 @@ class PesanKontak extends Model
         'tanggal',
         'balasan_admin',
         'tanggal_balas',
+        'dibaca_user',
     ];
 
     protected $casts = [
         'tanggal' => 'datetime',
         'tanggal_balas' => 'datetime',
+        'dibaca_user' => 'boolean',
     ];
 
     /**

@@ -46,7 +46,9 @@
                     <div class="order-item-row">
                         <div class="order-item-img">
                             @if($detail->buku->cover)
-                                <img src="{{ asset('storage/' . $detail->buku->cover) }}" alt="{{ $detail->buku->judul }}">
+                                <img src="{{ Str::startsWith($detail->buku->cover, 'http') ? $detail->buku->cover : asset('storage/' . $detail->buku->cover) }}"
+                                     alt="{{ $detail->buku->judul }}"
+                                     onerror="this.src='https://via.placeholder.com/65x85?text=Buku'">
                             @else
                                 <div class="order-item-placeholder">
                                     <i class="fas fa-book"></i>

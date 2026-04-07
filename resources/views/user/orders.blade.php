@@ -92,6 +92,12 @@
                             <a href="{{ route('user.payment', $order->id_pesanan) }}" class="btn-order-action btn-pay">
                                 <i class="fas fa-credit-card"></i> Bayar Sekarang
                             </a>
+                            <form action="{{ route('user.order.cancel', $order->id_pesanan) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin ingin membatalkan pesanan #{{ $order->id_pesanan }}?')">
+                                @csrf
+                                <button type="submit" class="btn-order-action btn-cancel">
+                                    <i class="fas fa-times"></i> Batalkan
+                                </button>
+                            </form>
                         @endif
                         @if($order->status === 'diproses')
                             <span class="order-info-note">
@@ -325,6 +331,18 @@
 .btn-pay:hover {
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(74, 124, 68, 0.4);
+}
+
+.btn-cancel {
+    background: white;
+    color: #dc2626;
+    border: 1.5px solid #fca5a5;
+    font-family: inherit;
+}
+
+.btn-cancel:hover {
+    background: #fef2f2;
+    border-color: #dc2626;
 }
 
 .order-info-note {

@@ -26,6 +26,58 @@ class AdminController extends Controller
         $pesananDibatalkan = Pesanan::where('status', 'dibatalkan')->count();
         $totalPendapatan = Pembayaran::where('status_verifikasi', 'valid')->sum('jumlah');
         
+        // Monthly revenue for last 6 months (from pembayaran with valid status)
+        $monthlyRevenue = DB::table('pembayaran')
+            ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->where('pembayaran.status_verifikasi', 'valid')
+            ->where('pesanan.tanggal_pesanan', '>=', now()->subMonths(5)->startOfMonth())
+            ->select(
+                DB::raw('MONTH(pesanan.tanggal_pesanan) as bulan'),
+                DB::raw('YEAR(pesanan.tanggal_pesanan) as tahun'),
+                DB::raw('SUM(pembayaran.jumlah) as total')
+            )
+            ->groupBy('tahun', 'bulan')
+            ->orderBy('tahun')
+            ->orderBy('bulan')
+            ->get();
+
+        // Monthly orders count for last 6 months
+        $monthlyOrders = Pesanan::where('tanggal_pesanan', '>=', now()->subMonths(5)->startOfMonth())
+            ->select(
+                DB::raw('MONTH(tanggal_pesanan) as bulan'),
+                DB::raw('YEAR(tanggal_pesanan) as tahun'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy('tahun', 'bulan')
+            ->orderBy('tahun')
+            ->orderBy('bulan')
+            ->get();
+
+        // Build chart labels and data for last 6 months
+        $chartLabels = [];
+        $chartRevenue = [];
+        $chartOrders = [];
+        $bulanNama = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $m = (int) $date->format('m');
+            $y = (int) $date->format('Y');
+            $chartLabels[] = $bulanNama[$m] . ' ' . $y;
+
+            $rev = $monthlyRevenue->first(fn($r) => $r->bulan == $m && $r->tahun == $y);
+            $chartRevenue[] = $rev ? (float) $rev->total : 0;
+
+            $ord = $monthlyOrders->first(fn($o) => $o->bulan == $m && $o->tahun == $y);
+            $chartOrders[] = $ord ? (int) $ord->total : 0;
+        }
+
+        // Order status distribution
+        $statusCounts = Pesanan::select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
         // Get latest orders with user relationship
         $pesananTerbaru = Pesanan::with(['user', 'pembayaran'])
             ->orderBy('tanggal_pesanan', 'desc')
@@ -37,10 +89,43 @@ class AdminController extends Controller
             'totalPesanan', 
             'pesananDibatalkan',
             'totalPendapatan',
-            'pesananTerbaru'
+            'pesananTerbaru',
+            'chartLabels',
+            'chartRevenue',
+            'chartOrders',
+            'statusCounts'
         ));
     }
     
+    /**
+     * Display list of pesanan
+     */
+    public function indexPesanan(Request $request)
+    {
+        $query = Pesanan::with(['user', 'pembayaran']);
+
+        // Search by user name or order id
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('id_pesanan', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($q) use ($search) {
+                      $q->where('nama', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter by status
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $pesanan = $query->orderBy('tanggal_pesanan', 'desc')->paginate(15);
+
+        return view('admin.pesanan.index', compact('pesanan'));
+    }
+
     /**
      * Show pesanan details
      */
@@ -53,6 +138,33 @@ class AdminController extends Controller
         ])->findOrFail($id);
         
         return view('admin.pesanan-detail', compact('pesanan'));
+    }
+
+    /**
+     * Update pesanan status
+     */
+    public function updateStatusPesanan(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:menunggu,diproses,dikirim,selesai,dibatalkan',
+        ]);
+
+        try {
+            $pesanan = Pesanan::findOrFail($id);
+            $pesanan->update(['status' => $request->status]);
+
+            // If status is "selesai" and pembayaran exists, mark as valid
+            if ($request->status === 'selesai' && $pesanan->pembayaran) {
+                $pesanan->pembayaran->update(['status_verifikasi' => 'valid']);
+            }
+
+            $statusLabel = ucfirst($request->status);
+            return redirect()->route('admin.pesanan.show', $id)
+                ->with('success', "Status pesanan berhasil diubah menjadi {$statusLabel}");
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal mengubah status: ' . $e->getMessage());
+        }
     }
     
     /**
@@ -72,28 +184,27 @@ class AdminController extends Controller
             // Delete pesanan
             $pesanan->delete();
             
-            // Reset AUTO_INCREMENT if no more pesanan exist
+            DB::commit();
+
+            // Reset AUTO_INCREMENT outside transaction (DDL causes implicit commit)
             $remainingPesanan = Pesanan::count();
             if ($remainingPesanan == 0) {
                 DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = 1');
                 DB::statement('ALTER TABLE pesanan_detail AUTO_INCREMENT = 1');
                 DB::statement('ALTER TABLE pembayaran AUTO_INCREMENT = 1');
             } else {
-                // Reset to next available ID after max existing ID
                 $maxId = Pesanan::max('id_pesanan');
                 if ($maxId) {
                     DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = ' . ($maxId + 1));
                 }
             }
             
-            DB::commit();
-            
-            return redirect()->route('admin.dashboard')
+            return redirect()->route('admin.pesanan.index')
                 ->with('success', 'Pesanan berhasil dihapus');
                 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.dashboard')
+            return redirect()->route('admin.pesanan.index')
                 ->with('error', 'Gagal menghapus pesanan: ' . $e->getMessage());
         }
     }

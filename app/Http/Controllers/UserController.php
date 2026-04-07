@@ -374,6 +374,45 @@ class UserController extends Controller
     }
     
     /**
+     * Cancel unpaid order and restore stock
+     */
+    public function cancelOrder($orderId)
+    {
+        DB::beginTransaction();
+
+        try {
+            $pesanan = Pesanan::with('details.buku')
+                ->where('id_pesanan', $orderId)
+                ->where('id_user', Auth::id())
+                ->firstOrFail();
+
+            if ($pesanan->status !== 'menunggu') {
+                return redirect()->route('user.orders')
+                    ->with('error', 'Pesanan ini tidak dapat dibatalkan.');
+            }
+
+            $pesanan->update(['status' => 'dibatalkan']);
+
+            // Restore stock
+            foreach ($pesanan->details as $detail) {
+                if ($detail->buku) {
+                    $detail->buku->increment('stok', $detail->qty);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('user.orders')
+                ->with('success', 'Pesanan #' . $pesanan->id_pesanan . ' berhasil dibatalkan.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('user.orders')
+                ->with('error', 'Gagal membatalkan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Display user profile
      */
     public function profile()
@@ -386,12 +425,32 @@ class UserController extends Controller
      */
     public function inbox()
     {
+        // Mark all unread messages as read when user opens inbox
+        PesanKontak::where('id_user', Auth::id())
+                   ->whereNotNull('balasan_admin')
+                   ->where(function ($q) {
+                       $q->whereNull('dibaca_user')->orWhere('dibaca_user', false);
+                   })
+                   ->update(['dibaca_user' => true]);
+
         $messages = PesanKontak::where('id_user', Auth::id())
                                ->whereNotNull('balasan_admin')
                                ->orderBy('tanggal_balas', 'desc')
                                ->paginate(10);
         
         return view('user.inbox', compact('messages'));
+    }
+
+    /**
+     * Delete inbox message
+     */
+    public function deleteInboxMessage($id)
+    {
+        $pesan = PesanKontak::where('id_user', Auth::id())->findOrFail($id);
+        $pesan->delete();
+
+        return redirect()->route('user.inbox')
+            ->with('success', 'Pesan berhasil dihapus');
     }
     
     /**

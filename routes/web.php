@@ -54,8 +54,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::delete('/buku/{id}', [AdminController::class, 'destroyBuku'])->name('admin.buku.destroy');
     
     // Pesanan
-    Route::get('/pesanan', function () {})->name('admin.pesanan.index');
+    Route::get('/pesanan', [AdminController::class, 'indexPesanan'])->name('admin.pesanan.index');
     Route::get('/pesanan/{id}', [AdminController::class, 'showPesanan'])->name('admin.pesanan.show');
+    Route::put('/pesanan/{id}/status', [AdminController::class, 'updateStatusPesanan'])->name('admin.pesanan.updateStatus');
     Route::delete('/pesanan/{id}', [AdminController::class, 'deletePesanan'])->name('admin.pesanan.delete');
     
     // Pembayaran
@@ -83,6 +84,7 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/orders', [UserController::class, 'orders'])->name('user.orders');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
     Route::get('/inbox', [UserController::class, 'inbox'])->name('user.inbox');
+    Route::delete('/inbox/{id}', [UserController::class, 'deleteInboxMessage'])->name('user.inbox.delete');
     Route::get('/contact', [UserController::class, 'contact'])->name('user.contact');
     Route::post('/contact/submit', [UserController::class, 'submitContact'])->name('user.contact.submit');
     
@@ -96,6 +98,7 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::post('/checkout/process', [UserController::class, 'processCheckout'])->name('user.checkout.process');
     Route::get('/payment/{order_id}', [UserController::class, 'showPayment'])->name('user.payment');
     Route::post('/payment/{order_id}/process', [UserController::class, 'processPayment'])->name('user.payment.process');
+    Route::post('/orders/{order_id}/cancel', [UserController::class, 'cancelOrder'])->name('user.order.cancel');
     
     // Address Management Routes
     Route::post('/address/store', [UserController::class, 'storeAddress'])->name('user.address.store');

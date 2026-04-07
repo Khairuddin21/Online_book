@@ -57,7 +57,11 @@
                     <div class="dropdown" role="menu" aria-labelledby="userMenuButton">
                         <a href="{{ route('user.profile') }}"><i class="fas fa-user-circle"></i> Profil</a>
                         <a href="{{ route('user.orders') }}"><i class="fas fa-box"></i> Pesanan</a>
-                        <a href="{{ route('user.inbox') }}"><i class="fas fa-envelope"></i> Pesan</a>
+                        <a href="{{ route('user.inbox') }}"><i class="fas fa-envelope"></i> Pesan
+                            @if(($inboxNotifCount ?? 0) > 0)
+                                <span style="background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 50px; margin-left: 4px;">{{ $inboxNotifCount }}</span>
+                            @endif
+                        </a>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
