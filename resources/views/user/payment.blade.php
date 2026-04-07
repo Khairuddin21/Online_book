@@ -2,11 +2,6 @@
 
 @section('title', 'Pembayaran')
 
-@push('styles')
-<!-- SweetAlert2 CSS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-@endpush
-
 @section('content')
 <div class="user-container" style="min-height: 60vh; padding: 40px 20px;">
     <h1 class="section-title" style="text-align: center; margin-bottom: 40px;">Pembayaran</h1>
@@ -39,112 +34,68 @@
     @endif
     
     <div style="display: grid; grid-template-columns: 1fr 400px; gap: 30px; margin-top: 40px; align-items: start;">
-        <!-- Payment Form -->
+        <!-- Order Details -->
         <div>
-            <!-- Payment Methods -->
             <div class="payment-section">
-                <h3 style="color: var(--user-primary); margin-bottom: 25px; font-size: 20px;">
-                    <i class="fas fa-credit-card"></i> Metode Pembayaran
+                <h3 class="payment-section-title">
+                    <i class="fas fa-shopping-bag"></i> Detail Pesanan
                 </h3>
                 
-                <form action="{{ route('user.payment.process', $pesanan->id_pesanan) }}" method="POST" id="paymentForm">
-                    @csrf
-                    
-                    <!-- E-Money -->
-                    <div class="payment-method-group">
-                        <label class="payment-method-item">
-                            <input type="radio" name="metode_pembayaran" value="e-wallet" required>
-                            <div class="payment-method-content">
-                                <div class="payment-method-header">
-                                    <i class="fas fa-wallet" style="font-size: 24px; color: var(--user-primary);"></i>
-                                    <span class="payment-method-title">Uang Elektronik</span>
+                <div class="order-items-list">
+                    @foreach($pesanan->details as $detail)
+                    <div class="order-item-row">
+                        <div class="order-item-img">
+                            @if($detail->buku->cover)
+                                <img src="{{ Str::startsWith($detail->buku->cover, 'http') ? $detail->buku->cover : asset('storage/' . $detail->buku->cover) }}"
+                                     alt="{{ $detail->buku->judul }}"
+                                     onerror="this.src='https://via.placeholder.com/65x85?text=Buku'">
+                            @else
+                                <div class="order-item-placeholder">
+                                    <i class="fas fa-book"></i>
                                 </div>
-                                <i class="fas fa-chevron-down payment-method-toggle"></i>
-                            </div>
-                        </label>
-                    </div>
-                    
-                    <!-- Virtual Account -->
-                    <div class="payment-method-group">
-                        <label class="payment-method-item">
-                            <input type="radio" name="metode_pembayaran" value="transfer" required>
-                            <div class="payment-method-content">
-                                <div class="payment-method-header">
-                                    <i class="fas fa-university" style="font-size: 24px; color: var(--user-primary);"></i>
-                                    <span class="payment-method-title">Virtual Account</span>
-                                </div>
-                                <i class="fas fa-chevron-down payment-method-toggle"></i>
-                            </div>
-                        </label>
-                    </div>
-                    
-                    <!-- Credit/Debit Card -->
-                    <div class="payment-method-group">
-                        <label class="payment-method-item">
-                            <input type="radio" name="metode_pembayaran" value="kartu_kredit" required>
-                            <div class="payment-method-content">
-                                <div class="payment-method-header">
-                                    <i class="fas fa-credit-card" style="font-size: 24px; color: var(--user-primary);"></i>
-                                    <span class="payment-method-title">Kartu Kredit/Debit</span>
-                                </div>
-                                <i class="fas fa-chevron-down payment-method-toggle"></i>
-                            </div>
-                        </label>
-                    </div>
-                    
-                    @error('metode_pembayaran')
-                        <span class="form-error">{{ $message }}</span>
-                    @enderror
-                </form>
-            </div>
-            
-            <!-- Promo Code Section (Dummy) -->
-            <div class="payment-section" style="margin-top: 25px;">
-                <h3 style="color: var(--user-primary); margin-bottom: 20px; font-size: 18px;">
-                    <i class="fas fa-tag"></i> Promo
-                    <span style="float: right; font-size: 14px; font-weight: 500; color: var(--user-accent); cursor: pointer;">
-                        Lihat Semua
-                    </span>
-                </h3>
-                
-                <div class="promo-input-group">
-                    <input type="text" 
-                           class="form-input" 
-                           placeholder="Kode Promo"
-                           style="flex: 1;">
-                    <button type="button" class="btn btn-outline" style="padding: 12px 25px;">
-                        Gunakan
-                    </button>
-                </div>
-                
-                <!-- Example Promo (Dummy) -->
-                <div class="promo-card">
-                    <div class="promo-icon">
-                        <i class="fas fa-ticket-alt"></i>
-                    </div>
-                    <div class="promo-details">
-                        <h4>Voucher Potongan Ongkir 20K - Nominal 100.000</h4>
-                        <p><strong>Diskon Rp20.000</strong></p>
-                        <ul>
-                            <li>Diskon Ongkir</li>
-                            <li>Berlaku s/d 30 November 2025</li>
-                            <li>Min. Belanja Rp100.000</li>
-                        </ul>
-                        <div class="promo-code">
-                            Kode: <strong>SERUNOV</strong>
-                            <button class="copy-btn" onclick="copyPromoCode('SERUNOV')">
-                                <i class="far fa-copy"></i>
-                            </button>
+                            @endif
+                        </div>
+                        <div class="order-item-info">
+                            <h4>{{ $detail->buku->judul }}</h4>
+                            <p class="order-item-author">{{ $detail->buku->penulis }}</p>
+                            <p class="order-item-qty">{{ $detail->qty }} x Rp {{ number_format($detail->harga_satuan, 0, ',', '.') }}</p>
+                        </div>
+                        <div class="order-item-subtotal">
+                            Rp {{ number_format($detail->harga_satuan * $detail->qty, 0, ',', '.') }}
                         </div>
                     </div>
-                    <a href="#" class="promo-info-link">Info</a>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Payment Info -->
+            <div class="payment-section" style="margin-top: 25px;">
+                <h3 class="payment-section-title">
+                    <i class="fas fa-shield-alt"></i> Pembayaran Aman
+                </h3>
+                <div class="payment-info-box">
+                    <div class="payment-info-icon">
+                        <i class="fas fa-lock" style="font-size: 32px; color: var(--green-dark, #6b9e65);"></i>
+                    </div>
+                    <div class="payment-info-text">
+                        <p>Pembayaran diproses melalui <strong>Midtrans</strong> secara aman.</p>
+                        <p class="payment-info-sub">Pilih metode pembayaran (Transfer Bank, E-Wallet, Kartu Kredit, QRIS, dll) pada popup pembayaran Midtrans.</p>
+                    </div>
+                </div>
+                <div class="payment-methods-grid">
+                    <div class="pm-badge"><i class="fas fa-university"></i> Bank Transfer</div>
+                    <div class="pm-badge"><i class="fas fa-wallet"></i> GoPay</div>
+                    <div class="pm-badge"><i class="fas fa-wallet"></i> ShopeePay</div>
+                    <div class="pm-badge"><i class="fas fa-credit-card"></i> Kartu Kredit</div>
+                    <div class="pm-badge"><i class="fas fa-qrcode"></i> QRIS</div>
+                    <div class="pm-badge"><i class="fas fa-store"></i> Indomaret</div>
                 </div>
             </div>
         </div>
         
         <!-- Payment Summary (Sticky) -->
         <div class="payment-summary">
-            <h3 style="color: var(--user-primary); margin-bottom: 20px; font-size: 20px;">Rincian Pembayaran</h3>
+            <h3 class="payment-section-title" style="margin-bottom: 20px;">Rincian Pembayaran</h3>
             
             <div class="summary-row">
                 <span>Total Harga ({{ $pesanan->details->sum('qty') }} Barang)</span>
@@ -153,30 +104,87 @@
             
             <div class="summary-row">
                 <span>Total Biaya Pengiriman</span>
-                <span>Rp0</span>
+                <span style="color: var(--green-dark, #6b9e65);">Gratis</span>
             </div>
             
-            <div class="summary-row" style="color: #27ae60;">
-                <span>Diskon Belanja</span>
-                <span>-Rp0</span>
+            <div class="summary-row total-row">
+                <span>Total Pembayaran</span>
+                <span class="total-amount">Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}</span>
             </div>
             
-            <div class="summary-row" style="color: #e74c3c;">
-                <span>Diskon Voucher</span>
-                <span>-Rp0</span>
-            </div>
-            
-            <div class="summary-row" style="border-top: 2px solid var(--user-primary); margin-top: 15px; padding-top: 15px;">
-                <span style="font-weight: 700; font-size: 18px;">Total Pembayaran</span>
-                <span style="font-weight: 700; font-size: 20px; color: var(--user-primary);">Rp {{ number_format($pesanan->total_harga, 0, ',', '.') }}</span>
-            </div>
-            
-            <button type="button" id="btnPayment" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px; margin-top: 25px; opacity: 0.6; cursor: not-allowed;" disabled>
-                <i class="fas fa-check-circle"></i> Bayar
+            <button type="button" id="btnPayment" class="btn-pay-now">
+                <i class="fas fa-lock"></i> Bayar Sekarang
             </button>
-            <p id="paymentHint" style="color: #e74c3c; font-size: 13px; margin-top: 10px; text-align: center;">
-                Pilih metode pembayaran terlebih dahulu
+            <p class="payment-secure-note">
+                <i class="fas fa-shield-alt"></i> Transaksi aman & terenkripsi
             </p>
+        </div>
+    </div>
+</div>
+
+<!-- Midtrans Snap JS -->
+<script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ $clientKey }}"></script>
+
+<!-- Invoice Modal -->
+<div id="invoiceOverlay" class="invoice-overlay" style="display:none;">
+    <div class="invoice-modal">
+        <div class="invoice-header">
+            <div class="invoice-success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Pembayaran Berhasil!</h2>
+            <p class="invoice-subtitle">Terima kasih atas pembelian Anda</p>
+        </div>
+
+        <div class="invoice-receipt">
+            <div class="receipt-top">
+                <h3><i class="fas fa-book-open"></i> Book.com</h3>
+                <p>Struk Pembayaran</p>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-info">
+                <div class="receipt-info-row">
+                    <span>No. Pesanan</span>
+                    <span id="inv-id-pesanan">-</span>
+                </div>
+                <div class="receipt-info-row">
+                    <span>Tanggal</span>
+                    <span id="inv-tanggal">-</span>
+                </div>
+                <div class="receipt-info-row">
+                    <span>Pembeli</span>
+                    <span id="inv-nama">-</span>
+                </div>
+                <div class="receipt-info-row">
+                    <span>Metode Bayar</span>
+                    <span id="inv-metode">-</span>
+                </div>
+                <div class="receipt-info-row">
+                    <span>ID Transaksi</span>
+                    <span id="inv-txn" class="inv-txn-id">-</span>
+                </div>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-items" id="inv-items">
+                <!-- items injected by JS -->
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-total">
+                <span>Total Pembayaran</span>
+                <span id="inv-total">-</span>
+            </div>
+        </div>
+
+        <div class="invoice-actions">
+            <button type="button" class="btn-invoice-close" id="btnInvoiceClose">
+                <i class="fas fa-shopping-bag"></i> Lihat Pesanan Saya
+            </button>
         </div>
     </div>
 </div>
@@ -213,9 +221,9 @@
 }
 
 .step.active .step-number {
-    background: var(--user-primary);
+    background: var(--green-dark, #6b9e65);
     color: white;
-    border-color: var(--user-primary);
+    border-color: var(--green-dark, #6b9e65);
 }
 
 .step.completed .step-number {
@@ -232,7 +240,7 @@
 
 .step.active .step-label,
 .step.completed .step-label {
-    color: var(--user-primary);
+    color: var(--green-dark, #6b9e65);
 }
 
 .step-line {
@@ -244,7 +252,7 @@
 }
 
 .step-line.active {
-    background: var(--user-primary);
+    background: var(--green-dark, #6b9e65);
 }
 
 .payment-section {
@@ -254,160 +262,144 @@
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
-.payment-method-group {
-    margin-bottom: 15px;
+.payment-section-title {
+    color: var(--green-dark, #6b9e65);
+    margin-bottom: 25px;
+    font-size: 20px;
 }
 
-.payment-method-item {
-    display: block;
-    cursor: pointer;
-}
-
-.payment-method-item input[type="radio"] {
-    display: none;
-}
-
-.payment-method-content {
+/* Order Items */
+.order-items-list {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.order-item-row {
+    display: flex;
     align-items: center;
-    padding: 18px 20px;
-    border: 2px solid #e5e7eb;
+    gap: 15px;
+    padding: 15px;
+    background: #f9fafb;
     border-radius: 10px;
     transition: all 0.3s;
-    background: white;
 }
 
-.payment-method-item:hover .payment-method-content {
-    border-color: var(--user-primary);
-    background: #f8fafc;
+.order-item-row:hover {
+    background: #f0fdf4;
 }
 
-.payment-method-item input[type="radio"]:checked ~ .payment-method-content {
-    border-color: var(--user-primary);
-    background: #eff6ff;
-}
-
-.payment-method-header {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.payment-method-title {
-    font-size: 16px;
-    font-weight: 600;
-    color: #374151;
-}
-
-.payment-method-toggle {
-    color: #9ca3af;
-    transition: transform 0.3s;
-}
-
-.payment-method-item input[type="radio"]:checked ~ .payment-method-content .payment-method-toggle {
-    transform: rotate(180deg);
-    color: var(--user-primary);
-}
-
-.promo-input-group {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.promo-card {
-    position: relative;
-    background: linear-gradient(135deg, #fff9e6 0%, #fff5d9 100%);
-    border: 2px dashed #f59e0b;
-    border-radius: 12px;
-    padding: 20px;
-    display: flex;
-    gap: 15px;
-}
-
-.promo-icon {
-    width: 50px;
-    height: 50px;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: #f59e0b;
+.order-item-img {
+    width: 65px;
+    height: 85px;
+    border-radius: 8px;
+    overflow: hidden;
     flex-shrink: 0;
 }
 
-.promo-details h4 {
-    font-size: 14px;
-    font-weight: 600;
-    color: #374151;
-    margin: 0 0 8px 0;
+.order-item-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.promo-details p {
-    font-size: 14px;
-    color: #e74c3c;
-    margin: 0 0 10px 0;
-}
-
-.promo-details ul {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 12px 0;
-}
-
-.promo-details ul li {
-    font-size: 13px;
-    color: #666;
-    margin-bottom: 4px;
-    padding-left: 15px;
-    position: relative;
-}
-
-.promo-details ul li:before {
-    content: "•";
-    position: absolute;
-    left: 0;
-    color: #f59e0b;
-}
-
-.promo-code {
+.order-item-placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--green-light, #d4edda);
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    color: var(--green-dark, #6b9e65);
+    font-size: 24px;
+}
+
+.order-item-info {
+    flex: 1;
+}
+
+.order-item-info h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 4px;
+}
+
+.order-item-author {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0 0 6px;
+}
+
+.order-item-qty {
+    font-size: 14px;
+    color: #4b5563;
+    margin: 0;
+}
+
+.order-item-subtotal {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--green-dark, #6b9e65);
+    white-space: nowrap;
+}
+
+/* Payment Info */
+.payment-info-box {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 12px;
+    border: 1px solid var(--green-pastel, #a8d5a2);
+}
+
+.payment-info-icon {
+    flex-shrink: 0;
+    width: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-info-text p {
     font-size: 14px;
     color: #374151;
+    margin: 0 0 6px;
 }
 
-.promo-code strong {
-    color: var(--user-primary);
+.payment-info-sub {
+    font-size: 13px !important;
+    color: #6b7280 !important;
 }
 
-.copy-btn {
-    background: none;
-    border: none;
-    color: var(--user-primary);
-    cursor: pointer;
-    padding: 4px;
-    transition: all 0.3s;
+.payment-methods-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 15px;
 }
 
-.copy-btn:hover {
-    color: var(--user-accent);
+.pm-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #4b5563;
+    font-weight: 500;
 }
 
-.promo-info-link {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    color: var(--user-primary);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
+.pm-badge i {
+    color: var(--green-dark, #6b9e65);
+    font-size: 11px;
 }
 
+/* Payment Summary */
 .payment-summary {
     background: white;
     border-radius: 15px;
@@ -425,26 +417,61 @@
     color: #374151;
 }
 
-.form-input {
+.total-row {
+    border-top: 2px solid var(--green-dark, #6b9e65);
+    margin-top: 15px;
+    padding-top: 15px;
+}
+
+.total-row span:first-child {
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.total-amount {
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--green-dark, #6b9e65);
+}
+
+.btn-pay-now {
     width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 15px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    margin-top: 25px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--green-dark, #6b9e65), var(--green-deeper, #4a7c44));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(74, 124, 68, 0.3);
 }
 
-.form-input:focus {
-    outline: none;
-    border-color: var(--user-primary);
-    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+.btn-pay-now:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 124, 68, 0.4);
 }
 
-.form-error {
-    color: #e74c3c;
+.btn-pay-now:active {
+    transform: translateY(0);
+}
+
+.payment-secure-note {
+    text-align: center;
     font-size: 13px;
-    margin-top: 5px;
-    display: block;
+    color: #6b7280;
+    margin-top: 12px;
+}
+
+.payment-secure-note i {
+    color: var(--green-dark, #6b9e65);
 }
 
 @media (max-width: 992px) {
@@ -456,128 +483,359 @@
         position: static;
         margin-top: 30px;
     }
+
+    .payment-info-box {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* Invoice Modal */
+.invoice-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+    animation: fadeInOverlay 0.3s ease;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUpInvoice {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.invoice-modal {
+    background: white;
+    border-radius: 20px;
+    max-width: 440px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+    animation: slideUpInvoice 0.4s ease;
+}
+
+.invoice-header {
+    text-align: center;
+    padding: 30px 25px 20px;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 20px 20px 0 0;
+}
+
+.invoice-success-icon {
+    font-size: 52px;
+    color: #27ae60;
+    margin-bottom: 12px;
+    animation: bounceIn 0.6s ease 0.3s both;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.invoice-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 6px;
+}
+
+.invoice-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.invoice-receipt {
+    padding: 20px 25px;
+}
+
+.receipt-top {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.receipt-top h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green-dark, #6b9e65);
+    margin: 0 0 4px;
+}
+
+.receipt-top h3 i {
+    margin-right: 6px;
+}
+
+.receipt-top p {
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.receipt-divider {
+    border: none;
+    border-top: 2px dashed #e5e7eb;
+    margin: 15px 0;
+}
+
+.receipt-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 13px;
+}
+
+.receipt-info-row span:first-child {
+    color: #9ca3af;
+}
+
+.receipt-info-row span:last-child {
+    color: #374151;
+    font-weight: 600;
+    text-align: right;
+    max-width: 60%;
+}
+
+.inv-txn-id {
+    font-size: 11px !important;
+    word-break: break-all;
+}
+
+.receipt-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.receipt-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.receipt-item-info {
+    flex: 1;
+}
+
+.receipt-item-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 2px;
+    line-height: 1.3;
+}
+
+.receipt-item-detail {
+    font-size: 12px;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.receipt-item-subtotal {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green-dark, #6b9e65);
+    white-space: nowrap;
+}
+
+.receipt-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0 0;
+}
+
+.receipt-total span:first-child {
+    font-size: 15px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.receipt-total span:last-child {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--green-dark, #6b9e65);
+}
+
+.invoice-actions {
+    padding: 15px 25px 25px;
+    text-align: center;
+}
+
+.btn-invoice-close {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--green-dark, #6b9e65), var(--green-deeper, #4a7c44));
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(74, 124, 68, 0.3);
+}
+
+.btn-invoice-close:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 124, 68, 0.4);
+}
+
+@media (max-width: 480px) {
+    .invoice-modal {
+        max-width: 100%;
+        border-radius: 16px;
+    }
+    .invoice-header {
+        padding: 24px 20px 16px;
+        border-radius: 16px 16px 0 0;
+    }
+    .invoice-receipt {
+        padding: 16px 20px;
+    }
+    .invoice-actions {
+        padding: 12px 20px 20px;
+    }
 }
 </style>
 @endpush
 
 @push('scripts')
-<!-- SweetAlert2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
-function copyPromoCode(code) {
-    navigator.clipboard.writeText(code).then(() => {
-        Swal.fire({
-            icon: 'success',
-            title: 'Berhasil!',
-            text: 'Kode promo berhasil disalin: ' + code,
-            timer: 2000,
-            showConfirmButton: false
-        });
-    });
-}
-
-// Enable/disable payment button based on payment method selection
 document.addEventListener('DOMContentLoaded', function() {
-    const paymentMethods = document.querySelectorAll('input[name="metode_pembayaran"]');
     const btnPayment = document.getElementById('btnPayment');
-    const paymentHint = document.getElementById('paymentHint');
-    const paymentForm = document.getElementById('paymentForm');
     
-    // Listen to payment method changes
-    paymentMethods.forEach(method => {
-        method.addEventListener('change', function() {
-            if (this.checked) {
-                // Enable button
+    btnPayment.addEventListener('click', function() {
+        // Open Midtrans Snap popup
+        window.snap.pay('{{ $pesanan->snap_token }}', {
+            onSuccess: function(result) {
+                btnPayment.disabled = true;
+                btnPayment.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+                savePaymentResult(result);
+            },
+            onPending: function(result) {
+                alert('Pembayaran pending. Silakan selesaikan pembayaran Anda sesuai instruksi.');
+                window.location.href = '{{ route("user.orders") }}';
+            },
+            onError: function(result) {
+                alert('Pembayaran gagal. Silakan coba lagi.');
+                console.error('Payment error:', result);
+            },
+            onClose: function() {
+                console.log('Payment popup closed');
+            }
+        });
+    });
+
+    function savePaymentResult(result) {
+        fetch('{{ route("user.payment.process", $pesanan->id_pesanan) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                transaction_id: result.transaction_id,
+                order_id: result.order_id,
+                payment_type: result.payment_type,
+                transaction_status: result.transaction_status,
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.invoice) {
+                    showInvoice(data.invoice, data.redirect);
+                } else {
+                    window.location.href = data.redirect;
+                }
+            } else {
+                alert(data.message || 'Terjadi kesalahan.');
                 btnPayment.disabled = false;
-                btnPayment.style.opacity = '1';
-                btnPayment.style.cursor = 'pointer';
-                paymentHint.style.display = 'none';
+                btnPayment.innerHTML = '<i class="fas fa-lock"></i> Bayar Sekarang';
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            window.location.href = '{{ route("user.orders") }}';
         });
-    });
-    
-    // Handle payment button click
-    btnPayment.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        if (this.disabled) return;
-        
-        const selectedMethod = document.querySelector('input[name="metode_pembayaran"]:checked');
-        if (!selectedMethod) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Perhatian',
-                text: 'Pilih metode pembayaran terlebih dahulu!'
-            });
-            return;
-        }
-        
-        const methodNames = {
-            'e-wallet': 'Uang Elektronik',
-            'transfer': 'Virtual Account',
-            'kartu_kredit': 'Kartu Kredit/Debit'
+    }
+
+    function formatRupiah(num) {
+        return 'Rp ' + Number(num).toLocaleString('id-ID');
+    }
+
+    function formatMetode(metode) {
+        const map = {
+            'bank_transfer': 'Transfer Bank',
+            'credit_card': 'Kartu Kredit',
+            'gopay': 'GoPay',
+            'shopeepay': 'ShopeePay',
+            'qris': 'QRIS',
+            'cstore': 'Minimarket',
+            'echannel': 'Mandiri Bill',
+            'bca_klikpay': 'BCA KlikPay',
+            'akulaku': 'Akulaku',
         };
-        
-        const selectedMethodName = methodNames[selectedMethod.value];
-        const totalAmount = 'Rp {{ number_format($pesanan->total_harga, 0, ",", ".") }}';
-        
-        // First Alert: Confirmation
-        Swal.fire({
-            title: 'Konfirmasi Pembayaran',
-            html: `
-                <div style="text-align: left; padding: 10px;">
-                    <p><strong>Metode Pembayaran:</strong> ${selectedMethodName}</p>
-                    <p><strong>Total Pembayaran:</strong> ${totalAmount}</p>
-                    <hr style="margin: 15px 0;">
-                    <p style="color: #666; font-size: 14px;">Apakah Anda yakin ingin melanjutkan pembayaran?</p>
-                </div>
-            `,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#1e40af',
-            cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Ya, Bayar Sekarang',
-            cancelButtonText: 'Batal',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Show loading
-                Swal.fire({
-                    title: 'Memproses Pembayaran...',
-                    html: 'Mohon tunggu sebentar',
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-                
-                // Simulate payment processing delay
-                setTimeout(() => {
-                    // Show success message
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Pembayaran Berhasil!',
-                        html: `
-                            <div style="text-align: center; padding: 10px;">
-                                <p style="font-size: 16px; margin-bottom: 10px;">Terima kasih atas pembelian Anda!</p>
-                                <p style="color: #666; font-size: 14px;">Pesanan Anda sedang diproses.</p>
-                                <p style="color: #666; font-size: 14px;">Anda akan dialihkan ke halaman pesanan...</p>
-                            </div>
-                        `,
-                        confirmButtonColor: '#1e40af',
-                        confirmButtonText: 'Lihat Pesanan',
-                        allowOutsideClick: false,
-                        timer: 3000,
-                        timerProgressBar: true
-                    }).then(() => {
-                        // Submit form after success message
-                        paymentForm.submit();
-                    });
-                }, 1500);
-            }
+        return map[metode] || metode.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function showInvoice(invoice, redirectUrl) {
+        document.getElementById('inv-id-pesanan').textContent = '#' + invoice.id_pesanan;
+        document.getElementById('inv-tanggal').textContent = invoice.tanggal;
+        document.getElementById('inv-nama').textContent = invoice.nama_pembeli;
+        document.getElementById('inv-metode').textContent = formatMetode(invoice.metode);
+        document.getElementById('inv-txn').textContent = invoice.transaction_id;
+        document.getElementById('inv-total').textContent = formatRupiah(invoice.total_harga);
+
+        const itemsContainer = document.getElementById('inv-items');
+        itemsContainer.innerHTML = '';
+        invoice.items.forEach(function(item) {
+            const el = document.createElement('div');
+            el.className = 'receipt-item';
+            el.innerHTML =
+                '<div class="receipt-item-info">' +
+                    '<p class="receipt-item-title">' + escapeHtml(item.judul) + '</p>' +
+                    '<p class="receipt-item-detail">' + escapeHtml(item.penulis) + ' &middot; ' + item.qty + ' x ' + formatRupiah(item.harga_satuan) + '</p>' +
+                '</div>' +
+                '<span class="receipt-item-subtotal">' + formatRupiah(item.subtotal) + '</span>';
+            itemsContainer.appendChild(el);
         });
-    });
+
+        const overlay = document.getElementById('invoiceOverlay');
+        overlay.style.display = 'flex';
+
+        document.getElementById('btnInvoiceClose').addEventListener('click', function() {
+            window.location.href = redirectUrl;
+        });
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
+    }
 });
 </script>
 @endpush

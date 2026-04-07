@@ -10,9 +10,12 @@ use App\Models\PesananDetail;
 use App\Models\Pembayaran;
 use App\Models\AlamatPengiriman;
 use App\Models\PesanKontak;
+use App\Models\FavoritBuku;
+use App\Models\UlasanBuku;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -61,6 +64,84 @@ class UserController extends Controller
         $categories = KategoriBuku::withCount('buku')->get();
         
         return view('user.books', compact('books', 'categories'));
+    }
+    
+    /**
+     * Display book detail page
+     */
+    public function bookDetail($id)
+    {
+        $book = Buku::with(['kategori', 'ulasan.user'])->findOrFail($id);
+        
+        $isFavorited = FavoritBuku::where('id_user', Auth::id())
+            ->where('id_buku', $id)
+            ->exists();
+        
+        $avgRating = $book->ulasan->avg('rating') ?? 0;
+        $reviewCount = $book->ulasan->count();
+        
+        $userReview = UlasanBuku::where('id_user', Auth::id())
+            ->where('id_buku', $id)
+            ->first();
+        
+        // Related books from same category
+        $relatedBooks = Buku::where('id_kategori', $book->id_kategori)
+            ->where('id_buku', '!=', $book->id_buku)
+            ->take(6)
+            ->get();
+        
+        return view('user.book-detail', compact(
+            'book', 'isFavorited', 'avgRating', 'reviewCount', 'userReview', 'relatedBooks'
+        ));
+    }
+    
+    /**
+     * Toggle book favorite
+     */
+    public function toggleFavorite($id)
+    {
+        $userId = Auth::id();
+        $existing = FavoritBuku::where('id_user', $userId)->where('id_buku', $id)->first();
+        
+        if ($existing) {
+            $existing->delete();
+            return response()->json(['success' => true, 'favorited' => false, 'message' => 'Buku dihapus dari favorit']);
+        }
+        
+        FavoritBuku::create(['id_user' => $userId, 'id_buku' => $id]);
+        return response()->json(['success' => true, 'favorited' => true, 'message' => 'Buku ditambahkan ke favorit']);
+    }
+    
+    /**
+     * Submit book review
+     */
+    public function submitReview(Request $request, $id)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'komentar' => 'nullable|string|max:1000',
+        ]);
+        
+        $userId = Auth::id();
+        
+        // Check if user already reviewed this book
+        $existing = UlasanBuku::where('id_user', $userId)->where('id_buku', $id)->first();
+        if ($existing) {
+            $existing->update([
+                'rating' => $request->rating,
+                'komentar' => $request->komentar,
+            ]);
+            return back()->with('success', 'Ulasan berhasil diperbarui!');
+        }
+        
+        UlasanBuku::create([
+            'id_user' => $userId,
+            'id_buku' => $id,
+            'rating' => $request->rating,
+            'komentar' => $request->komentar,
+        ]);
+        
+        return back()->with('success', 'Ulasan berhasil ditambahkan!');
     }
     
     /**
@@ -284,10 +365,95 @@ class UserController extends Controller
      */
     public function orders()
     {
-        // TODO: Implement orders functionality
-        return view('user.orders');
+        $orders = Pesanan::with(['details.buku', 'pembayaran'])
+            ->where('id_user', Auth::id())
+            ->orderBy('tanggal_pesanan', 'desc')
+            ->get();
+
+        return view('user.orders', compact('orders'));
     }
     
+    /**
+     * Cancel unpaid order and restore stock
+     */
+    public function cancelOrder($orderId)
+    {
+        DB::beginTransaction();
+
+        try {
+            $pesanan = Pesanan::with('details.buku')
+                ->where('id_pesanan', $orderId)
+                ->where('id_user', Auth::id())
+                ->firstOrFail();
+
+            if ($pesanan->status !== 'menunggu') {
+                return redirect()->route('user.orders')
+                    ->with('error', 'Pesanan ini tidak dapat dibatalkan.');
+            }
+
+            $pesanan->update(['status' => 'dibatalkan']);
+
+            // Restore stock
+            foreach ($pesanan->details as $detail) {
+                if ($detail->buku) {
+                    $detail->buku->increment('stok', $detail->qty);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('user.orders')
+                ->with('success', 'Pesanan #' . $pesanan->id_pesanan . ' berhasil dibatalkan.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('user.orders')
+                ->with('error', 'Gagal membatalkan pesanan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Upload bukti COD (foto bukti penerimaan + pembayaran)
+     */
+    public function uploadBuktiCod(Request $request, $orderId)
+    {
+        $request->validate([
+            'bukti_cod' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
+        ], [
+            'bukti_cod.required' => 'Foto bukti wajib diunggah.',
+            'bukti_cod.image' => 'File harus berupa gambar.',
+            'bukti_cod.mimes' => 'Format gambar harus JPG, PNG, atau WebP.',
+            'bukti_cod.max' => 'Ukuran gambar maksimal 5MB.',
+        ]);
+
+        try {
+            $pesanan = Pesanan::where('id_pesanan', $orderId)
+                ->where('id_user', Auth::id())
+                ->where('metode_pembayaran', 'cod')
+                ->whereIn('status', ['dikirim', 'diproses'])
+                ->firstOrFail();
+
+            // Store the photo
+            $path = $request->file('bukti_cod')->store('bukti_cod', 'public');
+
+            $pesanan->update(['bukti_cod' => $path]);
+
+            // Update pembayaran bukti
+            if ($pesanan->pembayaran) {
+                $pesanan->pembayaran->update([
+                    'bukti_pembayaran' => $path,
+                ]);
+            }
+
+            return redirect()->route('user.orders')
+                ->with('success', 'Bukti penerimaan & pembayaran COD berhasil diunggah! Menunggu konfirmasi admin.');
+
+        } catch (\Exception $e) {
+            return redirect()->route('user.orders')
+                ->with('error', 'Gagal mengunggah bukti: ' . $e->getMessage());
+        }
+    }
+
     /**
      * Display user profile
      */
@@ -301,12 +467,32 @@ class UserController extends Controller
      */
     public function inbox()
     {
+        // Mark all unread messages as read when user opens inbox
+        PesanKontak::where('id_user', Auth::id())
+                   ->whereNotNull('balasan_admin')
+                   ->where(function ($q) {
+                       $q->whereNull('dibaca_user')->orWhere('dibaca_user', false);
+                   })
+                   ->update(['dibaca_user' => true]);
+
         $messages = PesanKontak::where('id_user', Auth::id())
                                ->whereNotNull('balasan_admin')
                                ->orderBy('tanggal_balas', 'desc')
                                ->paginate(10);
         
         return view('user.inbox', compact('messages'));
+    }
+
+    /**
+     * Delete inbox message
+     */
+    public function deleteInboxMessage($id)
+    {
+        $pesan = PesanKontak::where('id_user', Auth::id())->findOrFail($id);
+        $pesan->delete();
+
+        return redirect()->route('user.inbox')
+            ->with('success', 'Pesan berhasil dihapus');
     }
     
     /**
@@ -389,9 +575,11 @@ class UserController extends Controller
     {
         $request->validate([
             'id_alamat' => 'required|exists:alamat_pengiriman,id_alamat',
+            'metode_pembayaran' => 'required|in:midtrans,cod',
         ], [
             'id_alamat.required' => 'Pilih alamat pengiriman',
             'id_alamat.exists' => 'Alamat tidak valid',
+            'metode_pembayaran.required' => 'Pilih metode pembayaran',
         ]);
         
         DB::beginTransaction();
@@ -427,6 +615,7 @@ class UserController extends Controller
                 'tanggal_pesanan' => now(),
                 'total_harga' => $total,
                 'status' => 'menunggu',
+                'metode_pembayaran' => $request->metode_pembayaran,
             ]);
             
             // Create order details and reduce stock
@@ -443,7 +632,7 @@ class UserController extends Controller
                     'id_pesanan' => $pesanan->id_pesanan,
                     'id_buku' => $item->id_buku,
                     'qty' => $item->qty,
-                    'harga' => $item->buku->harga,
+                    'harga_satuan' => $item->buku->harga,
                 ]);
                 
                 // Reduce stock
@@ -454,6 +643,20 @@ class UserController extends Controller
             Keranjang::where('id_user', $userId)->delete();
             
             DB::commit();
+
+            // COD: redirect to orders page, Midtrans: redirect to payment page
+            if ($request->metode_pembayaran === 'cod') {
+                // Create pembayaran record with 'menunggu' status for COD
+                Pembayaran::create([
+                    'id_pesanan' => $pesanan->id_pesanan,
+                    'metode' => 'cod',
+                    'jumlah' => $total,
+                    'status_verifikasi' => 'menunggu',
+                ]);
+
+                return redirect()->route('user.orders')
+                    ->with('success', 'Pesanan COD berhasil dibuat! Siapkan pembayaran saat barang diterima.');
+            }
             
             return redirect()->route('user.payment', $pesanan->id_pesanan)
                 ->with('success', 'Pesanan berhasil dibuat. Silakan lakukan pembayaran.');
@@ -467,7 +670,7 @@ class UserController extends Controller
     }
     
     /**
-     * Show payment page
+     * Show payment page with Midtrans Snap token
      */
     public function showPayment($orderId)
     {
@@ -475,46 +678,233 @@ class UserController extends Controller
             ->where('id_pesanan', $orderId)
             ->where('id_user', Auth::id())
             ->firstOrFail();
-        
-        return view('user.payment', compact('pesanan'));
+
+        // Only allow payment for pending orders
+        if ($pesanan->status !== 'menunggu') {
+            return redirect()->route('user.orders')
+                ->with('error', 'Pesanan ini sudah dibayar atau dibatalkan.');
+        }
+
+        // Reuse existing snap token if available
+        if (!$pesanan->snap_token) {
+            // Configure Midtrans
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+            \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized', true);
+            \Midtrans\Config::$is3ds = config('midtrans.is_3ds', true);
+
+            $orderId_midtrans = 'ORDER-' . $pesanan->id_pesanan . '-' . time();
+
+            $itemDetails = $pesanan->details->map(function ($detail) {
+                return [
+                    'id' => (string) $detail->id_buku,
+                    'price' => (int) $detail->harga_satuan,
+                    'quantity' => (int) $detail->qty,
+                    'name' => substr($detail->buku->judul, 0, 50),
+                ];
+            })->toArray();
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $orderId_midtrans,
+                    'gross_amount' => (int) $pesanan->total_harga,
+                ],
+                'customer_details' => [
+                    'first_name' => $pesanan->user->nama,
+                    'email' => $pesanan->user->email,
+                ],
+                'item_details' => $itemDetails,
+            ];
+
+            try {
+                $snapToken = \Midtrans\Snap::getSnapToken($params);
+                $pesanan->update(['snap_token' => $snapToken]);
+            } catch (\Exception $e) {
+                Log::error('Midtrans Snap Token Error: ' . $e->getMessage());
+                return redirect()->back()
+                    ->with('error', 'Gagal memuat pembayaran. Silakan coba lagi.');
+            }
+        }
+
+        $clientKey = config('midtrans.client_key');
+
+        return view('user.payment', compact('pesanan', 'clientKey'));
     }
     
     /**
-     * Process payment
+     * Process payment after Midtrans Snap success (called via AJAX from frontend)
      */
     public function processPayment(Request $request, $orderId)
     {
-        $request->validate([
-            'metode_pembayaran' => 'required|in:transfer,e-wallet,kartu_kredit',
-        ]);
-        
         DB::beginTransaction();
-        
+
         try {
             $pesanan = Pesanan::where('id_pesanan', $orderId)
                 ->where('id_user', Auth::id())
                 ->firstOrFail();
-            
-            // Create payment record (dummy payment - auto valid)
+
+            if ($pesanan->status !== 'menunggu') {
+                return response()->json(['success' => false, 'message' => 'Pesanan sudah diproses.']);
+            }
+
+            // Create payment record
             Pembayaran::create([
                 'id_pesanan' => $orderId,
-                'metode' => $request->metode_pembayaran,
+                'midtrans_transaction_id' => $request->transaction_id,
+                'midtrans_order_id' => $request->order_id,
+                'metode' => $request->payment_type ?? 'midtrans',
                 'jumlah' => $pesanan->total_harga,
-                'status_verifikasi' => 'valid', // Auto valid for dummy payment
+                'status_verifikasi' => 'valid',
             ]);
-            
-            // Update order status to 'selesai' since payment is auto valid
-            $pesanan->update(['status' => 'selesai']);
-            
+
+            // Update order status to 'diproses' (sedang dikemas)
+            $pesanan->update(['status' => 'diproses']);
+
+            // Create inbox notification for user
+            PesanKontak::create([
+                'id_user' => Auth::id(),
+                'subjek' => 'Pesanan #' . $pesanan->id_pesanan . ' Berhasil Dibayar',
+                'isi_pesan' => 'Pembayaran untuk pesanan #' . $pesanan->id_pesanan . ' sebesar Rp ' . number_format($pesanan->total_harga, 0, ',', '.') . ' telah berhasil dilakukan.',
+                'tanggal' => now(),
+                'balasan_admin' => 'Terima kasih! Pesanan Anda sedang dikemas dan akan segera dikirim. Anda dapat memantau status pesanan di halaman Pesanan Saya.',
+                'tanggal_balas' => now(),
+            ]);
+
             DB::commit();
-            
-            return redirect()->route('user.orders')
-                ->with('success', 'Pembayaran berhasil! Pesanan Anda sedang diproses.');
-            
+
+            // Load invoice data
+            $pesanan->load('details.buku');
+            $user = Auth::user();
+
+            $invoiceItems = $pesanan->details->map(function ($detail) {
+                return [
+                    'judul' => $detail->buku->judul,
+                    'penulis' => $detail->buku->penulis,
+                    'qty' => $detail->qty,
+                    'harga_satuan' => $detail->harga_satuan,
+                    'subtotal' => $detail->harga_satuan * $detail->qty,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembayaran berhasil!',
+                'redirect' => route('user.orders'),
+                'invoice' => [
+                    'id_pesanan' => $pesanan->id_pesanan,
+                    'tanggal' => now()->format('d M Y, H:i'),
+                    'nama_pembeli' => $user->nama ?? $user->name ?? 'Pelanggan',
+                    'metode' => $request->payment_type ?? 'midtrans',
+                    'transaction_id' => $request->transaction_id,
+                    'items' => $invoiceItems,
+                    'total_harga' => $pesanan->total_harga,
+                ],
+            ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            Log::error('Process Payment Error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan.'], 500);
+        }
+    }
+
+    /**
+     * Handle Midtrans server-to-server notification (webhook)
+     */
+    public function midtransNotification(Request $request)
+    {
+        try {
+            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+
+            $notification = new \Midtrans\Notification();
+
+            $transactionStatus = $notification->transaction_status;
+            $paymentType = $notification->payment_type;
+            $orderId = $notification->order_id;
+            $fraudStatus = $notification->fraud_status ?? null;
+
+            // Extract pesanan ID from order_id format: ORDER-{id}-{timestamp}
+            $parts = explode('-', $orderId);
+            if (count($parts) < 2) {
+                Log::warning('Midtrans notification: invalid order_id format: ' . $orderId);
+                return response()->json(['status' => 'error'], 400);
+            }
+            $pesananId = $parts[1];
+
+            $pesanan = Pesanan::find($pesananId);
+            if (!$pesanan) {
+                Log::warning('Midtrans notification: pesanan not found: ' . $pesananId);
+                return response()->json(['status' => 'error'], 404);
+            }
+
+            if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+                if ($fraudStatus == 'accept' || $fraudStatus === null) {
+                    // Payment successful
+                    if ($pesanan->status === 'menunggu') {
+                        $pesanan->update(['status' => 'diproses']);
+
+                        // Upsert payment record
+                        Pembayaran::updateOrCreate(
+                            ['id_pesanan' => $pesananId],
+                            [
+                                'midtrans_transaction_id' => $notification->transaction_id,
+                                'midtrans_order_id' => $orderId,
+                                'metode' => $paymentType,
+                                'jumlah' => $pesanan->total_harga,
+                                'status_verifikasi' => 'valid',
+                            ]
+                        );
+
+                        // Create inbox notification if not already created
+                        $existingNotif = PesanKontak::where('id_user', $pesanan->id_user)
+                            ->where('subjek', 'Pesanan #' . $pesanan->id_pesanan . ' Berhasil Dibayar')
+                            ->first();
+
+                        if (!$existingNotif) {
+                            PesanKontak::create([
+                                'id_user' => $pesanan->id_user,
+                                'subjek' => 'Pesanan #' . $pesanan->id_pesanan . ' Berhasil Dibayar',
+                                'isi_pesan' => 'Pembayaran untuk pesanan #' . $pesanan->id_pesanan . ' sebesar Rp ' . number_format($pesanan->total_harga, 0, ',', '.') . ' telah berhasil.',
+                                'tanggal' => now(),
+                                'balasan_admin' => 'Terima kasih! Pesanan Anda sedang dikemas dan akan segera dikirim.',
+                                'tanggal_balas' => now(),
+                            ]);
+                        }
+                    }
+                }
+            } elseif ($transactionStatus == 'pending') {
+                // Payment is pending — keep status as 'menunggu'
+            } elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire'])) {
+                // Payment failed — cancel order and restore stock
+                if ($pesanan->status === 'menunggu') {
+                    $pesanan->update(['status' => 'dibatalkan']);
+
+                    // Restore stock
+                    foreach ($pesanan->details as $detail) {
+                        if ($detail->buku) {
+                            $detail->buku->increment('stok', $detail->qty);
+                        }
+                    }
+
+                    Pembayaran::updateOrCreate(
+                        ['id_pesanan' => $pesananId],
+                        [
+                            'midtrans_transaction_id' => $notification->transaction_id,
+                            'midtrans_order_id' => $orderId,
+                            'metode' => $paymentType,
+                            'jumlah' => $pesanan->total_harga,
+                            'status_verifikasi' => 'invalid',
+                        ]
+                    );
+                }
+            }
+
+            return response()->json(['status' => 'ok']);
+
+        } catch (\Exception $e) {
+            Log::error('Midtrans Notification Error: ' . $e->getMessage());
+            return response()->json(['status' => 'error'], 500);
         }
     }
     

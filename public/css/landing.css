@@ -178,13 +178,16 @@ body {
 .hero-section::before {
     content: '';
     position: absolute;
-    top: 15%;
-    right: 10%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(168, 213, 162, 0.08) 0%, transparent 70%);
-    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1400px;
+    height: 1400px;
+    background: url('/gambar/map-bg.png') no-repeat center center;
+    background-size: contain;
+    opacity: 0.18;
     pointer-events: none;
+    z-index: 0;
 }
 
 .hero-section::after {
@@ -412,42 +415,156 @@ body {
     transform: rotateX(-90deg) translateZ(calc(var(--book-height) / 2));
 }
 
-/* Hint text */
-.book3d-hint {
+/* ===== WOODEN SHELF ===== */
+/* Shelf: solid 3D box — 300w x 14h x 160d */
+.shelf3d {
     position: absolute;
-    bottom: 10px;
+    bottom: 0px;
     left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    color: var(--text-light);
-    opacity: 0.6;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    animation: hint-pulse 3s ease-in-out infinite;
-    pointer-events: none;
+    margin-left: -150px;
+    width: 300px;
+    height: 14px;
+    transform-style: preserve-3d;
 }
 
-.book3d-hint i {
-    font-size: 14px;
+.shelf3d-face {
+    position: absolute;
 }
 
-@keyframes hint-pulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 0.3; }
+/* Front */
+.shelf3d-front {
+    width: 300px;
+    height: 14px;
+    background: linear-gradient(180deg, #a07850, #7a5a35, #6b4a2a);
+    transform: translateZ(80px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* Shadow under books */
+/* Back */
+.shelf3d-back {
+    width: 300px;
+    height: 14px;
+    background: linear-gradient(180deg, #6b4a2a, #5a3e22);
+    transform: rotateY(180deg) translateZ(80px);
+}
+
+/* Top */
+.shelf3d-top {
+    width: 300px;
+    height: 160px;
+    top: calc(50% - 80px);
+    left: 0;
+    background: linear-gradient(135deg, #8b6b42 0%, #a07850 40%, #7a5a35 100%);
+    transform: rotateX(90deg) translateZ(7px);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.08);
+}
+
+/* Bottom */
+.shelf3d-bottom {
+    width: 300px;
+    height: 160px;
+    top: calc(50% - 80px);
+    left: 0;
+    background: #5a3e22;
+    transform: rotateX(-90deg) translateZ(7px);
+}
+
+/* Left */
+.shelf3d-left {
+    width: 160px;
+    height: 14px;
+    left: calc(50% - 80px);
+    background: linear-gradient(180deg, #7a5a35, #6b4a2a);
+    transform: rotateY(-90deg) translateZ(150px);
+}
+
+/* Right */
+.shelf3d-right {
+    width: 160px;
+    height: 14px;
+    left: calc(50% - 80px);
+    background: linear-gradient(180deg, #6b4a2a, #5a3e22);
+    transform: rotateY(90deg) translateZ(150px);
+}
+
+/* ===== STANDING BOOKS ===== */
+.standing-book {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    margin-left: calc(var(--sb-w) / -2);
+    width: var(--sb-w);
+    height: var(--sb-h);
+    transform-style: preserve-3d;
+}
+
+.sb-front {
+    width: var(--sb-w);
+    height: var(--sb-h);
+    background: var(--sb-color);
+    transform: translateZ(calc(var(--sb-d) / 2));
+    border-radius: 2px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15);
+}
+
+.sb-back {
+    width: var(--sb-w);
+    height: var(--sb-h);
+    background: var(--sb-color-dark);
+    transform: rotateY(180deg) translateZ(calc(var(--sb-d) / 2));
+}
+
+.sb-spine {
+    width: var(--sb-d);
+    height: var(--sb-h);
+    left: calc(50% - var(--sb-d) / 2);
+    background: linear-gradient(90deg, var(--sb-color-dark), var(--sb-color), var(--sb-color-dark));
+    transform: rotateY(-90deg) translateZ(calc(var(--sb-w) / 2));
+    border-radius: 3px 0 0 3px;
+    box-shadow: inset 0 10px 15px rgba(255,255,255,0.08), inset 0 -10px 15px rgba(0,0,0,0.1);
+}
+
+.sb-edge {
+    width: var(--sb-d);
+    height: var(--sb-h);
+    left: calc(50% - var(--sb-d) / 2);
+    background: var(--sb-pages);
+    transform: rotateY(90deg) translateZ(calc(var(--sb-w) / 2));
+    background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.04) 3px,
+        rgba(0,0,0,0.04) 4px
+    );
+}
+
+.sb-top {
+    width: var(--sb-w);
+    height: var(--sb-d);
+    top: calc(50% - var(--sb-d) / 2);
+    background: var(--sb-color);
+    transform: rotateX(90deg) translateZ(calc(var(--sb-h) / 2));
+}
+
+.sb-bottom {
+    width: var(--sb-w);
+    height: var(--sb-d);
+    top: calc(50% - var(--sb-d) / 2);
+    background: var(--sb-color-dark);
+    transform: rotateX(-90deg) translateZ(calc(var(--sb-h) / 2));
+}
+
+/* Shadow under shelf */
 .book3d-stack::after {
     content: '';
     position: absolute;
-    bottom: -30px;
+    bottom: -40px;
     left: 50%;
     transform: translateX(-50%) rotateX(90deg);
-    width: 180px;
-    height: 120px;
-    background: radial-gradient(ellipse, rgba(0,0,0,0.12) 0%, transparent 70%);
+    width: 280px;
+    height: 140px;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.15) 0%, transparent 70%);
     pointer-events: none;
 }
 
@@ -465,41 +582,51 @@ body {
     transition: transform 0.15s ease-out;
 }
 
+.floating-icon::before {
+    content: '';
+    position: absolute;
+    inset: -16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(218, 180, 90, 0.35) 0%, transparent 70%);
+    z-index: -1;
+    pointer-events: none;
+}
+
 .floating-icon i {
     font-size: 22px;
 }
 
 .icon-idea {
     top: 5%;
-    left: 5%;
-    background: var(--green-light);
+    left: 45%;
+    background: #d4ebe2;
     animation-delay: 0s;
 }
 
 .icon-idea i {
-    color: var(--green-dark);
+    color: #5a8a6e;
 }
 
 .icon-medal {
-    top: 10%;
-    right: 0%;
-    background: #e8e0f0;
+    top: 35%;
+    right: -2%;
+    background: #e8ddd0;
     animation-delay: 1.5s;
 }
 
 .icon-medal i {
-    color: #8b7ba8;
+    color: #8b7355;
 }
 
 .icon-target {
-    bottom: 5%;
-    right: 5%;
-    background: #fde8d8;
+    bottom: 8%;
+    left: 18%;
+    background: #e8e0d4;
     animation-delay: 3s;
 }
 
 .icon-target i {
-    color: #d4956b;
+    color: #8b7355;
 }
 
 @keyframes float-icon {
@@ -656,87 +783,37 @@ body {
     margin-top: 50px;
 }
 
-/* 3D BOOK CARDS */
+/* BOOK CARDS */
 .books-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 30px;
     margin-top: 50px;
-    perspective: 1200px;
+    perspective: 1000px;
 }
 
 .book-card {
     background: #fff;
     border-radius: 16px;
-    overflow: visible;
+    overflow: hidden;
     box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.15s ease, box-shadow 0.35s ease;
     border: 1px solid rgba(0, 0, 0, 0.04);
     transform-style: preserve-3d;
     position: relative;
 }
 
-.book-card::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: -4px;
-    width: 8px;
-    height: calc(100% - 16px);
-    background: linear-gradient(to right, #c9b99a, #e0d5c0, #d4c8ae);
-    border-radius: 3px 0 0 3px;
-    transform: rotateY(-30deg);
-    transform-origin: right center;
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: -1;
-}
-
-.book-card::after {
-    content: '';
-    position: absolute;
-    top: 4px;
-    right: -3px;
-    width: 6px;
-    height: calc(100% - 8px);
-    background: linear-gradient(to left, 
-        #f5f0e8 0%, 
-        #e8e2d8 20%, 
-        #f0ebe3 40%, 
-        #e8e2d8 60%, 
-        #f5f0e8 80%, 
-        #e8e2d8 100%);
-    background-size: 6px 4px;
-    border-radius: 0 2px 2px 0;
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: -1;
-}
-
 .book-card:hover {
-    transform: rotateY(-8deg) rotateX(4deg) translateY(-12px) scale(1.02);
-    box-shadow: 
-        15px 15px 30px rgba(0, 0, 0, 0.12),
-        5px 5px 15px rgba(0, 0, 0, 0.08),
-        inset -2px 0 4px rgba(0, 0, 0, 0.02);
-}
-
-.book-card:hover::before {
-    opacity: 1;
-    transform: rotateY(-20deg);
-}
-
-.book-card:hover::after {
-    opacity: 1;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
 }
 
 .book-card .book-cover {
-    transition: all 0.4s ease;
-    border-radius: 16px 16px 0 0;
+    transition: transform 0.35s ease, filter 0.35s ease;
 }
 
 .book-card:hover .book-cover {
-    filter: brightness(1.03) saturate(1.1);
+    transform: scale(1.03);
+    filter: brightness(1.03) saturate(1.05);
 }
 
 .book-cover {
@@ -1208,5 +1285,4 @@ body {
     .floating-icon i { font-size: 18px; }
     .book3d-scene { max-width: 360px; height: 400px; }
     .book3d-stack { transform: rotateX(-20deg) rotateY(-30deg) scale(0.95); }
-    .book3d-hint { font-size: 11px; }
 }

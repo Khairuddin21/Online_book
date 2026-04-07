@@ -74,17 +74,16 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.zIndex = '1';
             this.style.transform = '';
         });
-        
+
         card.addEventListener('mousemove', function(e) {
             const rect = this.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
-            const rotateY = ((x - centerX) / centerX) * -12;
-            const rotateX = ((y - centerY) / centerY) * 8;
-            
-            this.style.transform = 'rotateY(' + rotateY + 'deg) rotateX(' + rotateX + 'deg) translateY(-12px) scale(1.02)';
+            const rotateY = ((x - centerX) / centerX) * 8;
+            const rotateX = ((y - centerY) / centerY) * -6;
+            this.style.transform = 'rotateY(' + rotateY + 'deg) rotateX(' + rotateX + 'deg) translateY(-8px) scale(1.02)';
         });
     });
 
@@ -100,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var autoRotateId = null;
 
         function updateTransform() {
-            bookStack.style.transform = 'rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+            bookStack.style.transform = 'rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg) scale(1.35)';
         }
 
         function onPointerDown(e) {
@@ -108,9 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
             previousX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
             previousY = e.clientY || (e.touches && e.touches[0].clientY) || 0;
             bookStack.classList.add('dragging');
-            // Hide hint on first interaction
-            var hint = bookScene.querySelector('.book3d-hint');
-            if (hint) hint.style.opacity = '0';
         }
 
         function onPointerMove(e) {

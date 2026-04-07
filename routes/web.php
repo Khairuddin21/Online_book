@@ -26,6 +26,13 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Google OAuth
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/callback/google', [AuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+
+// Midtrans Notification Webhook (no auth, CSRF exempted in middleware)
+Route::post('/midtrans/notification', [UserController::class, 'midtransNotification'])->name('midtrans.notification');
+
 // Admin Routes
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
@@ -47,8 +54,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::delete('/buku/{id}', [AdminController::class, 'destroyBuku'])->name('admin.buku.destroy');
     
     // Pesanan
-    Route::get('/pesanan', function () {})->name('admin.pesanan.index');
+    Route::get('/pesanan', [AdminController::class, 'indexPesanan'])->name('admin.pesanan.index');
     Route::get('/pesanan/{id}', [AdminController::class, 'showPesanan'])->name('admin.pesanan.show');
+    Route::put('/pesanan/{id}/status', [AdminController::class, 'updateStatusPesanan'])->name('admin.pesanan.updateStatus');
+    Route::put('/pesanan/{id}/verify-cod', [AdminController::class, 'verifyCod'])->name('admin.pesanan.verifyCod');
     Route::delete('/pesanan/{id}', [AdminController::class, 'deletePesanan'])->name('admin.pesanan.delete');
     
     // Pembayaran
@@ -65,26 +74,33 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::delete('/pesan/{id}', [AdminController::class, 'deletePesan'])->name('admin.pesan.delete');
     
     // Laporan
-    Route::get('/laporan', function () {})->name('admin.laporan');
+    Route::get('/laporan', [AdminController::class, 'laporan'])->name('admin.laporan');
 });
 
 // User Routes
 Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/home', [UserController::class, 'home'])->name('user.home');
     Route::get('/books', [UserController::class, 'books'])->name('user.books');
-    Route::get('/categories', [UserController::class, 'categories'])->name('user.categories');
     Route::get('/cart', [UserController::class, 'cart'])->name('user.cart');
     Route::get('/orders', [UserController::class, 'orders'])->name('user.orders');
     Route::get('/profile', [UserController::class, 'profile'])->name('user.profile');
     Route::get('/inbox', [UserController::class, 'inbox'])->name('user.inbox');
+    Route::delete('/inbox/{id}', [UserController::class, 'deleteInboxMessage'])->name('user.inbox.delete');
     Route::get('/contact', [UserController::class, 'contact'])->name('user.contact');
     Route::post('/contact/submit', [UserController::class, 'submitContact'])->name('user.contact.submit');
+    
+    // Book Detail & Related
+    Route::get('/book/{id}', [UserController::class, 'bookDetail'])->name('user.book.detail');
+    Route::post('/book/{id}/favorite', [UserController::class, 'toggleFavorite'])->name('user.book.favorite');
+    Route::post('/book/{id}/review', [UserController::class, 'submitReview'])->name('user.book.review');
     
     // Checkout & Payment Routes
     Route::get('/checkout', [UserController::class, 'showCheckout'])->name('user.checkout');
     Route::post('/checkout/process', [UserController::class, 'processCheckout'])->name('user.checkout.process');
     Route::get('/payment/{order_id}', [UserController::class, 'showPayment'])->name('user.payment');
     Route::post('/payment/{order_id}/process', [UserController::class, 'processPayment'])->name('user.payment.process');
+    Route::post('/orders/{order_id}/cancel', [UserController::class, 'cancelOrder'])->name('user.order.cancel');
+    Route::post('/orders/{order_id}/upload-cod', [UserController::class, 'uploadBuktiCod'])->name('user.order.uploadCod');
     
     // Address Management Routes
     Route::post('/address/store', [UserController::class, 'storeAddress'])->name('user.address.store');

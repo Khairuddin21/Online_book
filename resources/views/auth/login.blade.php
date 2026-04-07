@@ -1,4 +1,4 @@
-@extends('auth.layout')
+﻿@extends('auth.layout')
 
 @section('title', 'Login')
 
@@ -48,6 +48,13 @@
                     <div class="alert alert-success">
                         <i class="fas fa-check-circle"></i>
                         <div class="alert-content">{{ session('success') }}</div>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div class="alert-content">{{ session('error') }}</div>
                     </div>
                 @endif
 
@@ -101,15 +108,9 @@
                 </div>
 
                 <div class="social-login">
-                    <button type="button" class="btn-social">
-                        <i class="fab fa-behance"></i>
-                    </button>
-                    <button type="button" class="btn-social">
+                    <a href="{{ route('auth.google') }}" class="btn-social">
                         <i class="fab fa-google"></i>
-                    </button>
-                    <button type="button" class="btn-social">
-                        <i class="fab fa-facebook-f"></i>
-                    </button>
+                    </a>
                 </div>
 
                 <div class="auth-footer">

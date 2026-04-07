@@ -26,6 +26,58 @@ class AdminController extends Controller
         $pesananDibatalkan = Pesanan::where('status', 'dibatalkan')->count();
         $totalPendapatan = Pembayaran::where('status_verifikasi', 'valid')->sum('jumlah');
         
+        // Monthly revenue for last 6 months (from pembayaran with valid status)
+        $monthlyRevenue = DB::table('pembayaran')
+            ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->where('pembayaran.status_verifikasi', 'valid')
+            ->where('pesanan.tanggal_pesanan', '>=', now()->subMonths(5)->startOfMonth())
+            ->select(
+                DB::raw('MONTH(pesanan.tanggal_pesanan) as bulan'),
+                DB::raw('YEAR(pesanan.tanggal_pesanan) as tahun'),
+                DB::raw('SUM(pembayaran.jumlah) as total')
+            )
+            ->groupBy('tahun', 'bulan')
+            ->orderBy('tahun')
+            ->orderBy('bulan')
+            ->get();
+
+        // Monthly orders count for last 6 months
+        $monthlyOrders = Pesanan::where('tanggal_pesanan', '>=', now()->subMonths(5)->startOfMonth())
+            ->select(
+                DB::raw('MONTH(tanggal_pesanan) as bulan'),
+                DB::raw('YEAR(tanggal_pesanan) as tahun'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy('tahun', 'bulan')
+            ->orderBy('tahun')
+            ->orderBy('bulan')
+            ->get();
+
+        // Build chart labels and data for last 6 months
+        $chartLabels = [];
+        $chartRevenue = [];
+        $chartOrders = [];
+        $bulanNama = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $m = (int) $date->format('m');
+            $y = (int) $date->format('Y');
+            $chartLabels[] = $bulanNama[$m] . ' ' . $y;
+
+            $rev = $monthlyRevenue->first(fn($r) => $r->bulan == $m && $r->tahun == $y);
+            $chartRevenue[] = $rev ? (float) $rev->total : 0;
+
+            $ord = $monthlyOrders->first(fn($o) => $o->bulan == $m && $o->tahun == $y);
+            $chartOrders[] = $ord ? (int) $ord->total : 0;
+        }
+
+        // Order status distribution
+        $statusCounts = Pesanan::select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
         // Get latest orders with user relationship
         $pesananTerbaru = Pesanan::with(['user', 'pembayaran'])
             ->orderBy('tanggal_pesanan', 'desc')
@@ -37,10 +89,43 @@ class AdminController extends Controller
             'totalPesanan', 
             'pesananDibatalkan',
             'totalPendapatan',
-            'pesananTerbaru'
+            'pesananTerbaru',
+            'chartLabels',
+            'chartRevenue',
+            'chartOrders',
+            'statusCounts'
         ));
     }
     
+    /**
+     * Display list of pesanan
+     */
+    public function indexPesanan(Request $request)
+    {
+        $query = Pesanan::with(['user', 'pembayaran']);
+
+        // Search by user name or order id
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('id_pesanan', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($q) use ($search) {
+                      $q->where('nama', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Filter by status
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $pesanan = $query->orderBy('tanggal_pesanan', 'desc')->paginate(15);
+
+        return view('admin.pesanan.index', compact('pesanan'));
+    }
+
     /**
      * Show pesanan details
      */
@@ -53,6 +138,92 @@ class AdminController extends Controller
         ])->findOrFail($id);
         
         return view('admin.pesanan-detail', compact('pesanan'));
+    }
+
+    /**
+     * Update pesanan status
+     */
+    public function updateStatusPesanan(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:menunggu,diproses,dikirim,selesai,dibatalkan',
+        ]);
+
+        try {
+            $pesanan = Pesanan::findOrFail($id);
+            $pesanan->update(['status' => $request->status]);
+
+            // If status is "selesai" and pembayaran exists, mark as valid
+            if ($request->status === 'selesai' && $pesanan->pembayaran) {
+                $pesanan->pembayaran->update(['status_verifikasi' => 'valid']);
+            }
+
+            $statusLabel = ucfirst($request->status);
+            return redirect()->route('admin.pesanan.show', $id)
+                ->with('success', "Status pesanan berhasil diubah menjadi {$statusLabel}");
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal mengubah status: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Verify COD proof — accept or reject
+     */
+    public function verifyCod(Request $request, $id)
+    {
+        $request->validate([
+            'aksi' => 'required|in:terima,tolak',
+        ]);
+
+        try {
+            $pesanan = Pesanan::with('pembayaran')->findOrFail($id);
+
+            if ($pesanan->metode_pembayaran !== 'cod') {
+                return redirect()->back()->with('error', 'Pesanan ini bukan COD.');
+            }
+
+            if ($request->aksi === 'terima') {
+                $pesanan->update(['status' => 'selesai']);
+                if ($pesanan->pembayaran) {
+                    $pesanan->pembayaran->update(['status_verifikasi' => 'valid']);
+                }
+
+                // Create inbox notification
+                PesanKontak::create([
+                    'id_user' => $pesanan->id_user,
+                    'subjek' => 'COD Pesanan #' . $pesanan->id_pesanan . ' Terverifikasi',
+                    'isi_pesan' => 'Bukti pembayaran COD untuk pesanan #' . $pesanan->id_pesanan . ' telah diverifikasi. Pesanan selesai.',
+                    'tanggal' => now(),
+                    'balasan_admin' => 'Terima kasih! Pembayaran COD Anda telah dikonfirmasi. Pesanan #' . $pesanan->id_pesanan . ' telah selesai.',
+                    'tanggal_balas' => now(),
+                ]);
+
+                return redirect()->route('admin.pesanan.show', $id)
+                    ->with('success', 'Bukti COD diverifikasi. Pesanan ditandai selesai.');
+            } else {
+                if ($pesanan->pembayaran) {
+                    $pesanan->pembayaran->update(['status_verifikasi' => 'invalid']);
+                }
+                // Clear bukti so user can re-upload
+                $pesanan->update(['bukti_cod' => null]);
+
+                PesanKontak::create([
+                    'id_user' => $pesanan->id_user,
+                    'subjek' => 'Bukti COD Pesanan #' . $pesanan->id_pesanan . ' Ditolak',
+                    'isi_pesan' => 'Bukti pembayaran COD yang Anda kirim untuk pesanan #' . $pesanan->id_pesanan . ' ditolak.',
+                    'tanggal' => now(),
+                    'balasan_admin' => 'Bukti COD Anda ditolak. Silakan unggah ulang foto bukti penerimaan dan pembayaran yang lebih jelas.',
+                    'tanggal_balas' => now(),
+                ]);
+
+                return redirect()->route('admin.pesanan.show', $id)
+                    ->with('success', 'Bukti COD ditolak. User akan mendapat notifikasi untuk upload ulang.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal memverifikasi COD: ' . $e->getMessage());
+        }
     }
     
     /**
@@ -72,28 +243,27 @@ class AdminController extends Controller
             // Delete pesanan
             $pesanan->delete();
             
-            // Reset AUTO_INCREMENT if no more pesanan exist
+            DB::commit();
+
+            // Reset AUTO_INCREMENT outside transaction (DDL causes implicit commit)
             $remainingPesanan = Pesanan::count();
             if ($remainingPesanan == 0) {
                 DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = 1');
                 DB::statement('ALTER TABLE pesanan_detail AUTO_INCREMENT = 1');
                 DB::statement('ALTER TABLE pembayaran AUTO_INCREMENT = 1');
             } else {
-                // Reset to next available ID after max existing ID
                 $maxId = Pesanan::max('id_pesanan');
                 if ($maxId) {
                     DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = ' . ($maxId + 1));
                 }
             }
             
-            DB::commit();
-            
-            return redirect()->route('admin.dashboard')
+            return redirect()->route('admin.pesanan.index')
                 ->with('success', 'Pesanan berhasil dihapus');
                 
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('admin.dashboard')
+            return redirect()->route('admin.pesanan.index')
                 ->with('error', 'Gagal menghapus pesanan: ' . $e->getMessage());
         }
     }
@@ -363,7 +533,7 @@ class AdminController extends Controller
                 'penulis' => $request->penulis,
                 'penerbit' => $request->penerbit,
                 'tahun_terbit' => $request->tahun_terbit,
-                'stok' => $request->stok,
+                'stok' => max(0, $buku->stok + (int) $request->stok_adjustment),
                 'harga' => $request->harga,
                 'deskripsi' => $request->deskripsi,
                 'cover' => $request->cover,
@@ -556,5 +726,158 @@ class AdminController extends Controller
             return redirect()->back()
                 ->with('error', 'Gagal menghapus pesan: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Display laporan bulanan page
+     */
+    public function laporan(Request $request)
+    {
+        $bulanNama = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        // Default: current month/year
+        $bulan = (int) $request->get('bulan', now()->month);
+        $tahun = (int) $request->get('tahun', now()->year);
+
+        $startDate = \Carbon\Carbon::create($tahun, $bulan, 1)->startOfMonth();
+        $endDate = $startDate->copy()->endOfMonth();
+
+        // === RINGKASAN BULAN INI ===
+        $totalPesanan = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])->count();
+        $pesananSelesai = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])->where('status', 'selesai')->count();
+        $pesananDiproses = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])->whereIn('status', ['menunggu', 'diproses', 'dikirim'])->count();
+        $pesananDibatalkan = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])->where('status', 'dibatalkan')->count();
+
+        $pendapatanBulanIni = DB::table('pembayaran')
+            ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->where('pembayaran.status_verifikasi', 'valid')
+            ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
+            ->sum('pembayaran.jumlah');
+
+        // Previous month for comparison
+        $prevStart = $startDate->copy()->subMonth()->startOfMonth();
+        $prevEnd = $startDate->copy()->subMonth()->endOfMonth();
+        $pendapatanBulanLalu = DB::table('pembayaran')
+            ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->where('pembayaran.status_verifikasi', 'valid')
+            ->whereBetween('pesanan.tanggal_pesanan', [$prevStart, $prevEnd])
+            ->sum('pembayaran.jumlah');
+        $totalPesananBulanLalu = Pesanan::whereBetween('tanggal_pesanan', [$prevStart, $prevEnd])->count();
+
+        // === PENDAPATAN HARIAN (chart) ===
+        $dailyRevenue = DB::table('pembayaran')
+            ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->where('pembayaran.status_verifikasi', 'valid')
+            ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
+            ->select(
+                DB::raw('DAY(pesanan.tanggal_pesanan) as hari'),
+                DB::raw('SUM(pembayaran.jumlah) as total')
+            )
+            ->groupBy('hari')
+            ->orderBy('hari')
+            ->get();
+
+        $daysInMonth = $startDate->daysInMonth;
+        $chartDailyLabels = [];
+        $chartDailyRevenue = [];
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $chartDailyLabels[] = $d;
+            $rev = $dailyRevenue->firstWhere('hari', $d);
+            $chartDailyRevenue[] = $rev ? (float) $rev->total : 0;
+        }
+
+        // === PESANAN HARIAN (chart) ===
+        $dailyOrders = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])
+            ->select(
+                DB::raw('DAY(tanggal_pesanan) as hari'),
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy('hari')
+            ->orderBy('hari')
+            ->get();
+
+        $chartDailyOrders = [];
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $ord = $dailyOrders->firstWhere('hari', $d);
+            $chartDailyOrders[] = $ord ? (int) $ord->total : 0;
+        }
+
+        // === STATUS DISTRIBUTION ===
+        $statusCounts = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])
+            ->select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        // === METODE PEMBAYARAN ===
+        $metodePembayaran = DB::table('pembayaran')
+            ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->where('pembayaran.status_verifikasi', 'valid')
+            ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
+            ->select('pembayaran.metode', DB::raw('COUNT(*) as jumlah'), DB::raw('SUM(pembayaran.jumlah) as total'))
+            ->groupBy('pembayaran.metode')
+            ->orderByDesc('total')
+            ->get();
+
+        // === BUKU TERLARIS ===
+        $bukuTerlaris = DB::table('pesanan_detail')
+            ->join('pesanan', 'pesanan_detail.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->join('buku', 'pesanan_detail.id_buku', '=', 'buku.id_buku')
+            ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
+            ->whereIn('pesanan.status', ['diproses', 'dikirim', 'selesai'])
+            ->select(
+                'buku.id_buku',
+                'buku.judul',
+                'buku.penulis',
+                'buku.cover',
+                'buku.harga',
+                DB::raw('SUM(pesanan_detail.qty) as total_terjual'),
+                DB::raw('SUM(pesanan_detail.qty * pesanan_detail.harga_satuan) as total_pendapatan')
+            )
+            ->groupBy('buku.id_buku', 'buku.judul', 'buku.penulis', 'buku.cover', 'buku.harga')
+            ->orderByDesc('total_terjual')
+            ->limit(10)
+            ->get();
+
+        // === PELANGGAN TERATAS ===
+        $topCustomers = DB::table('pesanan')
+            ->join('users', 'pesanan.id_user', '=', 'users.id_user')
+            ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
+            ->whereIn('pesanan.status', ['diproses', 'dikirim', 'selesai'])
+            ->select(
+                'users.id_user',
+                'users.nama',
+                'users.email',
+                DB::raw('COUNT(pesanan.id_pesanan) as total_pesanan'),
+                DB::raw('SUM(pesanan.total_harga) as total_belanja')
+            )
+            ->groupBy('users.id_user', 'users.nama', 'users.email')
+            ->orderByDesc('total_belanja')
+            ->limit(5)
+            ->get();
+
+        // === USER BARU BULAN INI ===
+        $userBaru = User::where('role', 'user')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+
+        // Available years for filter
+        $availableYears = Pesanan::selectRaw('YEAR(tanggal_pesanan) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun')
+            ->toArray();
+        if (!in_array(now()->year, $availableYears)) {
+            array_unshift($availableYears, now()->year);
+        }
+
+        return view('admin.laporan', compact(
+            'bulan', 'tahun', 'bulanNama', 'availableYears',
+            'totalPesanan', 'pesananSelesai', 'pesananDiproses', 'pesananDibatalkan',
+            'pendapatanBulanIni', 'pendapatanBulanLalu', 'totalPesananBulanLalu',
+            'chartDailyLabels', 'chartDailyRevenue', 'chartDailyOrders',
+            'statusCounts', 'metodePembayaran',
+            'bukuTerlaris', 'topCustomers', 'userBaru'
+        ));
     }
 }
