@@ -57,6 +57,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/pesanan', [AdminController::class, 'indexPesanan'])->name('admin.pesanan.index');
     Route::get('/pesanan/{id}', [AdminController::class, 'showPesanan'])->name('admin.pesanan.show');
     Route::put('/pesanan/{id}/status', [AdminController::class, 'updateStatusPesanan'])->name('admin.pesanan.updateStatus');
+    Route::put('/pesanan/{id}/verify-cod', [AdminController::class, 'verifyCod'])->name('admin.pesanan.verifyCod');
     Route::delete('/pesanan/{id}', [AdminController::class, 'deletePesanan'])->name('admin.pesanan.delete');
     
     // Pembayaran
@@ -73,7 +74,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::delete('/pesan/{id}', [AdminController::class, 'deletePesan'])->name('admin.pesan.delete');
     
     // Laporan
-    Route::get('/laporan', function () {})->name('admin.laporan');
+    Route::get('/laporan', [AdminController::class, 'laporan'])->name('admin.laporan');
 });
 
 // User Routes
@@ -99,6 +100,7 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/payment/{order_id}', [UserController::class, 'showPayment'])->name('user.payment');
     Route::post('/payment/{order_id}/process', [UserController::class, 'processPayment'])->name('user.payment.process');
     Route::post('/orders/{order_id}/cancel', [UserController::class, 'cancelOrder'])->name('user.order.cancel');
+    Route::post('/orders/{order_id}/upload-cod', [UserController::class, 'uploadBuktiCod'])->name('user.order.uploadCod');
     
     // Address Management Routes
     Route::post('/address/store', [UserController::class, 'storeAddress'])->name('user.address.store');

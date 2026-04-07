@@ -413,6 +413,48 @@ class UserController extends Controller
     }
 
     /**
+     * Upload bukti COD (foto bukti penerimaan + pembayaran)
+     */
+    public function uploadBuktiCod(Request $request, $orderId)
+    {
+        $request->validate([
+            'bukti_cod' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
+        ], [
+            'bukti_cod.required' => 'Foto bukti wajib diunggah.',
+            'bukti_cod.image' => 'File harus berupa gambar.',
+            'bukti_cod.mimes' => 'Format gambar harus JPG, PNG, atau WebP.',
+            'bukti_cod.max' => 'Ukuran gambar maksimal 5MB.',
+        ]);
+
+        try {
+            $pesanan = Pesanan::where('id_pesanan', $orderId)
+                ->where('id_user', Auth::id())
+                ->where('metode_pembayaran', 'cod')
+                ->whereIn('status', ['dikirim', 'diproses'])
+                ->firstOrFail();
+
+            // Store the photo
+            $path = $request->file('bukti_cod')->store('bukti_cod', 'public');
+
+            $pesanan->update(['bukti_cod' => $path]);
+
+            // Update pembayaran bukti
+            if ($pesanan->pembayaran) {
+                $pesanan->pembayaran->update([
+                    'bukti_pembayaran' => $path,
+                ]);
+            }
+
+            return redirect()->route('user.orders')
+                ->with('success', 'Bukti penerimaan & pembayaran COD berhasil diunggah! Menunggu konfirmasi admin.');
+
+        } catch (\Exception $e) {
+            return redirect()->route('user.orders')
+                ->with('error', 'Gagal mengunggah bukti: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Display user profile
      */
     public function profile()
@@ -533,9 +575,11 @@ class UserController extends Controller
     {
         $request->validate([
             'id_alamat' => 'required|exists:alamat_pengiriman,id_alamat',
+            'metode_pembayaran' => 'required|in:midtrans,cod',
         ], [
             'id_alamat.required' => 'Pilih alamat pengiriman',
             'id_alamat.exists' => 'Alamat tidak valid',
+            'metode_pembayaran.required' => 'Pilih metode pembayaran',
         ]);
         
         DB::beginTransaction();
@@ -571,6 +615,7 @@ class UserController extends Controller
                 'tanggal_pesanan' => now(),
                 'total_harga' => $total,
                 'status' => 'menunggu',
+                'metode_pembayaran' => $request->metode_pembayaran,
             ]);
             
             // Create order details and reduce stock
@@ -598,6 +643,20 @@ class UserController extends Controller
             Keranjang::where('id_user', $userId)->delete();
             
             DB::commit();
+
+            // COD: redirect to orders page, Midtrans: redirect to payment page
+            if ($request->metode_pembayaran === 'cod') {
+                // Create pembayaran record with 'menunggu' status for COD
+                Pembayaran::create([
+                    'id_pesanan' => $pesanan->id_pesanan,
+                    'metode' => 'cod',
+                    'jumlah' => $total,
+                    'status_verifikasi' => 'menunggu',
+                ]);
+
+                return redirect()->route('user.orders')
+                    ->with('success', 'Pesanan COD berhasil dibuat! Siapkan pembayaran saat barang diterima.');
+            }
             
             return redirect()->route('user.payment', $pesanan->id_pesanan)
                 ->with('success', 'Pesanan berhasil dibuat. Silakan lakukan pembayaran.');
@@ -713,10 +772,33 @@ class UserController extends Controller
 
             DB::commit();
 
+            // Load invoice data
+            $pesanan->load('details.buku');
+            $user = Auth::user();
+
+            $invoiceItems = $pesanan->details->map(function ($detail) {
+                return [
+                    'judul' => $detail->buku->judul,
+                    'penulis' => $detail->buku->penulis,
+                    'qty' => $detail->qty,
+                    'harga_satuan' => $detail->harga_satuan,
+                    'subtotal' => $detail->harga_satuan * $detail->qty,
+                ];
+            });
+
             return response()->json([
                 'success' => true,
                 'message' => 'Pembayaran berhasil!',
                 'redirect' => route('user.orders'),
+                'invoice' => [
+                    'id_pesanan' => $pesanan->id_pesanan,
+                    'tanggal' => now()->format('d M Y, H:i'),
+                    'nama_pembeli' => $user->nama ?? $user->name ?? 'Pelanggan',
+                    'metode' => $request->payment_type ?? 'midtrans',
+                    'transaction_id' => $request->transaction_id,
+                    'items' => $invoiceItems,
+                    'total_harga' => $pesanan->total_harga,
+                ],
             ]);
 
         } catch (\Exception $e) {

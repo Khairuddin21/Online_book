@@ -75,9 +75,22 @@
                         @error('harga') <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div> @enderror
                     </div>
                     <div class="form-group">
-                        <label>Stok <span style="color: var(--danger);">*</span></label>
-                        <input type="number" name="stok" value="{{ old('stok', $buku->stok) }}" required class="form-input" min="0">
-                        @error('stok') <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div> @enderror
+                        <label>Stok Saat Ini</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span id="currentStok" style="font-size: 22px; font-weight: 800; color: var(--green-deeper); min-width: 40px;">{{ $buku->stok }}</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">unit</span>
+                        </div>
+                        <input type="hidden" name="stok_current" value="{{ $buku->stok }}">
+                        <div style="margin-top: 10px;">
+                            <label>Tambah / Kurang Stok</label>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <button type="button" onclick="adjustStok(-1)" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--green-bg); cursor: pointer; font-size: 16px; font-weight: 700; color: var(--green-deeper); display: flex; align-items: center; justify-content: center;">−</button>
+                                <input type="number" name="stok_adjustment" id="stokAdjustment" value="{{ old('stok_adjustment', 0) }}" class="form-input" style="width: 90px; text-align: center; font-weight: 700;">
+                                <button type="button" onclick="adjustStok(1)" style="width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--green-bg); cursor: pointer; font-size: 16px; font-weight: 700; color: var(--green-deeper); display: flex; align-items: center; justify-content: center;">+</button>
+                            </div>
+                            <div class="form-hint" id="stokPreview" style="margin-top: 6px;">Stok akhir: <strong>{{ $buku->stok }}</strong></div>
+                        </div>
+                        @error('stok_adjustment') <div class="form-error"><i class="fas fa-exclamation-circle"></i> {{ $message }}</div> @enderror
                     </div>
                 </div>
 
@@ -119,6 +132,34 @@
         <a href="{{ route('admin.buku.index') }}" class="btn btn-secondary"><i class="fas fa-times"></i> Batal</a>
     </div>
 </form>
+
+@push('scripts')
+<script>
+    const baseStok = {{ $buku->stok }};
+    const adjInput = document.getElementById('stokAdjustment');
+    const preview = document.getElementById('stokPreview');
+
+    function adjustStok(delta) {
+        let val = parseInt(adjInput.value) || 0;
+        val += delta;
+        const final = baseStok + val;
+        if (final < 0) return;
+        adjInput.value = val;
+        updatePreview();
+    }
+
+    adjInput.addEventListener('input', updatePreview);
+
+    function updatePreview() {
+        const adj = parseInt(adjInput.value) || 0;
+        const final = Math.max(0, baseStok + adj);
+        let color = adj > 0 ? '#22c55e' : adj < 0 ? '#ef4444' : 'var(--text-muted)';
+        let sign = adj > 0 ? '+' : '';
+        let adjText = adj !== 0 ? ` (<span style="color:${color}">${sign}${adj}</span>)` : '';
+        preview.innerHTML = `Stok akhir: <strong>${final}</strong>${adjText}`;
+    }
+</script>
+@endpush
 @endsection
 
 @push('styles')

@@ -16,11 +16,14 @@ class AdminMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (!auth()->check()) {
-            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu');
+            return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
         if (auth()->user()->role !== 'admin') {
-            return redirect()->route('user.home')->with('error', 'Akses ditolak. Anda bukan admin.');
+            auth()->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            return redirect()->route('login')->with('error', 'Akses ditolak. Halaman ini khusus admin. Silakan login dengan akun admin.');
         }
 
         return $next($request);

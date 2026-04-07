@@ -68,6 +68,13 @@
                         <i class="fas fa-envelope"></i> Pesan Kontak
                     </a>
                 </li>
+
+                <li class="sidebar-label">Laporan</li>
+                <li>
+                    <a href="{{ route('admin.laporan') }}" class="{{ request()->routeIs('admin.laporan') ? 'active' : '' }}">
+                        <i class="fas fa-chart-line"></i> Laporan Bulanan
+                    </a>
+                </li>
             </ul>
         </nav>
     </aside>

@@ -66,11 +66,14 @@
                     <span style="font-weight: 700; color: var(--green-deeper);">Rp {{ number_format($order->total_harga, 0, ',', '.') }}</span>
                 </td>
                 <td style="text-align: center;">
+                    @if($order->metode_pembayaran === 'cod')
+                        <span class="badge badge-yellow" style="font-size:10px; margin-bottom:4px; display:inline-block;"><i class="fas fa-money-bill-wave"></i> COD</span><br>
+                    @endif
                     @if($order->pembayaran)
                         @if($order->pembayaran->status_verifikasi == 'valid')
                             <span class="badge badge-green"><i class="fas fa-check"></i> Valid</span>
-                        @elseif($order->pembayaran->status_verifikasi == 'pending')
-                            <span class="badge badge-yellow"><i class="fas fa-clock"></i> Pending</span>
+                        @elseif($order->pembayaran->status_verifikasi == 'menunggu')
+                            <span class="badge badge-yellow"><i class="fas fa-clock"></i> Menunggu</span>
                         @else
                             <span class="badge badge-red"><i class="fas fa-times"></i> {{ ucfirst($order->pembayaran->status_verifikasi) }}</span>
                         @endif

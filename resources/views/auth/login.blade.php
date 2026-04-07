@@ -51,6 +51,13 @@
                     </div>
                 @endif
 
+                @if(session('error'))
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <div class="alert-content">{{ session('error') }}</div>
+                    </div>
+                @endif
+
                 <form action="{{ route('login.post') }}" method="POST" class="auth-form">
                     @csrf
                     

@@ -18,6 +18,8 @@ class Pesanan extends Model
         'total_harga',
         'status',
         'snap_token',
+        'metode_pembayaran',
+        'bukti_cod',
     ];
 
     protected $casts = [

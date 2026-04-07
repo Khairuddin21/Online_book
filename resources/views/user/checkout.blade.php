@@ -214,6 +214,33 @@
                 <span>Rp {{ number_format($total, 0, ',', '.') }}</span>
             </div>
 
+            <!-- Payment Method Selection -->
+            <div class="payment-method-section">
+                <h4 class="pm-section-title"><i class="fas fa-wallet"></i> Metode Pembayaran</h4>
+                <div class="pm-options">
+                    <label class="pm-option">
+                        <input type="radio" name="metode_pembayaran" value="midtrans" form="checkoutForm" checked>
+                        <div class="pm-option-content">
+                            <div class="pm-option-icon"><i class="fas fa-credit-card"></i></div>
+                            <div class="pm-option-text">
+                                <span class="pm-option-name">Online Payment</span>
+                                <span class="pm-option-desc">Transfer Bank, E-Wallet, QRIS, Kartu Kredit</span>
+                            </div>
+                        </div>
+                    </label>
+                    <label class="pm-option">
+                        <input type="radio" name="metode_pembayaran" value="cod" form="checkoutForm">
+                        <div class="pm-option-content">
+                            <div class="pm-option-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <div class="pm-option-text">
+                                <span class="pm-option-name">COD (Bayar di Tempat)</span>
+                                <span class="pm-option-desc">Bayar saat barang diterima, kirim bukti foto</span>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
             <button type="submit" form="checkoutForm" class="btn btn-green btn-block" 
                     style="padding: 14px; font-size: 16px; margin-top: 20px;" 
                     {{ $addresses->count() == 0 ? 'disabled' : '' }}>

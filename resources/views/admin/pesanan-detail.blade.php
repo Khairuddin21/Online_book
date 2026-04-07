@@ -127,6 +127,14 @@
                             {{ ucfirst($pesanan->status) }}
                         </span>
                     </div>
+                    <div class="label">Metode Bayar</div>
+                    <div class="value">
+                        @if($pesanan->metode_pembayaran === 'cod')
+                            <span class="badge badge-yellow" style="font-weight:700;"><i class="fas fa-money-bill-wave"></i> COD</span>
+                        @else
+                            <span class="badge badge-blue" style="font-weight:700;"><i class="fas fa-credit-card"></i> Online (Midtrans)</span>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -217,6 +225,59 @@
                         @endif
                     </div>
                 </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- COD Proof Section -->
+        @if($pesanan->metode_pembayaran === 'cod')
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-header">
+                <i class="fas fa-camera"></i>
+                <h3>Bukti COD</h3>
+            </div>
+            <div class="card-body">
+                @if($pesanan->bukti_cod)
+                    <div style="text-align: center; margin-bottom: 16px;">
+                        <img src="{{ asset('storage/' . $pesanan->bukti_cod) }}" 
+                             alt="Bukti COD" 
+                             style="max-width: 100%; max-height: 300px; border-radius: 12px; border: 2px solid var(--border-color); cursor: pointer;"
+                             onclick="window.open(this.src, '_blank')">
+                    </div>
+                    <p style="text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+                        <i class="fas fa-search-plus"></i> Klik gambar untuk memperbesar
+                    </p>
+
+                    @if($pesanan->status === 'dikirim' && $pesanan->pembayaran && $pesanan->pembayaran->status_verifikasi !== 'valid')
+                    <div style="display: flex; gap: 8px;">
+                        <form action="{{ route('admin.pesanan.verifyCod', $pesanan->id_pesanan) }}" method="POST" style="flex: 1;" onsubmit="return confirm('Verifikasi bukti COD dan tandai pesanan selesai?')">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="aksi" value="terima">
+                            <button type="submit" class="btn btn-success" style="width: 100%; justify-content: center;">
+                                <i class="fas fa-check-circle"></i> Verifikasi & Selesaikan
+                            </button>
+                        </form>
+                        <form action="{{ route('admin.pesanan.verifyCod', $pesanan->id_pesanan) }}" method="POST" style="flex: 1;" onsubmit="return confirm('Tolak bukti COD? Pembayaran ditandai invalid.')">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="aksi" value="tolak">
+                            <button type="submit" class="btn btn-danger" style="width: 100%; justify-content: center;">
+                                <i class="fas fa-times-circle"></i> Tolak Bukti
+                            </button>
+                        </form>
+                    </div>
+                    @elseif($pesanan->pembayaran && $pesanan->pembayaran->status_verifikasi === 'valid')
+                    <div style="text-align: center; padding: 10px; background: #e8f8ef; border-radius: 10px;">
+                        <span style="color: #27ae60; font-weight: 700; font-size: 14px;">
+                            <i class="fas fa-check-circle"></i> COD Terverifikasi
+                        </span>
+                    </div>
+                    @endif
+                @else
+                    <div style="text-align: center; padding: 30px 16px; color: var(--text-muted);">
+                        <i class="fas fa-image" style="font-size: 36px; margin-bottom: 10px; display: block; opacity: 0.4;"></i>
+                        <p style="margin: 0; font-size: 14px;">User belum mengunggah bukti COD</p>
+                    </div>
+                @endif
             </div>
         </div>
         @endif

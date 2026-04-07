@@ -125,6 +125,70 @@
 <!-- Midtrans Snap JS -->
 <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ $clientKey }}"></script>
 
+<!-- Invoice Modal -->
+<div id="invoiceOverlay" class="invoice-overlay" style="display:none;">
+    <div class="invoice-modal">
+        <div class="invoice-header">
+            <div class="invoice-success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Pembayaran Berhasil!</h2>
+            <p class="invoice-subtitle">Terima kasih atas pembelian Anda</p>
+        </div>
+
+        <div class="invoice-receipt">
+            <div class="receipt-top">
+                <h3><i class="fas fa-book-open"></i> Book.com</h3>
+                <p>Struk Pembayaran</p>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-info">
+                <div class="receipt-info-row">
+                    <span>No. Pesanan</span>
+                    <span id="inv-id-pesanan">-</span>
+                </div>
+                <div class="receipt-info-row">
+                    <span>Tanggal</span>
+                    <span id="inv-tanggal">-</span>
+                </div>
+                <div class="receipt-info-row">
+                    <span>Pembeli</span>
+                    <span id="inv-nama">-</span>
+                </div>
+                <div class="receipt-info-row">
+                    <span>Metode Bayar</span>
+                    <span id="inv-metode">-</span>
+                </div>
+                <div class="receipt-info-row">
+                    <span>ID Transaksi</span>
+                    <span id="inv-txn" class="inv-txn-id">-</span>
+                </div>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-items" id="inv-items">
+                <!-- items injected by JS -->
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <div class="receipt-total">
+                <span>Total Pembayaran</span>
+                <span id="inv-total">-</span>
+            </div>
+        </div>
+
+        <div class="invoice-actions">
+            <button type="button" class="btn-invoice-close" id="btnInvoiceClose">
+                <i class="fas fa-shopping-bag"></i> Lihat Pesanan Saya
+            </button>
+        </div>
+    </div>
+</div>
+
 @push('styles')
 <style>
 .checkout-steps {
@@ -425,6 +489,234 @@
         text-align: center;
     }
 }
+
+/* Invoice Modal */
+.invoice-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+    animation: fadeInOverlay 0.3s ease;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUpInvoice {
+    from { opacity: 0; transform: translateY(40px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.invoice-modal {
+    background: white;
+    border-radius: 20px;
+    max-width: 440px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+    animation: slideUpInvoice 0.4s ease;
+}
+
+.invoice-header {
+    text-align: center;
+    padding: 30px 25px 20px;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 20px 20px 0 0;
+}
+
+.invoice-success-icon {
+    font-size: 52px;
+    color: #27ae60;
+    margin-bottom: 12px;
+    animation: bounceIn 0.6s ease 0.3s both;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.invoice-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 6px;
+}
+
+.invoice-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.invoice-receipt {
+    padding: 20px 25px;
+}
+
+.receipt-top {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.receipt-top h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green-dark, #6b9e65);
+    margin: 0 0 4px;
+}
+
+.receipt-top h3 i {
+    margin-right: 6px;
+}
+
+.receipt-top p {
+    font-size: 13px;
+    color: #9ca3af;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.receipt-divider {
+    border: none;
+    border-top: 2px dashed #e5e7eb;
+    margin: 15px 0;
+}
+
+.receipt-info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 13px;
+}
+
+.receipt-info-row span:first-child {
+    color: #9ca3af;
+}
+
+.receipt-info-row span:last-child {
+    color: #374151;
+    font-weight: 600;
+    text-align: right;
+    max-width: 60%;
+}
+
+.inv-txn-id {
+    font-size: 11px !important;
+    word-break: break-all;
+}
+
+.receipt-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.receipt-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.receipt-item-info {
+    flex: 1;
+}
+
+.receipt-item-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 2px;
+    line-height: 1.3;
+}
+
+.receipt-item-detail {
+    font-size: 12px;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.receipt-item-subtotal {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--green-dark, #6b9e65);
+    white-space: nowrap;
+}
+
+.receipt-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0 0;
+}
+
+.receipt-total span:first-child {
+    font-size: 15px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.receipt-total span:last-child {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--green-dark, #6b9e65);
+}
+
+.invoice-actions {
+    padding: 15px 25px 25px;
+    text-align: center;
+}
+
+.btn-invoice-close {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    background: linear-gradient(135deg, var(--green-dark, #6b9e65), var(--green-deeper, #4a7c44));
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(74, 124, 68, 0.3);
+}
+
+.btn-invoice-close:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 124, 68, 0.4);
+}
+
+@media (max-width: 480px) {
+    .invoice-modal {
+        max-width: 100%;
+        border-radius: 16px;
+    }
+    .invoice-header {
+        padding: 24px 20px 16px;
+        border-radius: 16px 16px 0 0;
+    }
+    .invoice-receipt {
+        padding: 16px 20px;
+    }
+    .invoice-actions {
+        padding: 12px 20px 20px;
+    }
+}
 </style>
 @endpush
 
@@ -473,7 +765,11 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                window.location.href = data.redirect;
+                if (data.invoice) {
+                    showInvoice(data.invoice, data.redirect);
+                } else {
+                    window.location.href = data.redirect;
+                }
             } else {
                 alert(data.message || 'Terjadi kesalahan.');
                 btnPayment.disabled = false;
@@ -484,6 +780,61 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error:', error);
             window.location.href = '{{ route("user.orders") }}';
         });
+    }
+
+    function formatRupiah(num) {
+        return 'Rp ' + Number(num).toLocaleString('id-ID');
+    }
+
+    function formatMetode(metode) {
+        const map = {
+            'bank_transfer': 'Transfer Bank',
+            'credit_card': 'Kartu Kredit',
+            'gopay': 'GoPay',
+            'shopeepay': 'ShopeePay',
+            'qris': 'QRIS',
+            'cstore': 'Minimarket',
+            'echannel': 'Mandiri Bill',
+            'bca_klikpay': 'BCA KlikPay',
+            'akulaku': 'Akulaku',
+        };
+        return map[metode] || metode.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function showInvoice(invoice, redirectUrl) {
+        document.getElementById('inv-id-pesanan').textContent = '#' + invoice.id_pesanan;
+        document.getElementById('inv-tanggal').textContent = invoice.tanggal;
+        document.getElementById('inv-nama').textContent = invoice.nama_pembeli;
+        document.getElementById('inv-metode').textContent = formatMetode(invoice.metode);
+        document.getElementById('inv-txn').textContent = invoice.transaction_id;
+        document.getElementById('inv-total').textContent = formatRupiah(invoice.total_harga);
+
+        const itemsContainer = document.getElementById('inv-items');
+        itemsContainer.innerHTML = '';
+        invoice.items.forEach(function(item) {
+            const el = document.createElement('div');
+            el.className = 'receipt-item';
+            el.innerHTML =
+                '<div class="receipt-item-info">' +
+                    '<p class="receipt-item-title">' + escapeHtml(item.judul) + '</p>' +
+                    '<p class="receipt-item-detail">' + escapeHtml(item.penulis) + ' &middot; ' + item.qty + ' x ' + formatRupiah(item.harga_satuan) + '</p>' +
+                '</div>' +
+                '<span class="receipt-item-subtotal">' + formatRupiah(item.subtotal) + '</span>';
+            itemsContainer.appendChild(el);
+        });
+
+        const overlay = document.getElementById('invoiceOverlay');
+        overlay.style.display = 'flex';
+
+        document.getElementById('btnInvoiceClose').addEventListener('click', function() {
+            window.location.href = redirectUrl;
+        });
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.appendChild(document.createTextNode(text));
+        return div.innerHTML;
     }
 });
 </script>
