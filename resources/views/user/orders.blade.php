@@ -9,6 +9,19 @@
         <p class="page-subtitle">Lacak dan kelola riwayat pesanan Anda</p>
     </div>
 
+    @if(session('success'))
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ session('error') }}</span>
+        </div>
+    @endif
+
     @if($orders->count() > 0)
         <div class="orders-list">
             @foreach($orders as $order)

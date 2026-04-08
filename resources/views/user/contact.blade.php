@@ -9,6 +9,19 @@
         <p class="page-subtitle">Punya pertanyaan? Kami siap membantu Anda</p>
     </div>
 
+    @if(session('success'))
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ session('error') }}</span>
+        </div>
+    @endif
+
     <div class="contact-wrapper">
         <!-- Info Cards -->
         <div class="contact-grid">
