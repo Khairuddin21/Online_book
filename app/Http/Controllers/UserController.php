@@ -10,6 +10,7 @@ use App\Models\PesananDetail;
 use App\Models\Pembayaran;
 use App\Models\AlamatPengiriman;
 use App\Models\PesanKontak;
+use App\Models\ChatMessage;
 use App\Models\FavoritBuku;
 use App\Models\UlasanBuku;
 use Illuminate\Http\Request;
@@ -515,20 +516,93 @@ class UserController extends Controller
      */
     public function inbox()
     {
-        // Mark all unread messages as read when user opens inbox
-        PesanKontak::where('id_user', Auth::id())
-                   ->whereNotNull('balasan_admin')
-                   ->where(function ($q) {
-                       $q->whereNull('dibaca_user')->orWhere('dibaca_user', false);
-                   })
-                   ->update(['dibaca_user' => true]);
+        $userId = Auth::id();
 
-        $messages = PesanKontak::where('id_user', Auth::id())
-                               ->whereNotNull('balasan_admin')
-                               ->orderBy('tanggal_balas', 'desc')
-                               ->paginate(10);
-        
-        return view('user.inbox', compact('messages'));
+        // Delete expired messages (older than 24 hours from first message)
+        $firstMessage = ChatMessage::where('id_user', $userId)->orderBy('waktu', 'asc')->first();
+        $chatExpiresAt = null;
+        if ($firstMessage && $firstMessage->waktu->diffInHours(now()) >= 24) {
+            ChatMessage::where('id_user', $userId)->delete();
+            $firstMessage = null;
+        }
+
+        // Calculate remaining time
+        if ($firstMessage) {
+            $chatExpiresAt = $firstMessage->waktu->copy()->addHours(24);
+        }
+
+        // Mark all admin messages as read
+        ChatMessage::where('id_user', $userId)
+            ->where('pengirim', 'admin')
+            ->where('dibaca', false)
+            ->update(['dibaca' => true]);
+
+        $messages = ChatMessage::where('id_user', $userId)
+            ->orderBy('waktu', 'asc')
+            ->get();
+
+        return view('user.inbox', compact('messages', 'chatExpiresAt'));
+    }
+
+    /**
+     * User sends a chat message
+     */
+    public function sendMessage(Request $request)
+    {
+        $request->validate([
+            'pesan' => 'required|string|max:5000',
+        ]);
+
+        ChatMessage::create([
+            'id_user' => Auth::id(),
+            'pengirim' => 'user',
+            'pesan' => $request->pesan,
+            'waktu' => now(),
+        ]);
+
+        return redirect()->route('user.inbox')->with('success', 'Pesan terkirim');
+    }
+
+    /**
+     * Get new messages for polling (AJAX)
+     */
+    public function getNewMessages(Request $request)
+    {
+        $userId = Auth::id();
+        $lastId = $request->last_id ?? 0;
+
+        // Check 24h expiry
+        $firstMessage = ChatMessage::where('id_user', $userId)->orderBy('waktu', 'asc')->first();
+        if ($firstMessage && $firstMessage->waktu->diffInHours(now()) >= 24) {
+            ChatMessage::where('id_user', $userId)->delete();
+            return response()->json(['messages' => [], 'expired' => true]);
+        }
+
+        $expiresAt = $firstMessage ? $firstMessage->waktu->copy()->addHours(24)->toIso8601String() : null;
+
+        // Mark admin messages as read
+        ChatMessage::where('id_user', $userId)
+            ->where('pengirim', 'admin')
+            ->where('dibaca', false)
+            ->update(['dibaca' => true]);
+
+        $messages = ChatMessage::where('id_user', $userId)
+            ->where('id_chat', '>', $lastId)
+            ->orderBy('waktu', 'asc')
+            ->get();
+
+        return response()->json([
+            'messages' => $messages->map(function ($m) {
+                return [
+                    'id_chat' => $m->id_chat,
+                    'pengirim' => $m->pengirim,
+                    'pesan' => e($m->pesan),
+                    'waktu' => $m->waktu->format('H:i'),
+                    'tanggal' => $m->waktu->format('d M Y'),
+                ];
+            }),
+            'expires_at' => $expiresAt,
+        ]);
     }
 
     /**
@@ -536,11 +610,46 @@ class UserController extends Controller
      */
     public function deleteInboxMessage($id)
     {
-        $pesan = PesanKontak::where('id_user', Auth::id())->findOrFail($id);
+        $pesan = ChatMessage::where('id_user', Auth::id())->findOrFail($id);
         $pesan->delete();
 
         return redirect()->route('user.inbox')
             ->with('success', 'Pesan berhasil dihapus');
+    }
+
+    /**
+     * Check unread messages (for global notification polling)
+     */
+    public function checkUnreadMessages()
+    {
+        $userId = Auth::id();
+
+        $unreadCount = ChatMessage::where('id_user', $userId)
+            ->where('pengirim', 'admin')
+            ->where('dibaca', false)
+            ->count();
+
+        $latestMessage = null;
+        if ($unreadCount > 0) {
+            $latest = ChatMessage::where('id_user', $userId)
+                ->where('pengirim', 'admin')
+                ->where('dibaca', false)
+                ->orderBy('waktu', 'desc')
+                ->first();
+
+            if ($latest) {
+                $latestMessage = [
+                    'id_chat' => $latest->id_chat,
+                    'pesan' => mb_strlen($latest->pesan) > 80 ? mb_substr($latest->pesan, 0, 80) . '...' : $latest->pesan,
+                    'waktu' => $latest->waktu->format('H:i'),
+                ];
+            }
+        }
+
+        return response()->json([
+            'unread_count' => $unreadCount,
+            'latest' => $latestMessage,
+        ]);
     }
     
     /**
@@ -571,16 +680,16 @@ class UserController extends Controller
         ]);
         
         try {
-            // Create contact message
-            PesanKontak::create([
+            // Create chat message from contact form
+            ChatMessage::create([
                 'id_user' => Auth::id(),
-                'subjek' => $request->subjek,
-                'isi_pesan' => "Nama: {$request->nama}\nEmail: {$request->email}\n\n{$request->pesan}",
-                'tanggal' => now(),
+                'pengirim' => 'user',
+                'pesan' => "[{$request->subjek}]\n\n{$request->pesan}",
+                'waktu' => now(),
             ]);
             
-            return redirect()->back()
-                ->with('success', 'Pesan Anda berhasil dikirim. Kami akan segera menghubungi Anda.');
+            return redirect()->route('user.inbox')
+                ->with('success', 'Pesan Anda berhasil dikirim. Silakan cek inbox untuk balasan.');
                 
         } catch (\Exception $e) {
             return redirect()->back()

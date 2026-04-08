@@ -67,11 +67,11 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/users', [AdminController::class, 'indexUsers'])->name('admin.users.index');
     Route::post('/users/{id}/update-role', [AdminController::class, 'updateUserRole'])->name('admin.users.updateRole');
     
-    // Pesan Kontak
+    // Chat / Pesan
     Route::get('/pesan', [AdminController::class, 'indexPesan'])->name('admin.pesan.index');
-    Route::get('/pesan/{id}', [AdminController::class, 'showPesan'])->name('admin.pesan.show');
-    Route::post('/pesan/{id}/reply', [AdminController::class, 'replyPesan'])->name('admin.pesan.reply');
+    Route::post('/pesan/send', [AdminController::class, 'sendPesan'])->name('admin.pesan.send');
     Route::delete('/pesan/{id}', [AdminController::class, 'deletePesan'])->name('admin.pesan.delete');
+    Route::get('/pesan/new-messages', [AdminController::class, 'getNewMessages'])->name('admin.pesan.newMessages');
     
     // Laporan
     Route::get('/laporan', [AdminController::class, 'laporan'])->name('admin.laporan');
@@ -87,6 +87,9 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::put('/profile', [UserController::class, 'updateProfile'])->name('user.profile.update');
     Route::put('/profile/password', [UserController::class, 'changePassword'])->name('user.profile.password');
     Route::get('/inbox', [UserController::class, 'inbox'])->name('user.inbox');
+    Route::post('/inbox/send', [UserController::class, 'sendMessage'])->name('user.inbox.send');
+    Route::get('/inbox/new-messages', [UserController::class, 'getNewMessages'])->name('user.inbox.newMessages');
+    Route::get('/inbox/check-unread', [UserController::class, 'checkUnreadMessages'])->name('user.inbox.checkUnread');
     Route::delete('/inbox/{id}', [UserController::class, 'deleteInboxMessage'])->name('user.inbox.delete');
     Route::get('/contact', [UserController::class, 'contact'])->name('user.contact');
     Route::post('/contact/submit', [UserController::class, 'submitContact'])->name('user.contact.submit');

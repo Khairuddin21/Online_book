@@ -10,6 +10,7 @@ use App\Models\PesananDetail;
 use App\Models\Pembayaran;
 use App\Models\User;
 use App\Models\PesanKontak;
+use App\Models\ChatMessage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
@@ -640,91 +641,140 @@ class AdminController extends Controller
      */
     public function indexPesan(Request $request)
     {
-        $query = PesanKontak::with('user');
-        
-        // Search filter
-        if ($request->has('search') && $request->search != '') {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('subjek', 'like', "%{$search}%")
-                  ->orWhere('isi_pesan', 'like', "%{$search}%")
-                  ->orWhereHas('user', function($q) use ($search) {
-                      $q->where('nama', 'like', "%{$search}%")
-                        ->orWhere('email', 'like', "%{$search}%");
-                  });
-            });
-        }
-        
-        // Status filter (dibaca/belum dibaca)
-        if ($request->has('status') && $request->status != '') {
-            if ($request->status == 'belum_dibaca') {
-                $query->whereNull('balasan_admin');
-            } elseif ($request->status == 'sudah_dibaca') {
-                $query->whereNotNull('balasan_admin');
+        // Clean up expired conversations (24h from first message per user)
+        $userIds = ChatMessage::select('id_user')->distinct()->pluck('id_user');
+        foreach ($userIds as $uid) {
+            $first = ChatMessage::where('id_user', $uid)->orderBy('waktu', 'asc')->first();
+            if ($first && $first->waktu->diffInHours(now()) >= 24) {
+                ChatMessage::where('id_user', $uid)->delete();
             }
         }
-        
-        $pesan = $query->orderBy('tanggal', 'desc')->paginate(15);
-        
-        return view('admin.pesan.index', compact('pesan'));
+
+        // If a user is selected, mark their messages as read FIRST (before counting unread)
+        $selectedUser = null;
+        $messages = collect();
+        $chatExpiresAt = null;
+        if ($request->has('user_id')) {
+            $selectedUser = User::find($request->user_id);
+            if ($selectedUser) {
+                ChatMessage::where('id_user', $selectedUser->id_user)
+                    ->where('pengirim', 'user')
+                    ->where('dibaca', false)
+                    ->update(['dibaca' => true]);
+
+                $messages = ChatMessage::where('id_user', $selectedUser->id_user)
+                    ->orderBy('waktu', 'asc')
+                    ->get();
+
+                // Calculate expiry
+                $firstMsg = $messages->first();
+                if ($firstMsg) {
+                    $chatExpiresAt = $firstMsg->waktu->copy()->addHours(24);
+                }
+            }
+        }
+
+        // Get all users who have chat messages, with latest message & unread count
+        $query = User::whereHas('chatMessages')
+            ->withCount(['chatMessages as unread_count' => function ($q) {
+                $q->where('pengirim', 'user')->where('dibaca', false);
+            }])
+            ->with(['chatMessages' => function ($q) {
+                $q->orderBy('waktu', 'desc')->limit(1);
+            }]);
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->get()->sortByDesc(function ($user) {
+            return $user->chatMessages->first()->waktu ?? now()->subYears(10);
+        });
+
+        return view('admin.pesan.index', compact('users', 'selectedUser', 'messages', 'chatExpiresAt'));
     }
-    
+
     /**
-     * Show pesan detail
+     * Admin sends a chat message to user
      */
-    public function showPesan($id)
-    {
-        $pesan = PesanKontak::with('user')->findOrFail($id);
-        
-        return view('admin.pesan.show', compact('pesan'));
-    }
-    
-    /**
-     * Reply to pesan kontak
-     */
-    public function replyPesan(Request $request, $id)
+    public function sendPesan(Request $request)
     {
         $request->validate([
-            'balasan' => 'required|string|min:10',
-        ], [
-            'balasan.required' => 'Balasan wajib diisi',
-            'balasan.min' => 'Balasan minimal 10 karakter',
+            'id_user' => 'required|exists:users,id_user',
+            'pesan' => 'required|string|max:5000',
         ]);
-        
-        try {
-            $pesan = PesanKontak::findOrFail($id);
-            
-            $pesan->update([
-                'balasan_admin' => $request->balasan,
-                'tanggal_balas' => now(),
-            ]);
-            
-            return redirect()->back()
-                ->with('success', 'Balasan berhasil dikirim ke user');
-                
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal mengirim balasan: ' . $e->getMessage())
-                ->withInput();
-        }
+
+        ChatMessage::create([
+            'id_user' => $request->id_user,
+            'pengirim' => 'admin',
+            'pesan' => $request->pesan,
+            'waktu' => now(),
+        ]);
+
+        return redirect()->route('admin.pesan.index', ['user_id' => $request->id_user])
+            ->with('success', 'Pesan terkirim');
     }
-    
+
     /**
-     * Delete pesan kontak
+     * Admin deletes entire conversation with a user
      */
     public function deletePesan($id)
     {
         try {
-            $pesan = PesanKontak::findOrFail($id);
-            $pesan->delete();
-            
+            ChatMessage::where('id_user', $id)->delete();
+
             return redirect()->route('admin.pesan.index')
-                ->with('success', 'Pesan berhasil dihapus');
-                
+                ->with('success', 'Percakapan berhasil dihapus');
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Gagal menghapus pesan: ' . $e->getMessage());
+                ->with('error', 'Gagal menghapus percakapan: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get new messages for polling (AJAX)
+     */
+    public function getNewMessages(Request $request)
+    {
+        $userId = $request->user_id;
+        $lastId = $request->last_id ?? 0;
+
+        // Check 24h expiry
+        $firstMessage = ChatMessage::where('id_user', $userId)->orderBy('waktu', 'asc')->first();
+        if ($firstMessage && $firstMessage->waktu->diffInHours(now()) >= 24) {
+            ChatMessage::where('id_user', $userId)->delete();
+            return response()->json(['messages' => [], 'expired' => true]);
+        }
+
+        $expiresAt = $firstMessage ? $firstMessage->waktu->copy()->addHours(24)->toIso8601String() : null;
+
+        // Mark user messages as read
+        ChatMessage::where('id_user', $userId)
+            ->where('pengirim', 'user')
+            ->where('dibaca', false)
+            ->update(['dibaca' => true]);
+
+        $messages = ChatMessage::where('id_user', $userId)
+            ->where('id_chat', '>', $lastId)
+            ->orderBy('waktu', 'asc')
+            ->get();
+
+        return response()->json([
+            'messages' => $messages->map(function ($m) {
+                return [
+                    'id_chat' => $m->id_chat,
+                    'pengirim' => $m->pengirim,
+                    'pesan' => e($m->pesan),
+                    'waktu' => $m->waktu->format('H:i'),
+                    'tanggal' => $m->waktu->format('d M Y'),
+                ];
+            }),
+            'expires_at' => $expiresAt,
+        ]);
     }
 
     /**

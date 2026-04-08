@@ -65,7 +65,10 @@
                 <li class="sidebar-label">Komunikasi</li>
                 <li>
                     <a href="{{ route('admin.pesan.index') }}" class="{{ request()->routeIs('admin.pesan.*') ? 'active' : '' }}">
-                        <i class="fas fa-envelope"></i> Pesan Kontak
+                        <i class="fas fa-comments"></i> Chat
+                        @if(($adminChatNotifCount ?? 0) > 0)
+                            <span style="background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:50px;margin-left:6px;">{{ $adminChatNotifCount }}</span>
+                        @endif
                     </a>
                 </li>
 

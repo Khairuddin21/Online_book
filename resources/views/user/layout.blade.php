@@ -135,6 +135,186 @@
     <script>
         window.APP_URL = '{{ rtrim(url('/'), '/') }}';
     </script>
+    @auth
+    {{-- Chat Notification Toast --}}
+    <div id="chatToast" class="chat-toast" style="display:none;" onclick="window.location.href='{{ route('user.inbox') }}'">
+        <div class="chat-toast-icon">
+            <i class="fas fa-headset"></i>
+        </div>
+        <div class="chat-toast-body">
+            <div class="chat-toast-header">
+                <strong>Admin Book.com</strong>
+                <span class="chat-toast-time" id="chatToastTime"></span>
+            </div>
+            <p class="chat-toast-text" id="chatToastText"></p>
+        </div>
+        <button class="chat-toast-close" onclick="event.stopPropagation(); closeChatToast();">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <style>
+        .chat-toast {
+            position: fixed;
+            top: 80px;
+            left: 24px;
+            width: 360px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+            border: 1px solid #e8e4de;
+            padding: 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            z-index: 9999;
+            cursor: pointer;
+            transform: translateX(-120%);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        }
+        .chat-toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .chat-toast:hover {
+            box-shadow: 0 8px 36px rgba(0,0,0,0.16);
+        }
+        .chat-toast-icon {
+            width: 42px;
+            height: 42px;
+            min-width: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a8d5a2, #6b9e65);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .chat-toast-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .chat-toast-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+        .chat-toast-header strong {
+            font-size: 13px;
+            color: #2d2d2d;
+        }
+        .chat-toast-time {
+            font-size: 11px;
+            color: #9c9588;
+        }
+        .chat-toast-text {
+            font-size: 13px;
+            color: #5a5550;
+            margin: 0;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .chat-toast-close {
+            background: none;
+            border: none;
+            color: #b8b0a4;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 2px 4px;
+            margin-top: -2px;
+            transition: color 0.2s;
+        }
+        .chat-toast-close:hover {
+            color: #5a5550;
+        }
+        @media (max-width: 480px) {
+            .chat-toast {
+                left: 12px;
+                right: 12px;
+                width: auto;
+            }
+        }
+    </style>
+
+    <script>
+    (function() {
+        // Skip polling on the inbox page itself
+        if (window.location.pathname.indexOf('/inbox') !== -1) return;
+
+        var lastShownId = 0;
+        var toastTimeout = null;
+        var checkUrl = '{{ route("user.inbox.checkUnread") }}';
+
+        function closeChatToast() {
+            var toast = document.getElementById('chatToast');
+            if (toast) toast.classList.remove('show');
+        }
+        window.closeChatToast = closeChatToast;
+
+        function showToast(message) {
+            var toast = document.getElementById('chatToast');
+            var toastText = document.getElementById('chatToastText');
+            var toastTime = document.getElementById('chatToastTime');
+            if (!toast || !toastText) return;
+
+            toastText.textContent = message.pesan;
+            toastTime.textContent = message.waktu;
+
+            toast.style.display = 'flex';
+            // Trigger reflow for animation
+            void toast.offsetWidth;
+            toast.classList.add('show');
+
+            // Auto-hide after 6 seconds
+            if (toastTimeout) clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(function() {
+                closeChatToast();
+            }, 6000);
+        }
+
+        function updateBadge(count) {
+            // Update the notification badge in the dropdown
+            var pesanLink = document.querySelector('.dropdown a[href*="inbox"]');
+            if (!pesanLink) return;
+            var badge = pesanLink.querySelector('span');
+            if (count > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.style.cssText = 'background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:50px;margin-left:4px;';
+                    pesanLink.appendChild(badge);
+                }
+                badge.textContent = count;
+            } else if (badge) {
+                badge.remove();
+            }
+        }
+
+        function checkUnread() {
+            fetch(checkUrl)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    updateBadge(data.unread_count);
+                    if (data.latest && data.latest.id_chat > lastShownId) {
+                        lastShownId = data.latest.id_chat;
+                        showToast(data.latest);
+                    }
+                })
+                .catch(function() {});
+        }
+
+        // Initial check after 1.5s (gives page time to load)
+        setTimeout(checkUnread, 1500);
+        // Then poll every 5 seconds
+        setInterval(checkUnread, 5000);
+    })();
+    </script>
+    @endauth
+
     <script src="{{ asset('js/user/user.js') }}?v={{ time() }}"></script>
     @stack('scripts')
 </body>
