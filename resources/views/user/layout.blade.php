@@ -84,24 +84,6 @@
         </div>
     </nav>
 
-    <!-- Alerts -->
-    @if(session('success'))
-    <div class="user-container" style="padding-bottom:0;">
-        <div class="alert alert-success">
-            <i class="fas fa-check-circle"></i>
-            <span>{{ session('success') }}</span>
-        </div>
-    </div>
-    @endif
-    @if(session('error'))
-    <div class="user-container" style="padding-bottom:0;">
-        <div class="alert alert-error">
-            <i class="fas fa-exclamation-circle"></i>
-            <span>{{ session('error') }}</span>
-        </div>
-    </div>
-    @endif
-
     <!-- Main Content -->
     <main>
         @yield('content')

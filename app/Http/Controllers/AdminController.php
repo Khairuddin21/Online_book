@@ -227,40 +227,39 @@ class AdminController extends Controller
     }
     
     /**
-     * Delete pesanan (history)
+     * Delete pesanan (history) and renumber subsequent IDs
      */
     public function deletePesanan($id)
     {
         try {
             DB::beginTransaction();
-            
+
             $pesanan = Pesanan::findOrFail($id);
-            
-            // Delete related records
-            PesananDetail::where('id_pesanan', $id)->delete();
-            Pembayaran::where('id_pesanan', $id)->delete();
-            
+            $deletedId = $pesanan->id_pesanan;
+
+            // Delete related records first
+            PesananDetail::where('id_pesanan', $deletedId)->delete();
+            Pembayaran::where('id_pesanan', $deletedId)->delete();
+
             // Delete pesanan
             $pesanan->delete();
-            
+
             DB::commit();
 
-            // Reset AUTO_INCREMENT outside transaction (DDL causes implicit commit)
-            $remainingPesanan = Pesanan::count();
-            if ($remainingPesanan == 0) {
-                DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = 1');
-                DB::statement('ALTER TABLE pesanan_detail AUTO_INCREMENT = 1');
-                DB::statement('ALTER TABLE pembayaran AUTO_INCREMENT = 1');
-            } else {
-                $maxId = Pesanan::max('id_pesanan');
-                if ($maxId) {
-                    DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = ' . ($maxId + 1));
-                }
-            }
-            
+            // Renumber: shift all IDs greater than the deleted one down by 1
+            DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            DB::update('UPDATE pesanan_detail SET id_pesanan = id_pesanan - 1 WHERE id_pesanan > ?', [$deletedId]);
+            DB::update('UPDATE pembayaran SET id_pesanan = id_pesanan - 1 WHERE id_pesanan > ?', [$deletedId]);
+            DB::update('UPDATE pesanan SET id_pesanan = id_pesanan - 1 WHERE id_pesanan > ?', [$deletedId]);
+            DB::statement('SET FOREIGN_KEY_CHECKS=1');
+
+            // Reset AUTO_INCREMENT to max id + 1 (DDL outside transaction)
+            $maxId = Pesanan::max('id_pesanan') ?? 0;
+            DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = ' . ($maxId + 1));
+
             return redirect()->route('admin.pesanan.index')
                 ->with('success', 'Pesanan berhasil dihapus');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->route('admin.pesanan.index')

@@ -22,14 +22,16 @@
     </div>
     
     @if(session('success'))
-        <div class="alert alert-success" style="margin: 20px 0;">
-            <i class="fas fa-check-circle"></i> {{ session('success') }}
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ session('success') }}</span>
         </div>
     @endif
     
     @if(session('error'))
-        <div class="alert alert-error" style="margin: 20px 0;">
-            <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>{{ session('error') }}</span>
         </div>
     @endif
     

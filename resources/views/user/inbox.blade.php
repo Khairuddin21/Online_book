@@ -10,8 +10,9 @@
     </div>
 
     @if(session('success'))
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 8px; max-width: 800px; margin-left: auto; margin-right: auto;">
-            <i class="fas fa-check-circle"></i> {{ session('success') }}
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span>{{ session('success') }}</span>
         </div>
     @endif
 
