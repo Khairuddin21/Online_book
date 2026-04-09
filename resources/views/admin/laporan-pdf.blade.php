@@ -69,7 +69,7 @@
         <!-- Header -->
         <div class="header">
             <div class="header-left">
-                <h1>Book.com</h1>
+                <h1>6BUCKS.litera</h1>
                 <p>Toko Buku Online Terpercaya</p>
             </div>
             <div class="header-right">
@@ -276,7 +276,7 @@
 
         <!-- Footer -->
         <div class="footer">
-            <p>Book.com — Rekap Laporan {{ $bulanNama[$bulan] }} {{ $tahun }}</p>
+            <p>6BUCKS.litera — Rekap Laporan {{ $bulanNama[$bulan] }} {{ $tahun }}</p>
             <p>Dokumen ini dibuat secara otomatis dan sah tanpa tanda tangan</p>
         </div>
     </div>

@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Book.com - Find the book you're looking for, easier to read">
+    <meta name="description" content="6BUCKS.litera - Find the book you're looking for, easier to read">
     
-    <title>Book.com - Temukan Buku Favoritmu</title>
+    <title>6BUCKS.litera - Temukan Buku Favoritmu</title>
 
     <!-- Import Font -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -22,7 +22,7 @@
     <nav class="landing-navbar">
         <div class="navbar-content">
             <a href="#" class="navbar-logo">
-                <span>Book.com</span>
+                <span>6BUCKS.litera</span>
             </a>
 
             <ul class="navbar-menu">
@@ -276,8 +276,8 @@
             <div class="about-row reveal">
                 <div class="about-text">
                     <span class="about-badge"><i class="fas fa-book-open"></i> Siapa Kami</span>
-                    <h3>Apa itu Book.com?</h3>
-                    <p>Book.com adalah platform e-commerce yang menyediakan berbagai koleksi buku berkualitas dari berbagai genre dan kategori. Kami hadir untuk memudahkan Anda dalam menemukan dan membeli buku favorit dengan mudah dan cepat.</p>
+                    <h3>Apa itu 6BUCKS.litera?</h3>
+                    <p>6BUCKS.litera adalah platform e-commerce yang menyediakan berbagai koleksi buku berkualitas dari berbagai genre dan kategori. Kami hadir untuk memudahkan Anda dalam menemukan dan membeli buku favorit dengan mudah dan cepat.</p>
                     <p>Misi kami adalah meningkatkan literasi dan memberikan kemudahan akses pada dunia pengetahuan di seluruh Indonesia dengan memanfaatkan teknologi.</p>
                 </div>
                 <div class="about-visual">
@@ -337,7 +337,7 @@
                             <i class="fas fa-envelope"></i>
                             <div>
                                 <strong>Email</strong>
-                                <span>info@book.com</span>
+                                <span>info@6bucks.litera</span>
                             </div>
                         </div>
                         <div class="about-contact-item">
@@ -373,7 +373,7 @@
     <footer class="landing-footer" id="contact">
         <div class="footer-content">
             <div class="footer-section">
-                <h3>Book.com</h3>
+                <h3>6BUCKS.litera</h3>
                 <p>Platform buku online terpercaya dengan koleksi terlengkap dan harga terbaik.</p>
                 <div class="social-links">
                     <a href="#"><i class="fab fa-facebook-f"></i></a>
@@ -407,13 +407,13 @@
                 <ul>
                     <li><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</li>
                     <li><i class="fas fa-phone"></i> +62 812-3456-7890</li>
-                    <li><i class="fas fa-envelope"></i> info@book.com</li>
+                    <li><i class="fas fa-envelope"></i> info@6bucks.litera</li>
                 </ul>
             </div>
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; {{ date('Y') }} Book.com. All Rights Reserved.</p>
+            <p>&copy; {{ date('Y') }} 6BUCKS.litera. All Rights Reserved.</p>
         </div>
     </footer>
 

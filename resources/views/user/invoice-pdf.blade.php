@@ -72,7 +72,7 @@
         <!-- Bagian Header -->
         <div class="invoice-top">
             <div class="invoice-brand">
-                <h1>Book.com</h1>
+                <h1>6BUCKS.litera</h1>
                 <p>Toko Buku Online Terpercaya</p>
             </div>
             <div class="invoice-title">
@@ -176,7 +176,7 @@
 
         <!-- Bagian Footer -->
         <div class="invoice-footer">
-            <p>Terima kasih telah berbelanja di Book.com</p>
+            <p>Terima kasih telah berbelanja di 6BUCKS.litera</p>
             <p>Invoice ini dibuat secara otomatis dan sah tanpa tanda tangan</p>
         </div>
     </div>

@@ -379,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function deleteAddress(addressId) {
     if (!confirm('Yakin ingin menghapus alamat ini?')) return;
 
-    fetch(`/address/delete/${addressId}`, {
+    fetch(`{{ url('/address/delete') }}/${addressId}`, {
         method: 'DELETE',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,

@@ -140,7 +140,7 @@
 
         <div class="invoice-receipt">
             <div class="receipt-top">
-                <h3><i class="fas fa-book-open"></i> Book.com</h3>
+                <h3><i class="fas fa-book-open"></i> 6BUCKS.litera</h3>
                 <p>Struk Pembayaran</p>
             </div>
 

@@ -12,7 +12,7 @@
                     <i class="fas fa-headset"></i>
                 </div>
                 <div>
-                    <div class="user-chat-admin-name">Admin Book.com</div>
+                    <div class="user-chat-admin-name">Admin 6BUCKS.litera</div>
                     <div class="user-chat-admin-status"><i class="fas fa-circle"></i> Customer Support</div>
                 </div>
             </div>

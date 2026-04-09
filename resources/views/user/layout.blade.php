@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Beranda') - Book.com</title>
+    <title>@yield('title', 'Beranda') - 6BUCKS.litera</title>
     
     <!-- Import Font -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -24,7 +24,7 @@
         <div class="navbar-container">
             <a href="{{ route('user.home') }}" class="navbar-logo">
                 <i class="fas fa-book-open"></i>
-                <h1>Book.com</h1>
+                <h1>6BUCKS.litera</h1>
             </a>
 
             <ul class="navbar-menu" id="navMenu">
@@ -95,7 +95,7 @@
     <footer class="user-footer">
         <div class="footer-container">
             <div class="footer-section">
-                <h3><i class="fas fa-book-open"></i> Book.com</h3>
+                <h3><i class="fas fa-book-open"></i> 6BUCKS.litera</h3>
                 <p>Toko buku online terpercaya dengan koleksi terlengkap. Temukan buku favoritmu dan nikmati pengalaman membaca yang tak terlupakan.</p>
             </div>
 
@@ -121,14 +121,14 @@
                 <h3>Hubungi Kami</h3>
                 <ul>
                     <li><i class="fas fa-phone"></i> +62 123 4567 890</li>
-                    <li><i class="fas fa-envelope"></i> info@book.com</li>
+                    <li><i class="fas fa-envelope"></i> info@6bucks.litera</li>
                     <li><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</li>
                 </ul>
             </div>
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; {{ date('Y') }} Book.com — All rights reserved.</p>
+            <p>&copy; {{ date('Y') }} 6BUCKS.litera — All rights reserved.</p>
         </div>
     </footer>
 
@@ -144,7 +144,7 @@
         </div>
         <div class="chat-toast-body">
             <div class="chat-toast-header">
-                <strong>Admin Book.com</strong>
+                <strong>Admin 6BUCKS.litera</strong>
                 <span class="chat-toast-time" id="chatToastTime"></span>
             </div>
             <p class="chat-toast-text" id="chatToastText"></p>

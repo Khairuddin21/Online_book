@@ -6,7 +6,7 @@
 <div class="user-container" style="min-height: 60vh;">
     <div class="page-header">
         <h1 class="page-title">Pesanan Saya</h1>
-        <p class="page-subtitle">Lacak dan kelola riwayat pesanan Anda</p>
+        <p class="page-subtitle">Riwayat pesanan Anda</p>
     </div>
 
     @if(session('success'))

@@ -7,7 +7,7 @@
 <div class="user-container" style="padding-bottom: 0;">
     <div class="welcome-banner">
         <div class="welcome-text">
-            <h2>Selamat Datang di Book.com</h2>
+            <h2>Selamat Datang di 6BUCKS.litera</h2>
             <p>Temukan ribuan koleksi buku terbaik dari berbagai genre. Mulai petualangan membacamu hari ini!</p>
             <div class="welcome-actions">
                 <a href="{{ route('user.books') }}" class="btn btn-primary">
