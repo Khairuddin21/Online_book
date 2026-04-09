@@ -19,7 +19,7 @@ class Pesanan extends Model
         'status',
         'snap_token',
         'metode_pembayaran',
-        'bukti_cod',
+        'bukti_offline',
     ];
 
     protected $casts = [

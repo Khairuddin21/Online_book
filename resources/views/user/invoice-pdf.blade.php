@@ -95,7 +95,7 @@
                 <h4>Detail Invoice</h4>
                 <p><strong>Tanggal:</strong> {{ $pesanan->tanggal_pesanan ? $pesanan->tanggal_pesanan->format('d M Y, H:i') : now()->format('d M Y, H:i') }}</p>
                 <p><strong>Status:</strong> {{ ucfirst($pesanan->status) }}</p>
-                <p><strong>Metode:</strong> {{ $pesanan->metode_pembayaran === 'cod' ? 'COD' : 'Online Payment' }}</p>
+                <p><strong>Metode:</strong> {{ $pesanan->metode_pembayaran === 'offline' ? 'Payment Offline' : 'Online Payment' }}</p>
             </div>
         </div>
 
@@ -150,6 +150,19 @@
                 <span>Metode Pembayaran</span>
                 <span>{{ ucfirst(str_replace('_', ' ', $pesanan->pembayaran->metode)) }}</span>
             </div>
+            @if($pesanan->pembayaran->jumlah_dibayar)
+            <div class="info-row">
+                <span>Jumlah Dibayar</span>
+                <span>Rp {{ number_format($pesanan->pembayaran->jumlah_dibayar, 0, ',', '.') }}</span>
+            </div>
+            <div class="info-row">
+                <span>Kembalian</span>
+                <span>
+                    @php $kembalian = $pesanan->pembayaran->jumlah_dibayar - $pesanan->pembayaran->jumlah; @endphp
+                    {{ $kembalian > 0 ? 'Rp ' . number_format($kembalian, 0, ',', '.') : 'Rp 0 (Uang Pas)' }}
+                </span>
+            </div>
+            @endif
             <div class="info-row">
                 <span>Status</span>
                 <span>{{ $pesanan->pembayaran->status_verifikasi === 'valid' ? 'Terverifikasi' : ucfirst($pesanan->pembayaran->status_verifikasi) }}</span>

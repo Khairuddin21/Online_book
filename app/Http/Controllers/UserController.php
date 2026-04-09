@@ -416,30 +416,30 @@ class UserController extends Controller
     }
 
     /**
-     * Upload bukti COD (foto bukti terima & bayar)
+     * Upload bukti pembayaran offline (foto bukti bayar di kasir)
      */
-    public function uploadBuktiCod(Request $request, $orderId)
+    public function uploadBuktiOffline(Request $request, $orderId)
     {
         $request->validate([
-            'bukti_cod' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
+            'bukti_offline' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
         ], [
-            'bukti_cod.required' => 'Foto bukti wajib diunggah.',
-            'bukti_cod.image' => 'File harus berupa gambar.',
-            'bukti_cod.mimes' => 'Format gambar harus JPG, PNG, atau WebP.',
-            'bukti_cod.max' => 'Ukuran gambar maksimal 5MB.',
+            'bukti_offline.required' => 'Foto bukti wajib diunggah.',
+            'bukti_offline.image' => 'File harus berupa gambar.',
+            'bukti_offline.mimes' => 'Format gambar harus JPG, PNG, atau WebP.',
+            'bukti_offline.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
 
         try {
             $pesanan = Pesanan::where('id_pesanan', $orderId)
                 ->where('id_user', Auth::id())
-                ->where('metode_pembayaran', 'cod')
+                ->where('metode_pembayaran', 'offline')
                 ->whereIn('status', ['dikirim', 'diproses'])
                 ->firstOrFail();
 
             // Simpan fotonya
-            $path = $request->file('bukti_cod')->store('bukti_cod', 'public');
+            $path = $request->file('bukti_offline')->store('bukti_offline', 'public');
 
-            $pesanan->update(['bukti_cod' => $path]);
+            $pesanan->update(['bukti_offline' => $path]);
 
             // Update bukti di tabel pembayaran
             if ($pesanan->pembayaran) {
@@ -449,7 +449,7 @@ class UserController extends Controller
             }
 
             return redirect()->route('user.orders')
-                ->with('success', 'Bukti penerimaan & pembayaran COD berhasil diunggah! Menunggu konfirmasi admin.');
+                ->with('success', 'Bukti pembayaran offline berhasil diunggah! Menunggu konfirmasi admin.');
 
         } catch (\Exception $e) {
             return redirect()->route('user.orders')
@@ -685,24 +685,33 @@ class UserController extends Controller
      */
     public function processCheckout(Request $request)
     {
-        $request->validate([
-            'id_alamat' => 'required|exists:alamat_pengiriman,id_alamat',
-            'metode_pembayaran' => 'required|in:midtrans,cod',
-        ], [
-            'id_alamat.required' => 'Pilih alamat pengiriman',
-            'id_alamat.exists' => 'Alamat tidak valid',
+        // Kalo offline, alamat gak wajib karena beli langsung di store
+        $rules = [
+            'metode_pembayaran' => 'required|in:midtrans,offline',
+        ];
+        $messages = [
             'metode_pembayaran.required' => 'Pilih metode pembayaran',
-        ]);
+        ];
+
+        if ($request->metode_pembayaran !== 'offline') {
+            $rules['id_alamat'] = 'required|exists:alamat_pengiriman,id_alamat';
+            $messages['id_alamat.required'] = 'Pilih alamat pengiriman';
+            $messages['id_alamat.exists'] = 'Alamat tidak valid';
+        }
+
+        $request->validate($rules, $messages);
         
         DB::beginTransaction();
         
         try {
             $userId = Auth::id();
             
-            // Pastiin alamat punya user yang bersangkutan
-            $alamat = AlamatPengiriman::where('id_alamat', $request->id_alamat)
-                ->where('id_user', $userId)
-                ->firstOrFail();
+            // Pastiin alamat punya user yang bersangkutan (skip kalo offline)
+            if ($request->metode_pembayaran !== 'offline' && $request->id_alamat) {
+                $alamat = AlamatPengiriman::where('id_alamat', $request->id_alamat)
+                    ->where('id_user', $userId)
+                    ->firstOrFail();
+            }
             
             // Ambil item keranjang
             $cartItems = Keranjang::where('id_user', $userId)
@@ -756,18 +765,18 @@ class UserController extends Controller
             
             DB::commit();
 
-            // COD: arahkan ke halaman pesanan, Midtrans: arahkan ke halaman bayar
-            if ($request->metode_pembayaran === 'cod') {
-                // Bikin record pembayaran dengan status 'menunggu' buat COD
+            // Offline: arahkan ke halaman pesanan, Midtrans: arahkan ke halaman bayar
+            if ($request->metode_pembayaran === 'offline') {
+                // Bikin record pembayaran dengan status 'menunggu' buat offline
                 Pembayaran::create([
                     'id_pesanan' => $pesanan->id_pesanan,
-                    'metode' => 'cod',
+                    'metode' => 'offline',
                     'jumlah' => $total,
                     'status_verifikasi' => 'menunggu',
                 ]);
 
                 return redirect()->route('user.orders')
-                    ->with('success', 'Pesanan COD berhasil dibuat! Siapkan pembayaran saat barang diterima.');
+                    ->with('success', 'Pesanan berhasil dibuat! Silakan lakukan pembayaran di kasir offline.');
             }
             
             return redirect()->route('user.payment', $pesanan->id_pesanan)

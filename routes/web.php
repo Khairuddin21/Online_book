@@ -57,7 +57,9 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/pesanan', [AdminController::class, 'indexPesanan'])->name('admin.pesanan.index');
     Route::get('/pesanan/{id}', [AdminController::class, 'showPesanan'])->name('admin.pesanan.show');
     Route::put('/pesanan/{id}/status', [AdminController::class, 'updateStatusPesanan'])->name('admin.pesanan.updateStatus');
-    Route::put('/pesanan/{id}/verify-cod', [AdminController::class, 'verifyCod'])->name('admin.pesanan.verifyCod');
+    Route::put('/pesanan/{id}/verify-offline', [AdminController::class, 'verifyOffline'])->name('admin.pesanan.verifyOffline');
+    Route::post('/pesanan/{id}/offline-payment', [AdminController::class, 'processOfflinePayment'])->name('admin.pesanan.offlinePayment');
+    Route::post('/pesanan/{id}/offline-midtrans-callback', [AdminController::class, 'processOfflineMidtransCallback'])->name('admin.pesanan.offlineMidtransCallback');
     Route::delete('/pesanan/{id}', [AdminController::class, 'deletePesanan'])->name('admin.pesanan.delete');
     
     // Pembayaran
@@ -103,7 +105,7 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/payment/{order_id}', [UserController::class, 'showPayment'])->name('user.payment');
     Route::post('/payment/{order_id}/process', [UserController::class, 'processPayment'])->name('user.payment.process');
     Route::post('/orders/{order_id}/cancel', [UserController::class, 'cancelOrder'])->name('user.order.cancel');
-    Route::post('/orders/{order_id}/upload-cod', [UserController::class, 'uploadBuktiCod'])->name('user.order.uploadCod');
+    Route::post('/orders/{order_id}/upload-offline', [UserController::class, 'uploadBuktiOffline'])->name('user.order.uploadOffline');
     Route::get('/orders/{order_id}/invoice', [UserController::class, 'downloadInvoice'])->name('user.order.invoice');
     
     // Rute Manajemen Alamat

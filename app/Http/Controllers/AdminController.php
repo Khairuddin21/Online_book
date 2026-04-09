@@ -170,9 +170,9 @@ class AdminController extends Controller
     }
 
     /**
-     * Verifikasi bukti COD — terima atau tolak
+     * Verifikasi pembayaran offline — terima atau tolak
      */
-    public function verifyCod(Request $request, $id)
+    public function verifyOffline(Request $request, $id)
     {
         $request->validate([
             'aksi' => 'required|in:terima,tolak',
@@ -181,8 +181,8 @@ class AdminController extends Controller
         try {
             $pesanan = Pesanan::with('pembayaran')->findOrFail($id);
 
-            if ($pesanan->metode_pembayaran !== 'cod') {
-                return redirect()->back()->with('error', 'Pesanan ini bukan COD.');
+            if ($pesanan->metode_pembayaran !== 'offline') {
+                return redirect()->back()->with('error', 'Pesanan ini bukan pembayaran offline.');
             }
 
             if ($request->aksi === 'terima') {
@@ -194,40 +194,226 @@ class AdminController extends Controller
                 // Bikin notifikasi inbox buat user
                 PesanKontak::create([
                     'id_user' => $pesanan->id_user,
-                    'subjek' => 'COD Pesanan #' . $pesanan->id_pesanan . ' Terverifikasi',
-                    'isi_pesan' => 'Bukti pembayaran COD untuk pesanan #' . $pesanan->id_pesanan . ' telah diverifikasi. Pesanan selesai.',
+                    'subjek' => 'Pembayaran Offline Pesanan #' . $pesanan->id_pesanan . ' Terverifikasi',
+                    'isi_pesan' => 'Pembayaran offline untuk pesanan #' . $pesanan->id_pesanan . ' telah diverifikasi. Pesanan selesai.',
                     'tanggal' => now(),
-                    'balasan_admin' => 'Terima kasih! Pembayaran COD Anda telah dikonfirmasi. Pesanan #' . $pesanan->id_pesanan . ' telah selesai.',
+                    'balasan_admin' => 'Terima kasih! Pembayaran offline Anda telah dikonfirmasi. Pesanan #' . $pesanan->id_pesanan . ' telah selesai.',
                     'tanggal_balas' => now(),
                 ]);
 
                 return redirect()->route('admin.pesanan.show', $id)
-                    ->with('success', 'Bukti COD diverifikasi. Pesanan ditandai selesai.');
+                    ->with('success', 'Pembayaran offline diverifikasi. Pesanan ditandai selesai.');
             } else {
                 if ($pesanan->pembayaran) {
                     $pesanan->pembayaran->update(['status_verifikasi' => 'invalid']);
                 }
                 // Hapus bukti biar user bisa upload ulang
-                $pesanan->update(['bukti_cod' => null]);
+                $pesanan->update(['bukti_offline' => null]);
 
                 PesanKontak::create([
                     'id_user' => $pesanan->id_user,
-                    'subjek' => 'Bukti COD Pesanan #' . $pesanan->id_pesanan . ' Ditolak',
-                    'isi_pesan' => 'Bukti pembayaran COD yang Anda kirim untuk pesanan #' . $pesanan->id_pesanan . ' ditolak.',
+                    'subjek' => 'Pembayaran Offline Pesanan #' . $pesanan->id_pesanan . ' Ditolak',
+                    'isi_pesan' => 'Bukti pembayaran offline yang Anda kirim untuk pesanan #' . $pesanan->id_pesanan . ' ditolak.',
                     'tanggal' => now(),
-                    'balasan_admin' => 'Bukti COD Anda ditolak. Silakan unggah ulang foto bukti penerimaan dan pembayaran yang lebih jelas.',
+                    'balasan_admin' => 'Bukti pembayaran offline Anda ditolak. Silakan unggah ulang foto bukti pembayaran yang lebih jelas.',
                     'tanggal_balas' => now(),
                 ]);
 
                 return redirect()->route('admin.pesanan.show', $id)
-                    ->with('success', 'Bukti COD ditolak. User akan mendapat notifikasi untuk upload ulang.');
+                    ->with('success', 'Bukti pembayaran offline ditolak. User akan mendapat notifikasi untuk upload ulang.');
             }
         } catch (\Exception $e) {
             return redirect()->back()
-                ->with('error', 'Gagal memverifikasi COD: ' . $e->getMessage());
+                ->with('error', 'Gagal memverifikasi pembayaran offline: ' . $e->getMessage());
         }
     }
-    
+
+    /**
+     * Proses pembayaran offline dari admin — cash atau midtrans
+     */
+    public function processOfflinePayment(Request $request, $id)
+    {
+        $request->validate([
+            'metode_bayar' => 'required|in:cash,midtrans',
+            'jumlah_cash' => 'required_if:metode_bayar,cash|nullable|numeric|min:0',
+        ], [
+            'metode_bayar.required' => 'Pilih metode pembayaran.',
+            'jumlah_cash.required_if' => 'Masukkan jumlah uang cash yang dibayarkan.',
+            'jumlah_cash.numeric' => 'Jumlah harus berupa angka.',
+            'jumlah_cash.min' => 'Jumlah tidak boleh negatif.',
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $pesanan = Pesanan::with('pembayaran')->findOrFail($id);
+
+            if ($pesanan->metode_pembayaran !== 'offline') {
+                return redirect()->back()->with('error', 'Pesanan ini bukan pembayaran offline.');
+            }
+
+            if (in_array($pesanan->status, ['selesai', 'dibatalkan'])) {
+                return redirect()->back()->with('error', 'Pesanan sudah selesai atau dibatalkan.');
+            }
+
+            $total = $pesanan->total_harga;
+
+            if ($request->metode_bayar === 'cash') {
+                $jumlahBayar = (float) $request->jumlah_cash;
+
+                if ($jumlahBayar < $total) {
+                    return redirect()->back()
+                        ->with('error', 'Uang cash kurang! Total: Rp ' . number_format($total, 0, ',', '.') . ', Dibayar: Rp ' . number_format($jumlahBayar, 0, ',', '.'))
+                        ->withInput();
+                }
+
+                $kembalian = $jumlahBayar - $total;
+
+                // Update atau buat record pembayaran
+                if ($pesanan->pembayaran) {
+                    $pesanan->pembayaran->update([
+                        'metode' => 'cash',
+                        'jumlah' => $total,
+                        'jumlah_dibayar' => $jumlahBayar,
+                        'status_verifikasi' => 'valid',
+                    ]);
+                } else {
+                    Pembayaran::create([
+                        'id_pesanan' => $pesanan->id_pesanan,
+                        'metode' => 'cash',
+                        'jumlah' => $total,
+                        'jumlah_dibayar' => $jumlahBayar,
+                        'status_verifikasi' => 'valid',
+                    ]);
+                }
+
+                // Langsung selesaikan pesanan
+                $pesanan->update(['status' => 'selesai']);
+
+                // Notifikasi buat user
+                PesanKontak::create([
+                    'id_user' => $pesanan->id_user,
+                    'subjek' => 'Pesanan #' . $pesanan->id_pesanan . ' — Pembayaran Cash Diterima',
+                    'isi_pesan' => 'Pembayaran cash untuk pesanan #' . $pesanan->id_pesanan . ' sebesar Rp ' . number_format($total, 0, ',', '.') . ' telah diterima.',
+                    'tanggal' => now(),
+                    'balasan_admin' => 'Pembayaran cash diterima. ' . ($kembalian > 0 ? 'Kembalian: Rp ' . number_format($kembalian, 0, ',', '.') . '. ' : '') . 'Pesanan #' . $pesanan->id_pesanan . ' selesai. Terima kasih!',
+                    'tanggal_balas' => now(),
+                ]);
+
+                DB::commit();
+
+                $successMsg = 'Pembayaran cash diterima! Pesanan ditandai selesai.';
+                if ($kembalian > 0) {
+                    $successMsg .= ' Kembalian: Rp ' . number_format($kembalian, 0, ',', '.');
+                }
+
+                return redirect()->route('admin.pesanan.show', $id)->with('success', $successMsg);
+
+            } else {
+                // Midtrans — generate snap token buat pembayaran di admin
+                \Midtrans\Config::$serverKey = config('midtrans.server_key');
+                \Midtrans\Config::$isProduction = config('midtrans.is_production');
+                \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized', true);
+                \Midtrans\Config::$is3ds = config('midtrans.is_3ds', true);
+
+                $orderId_midtrans = 'OFFLINE-' . $pesanan->id_pesanan . '-' . time();
+
+                $itemDetails = $pesanan->pesananDetails->map(function ($detail) {
+                    return [
+                        'id' => (string) $detail->id_buku,
+                        'price' => (int) $detail->harga_satuan,
+                        'quantity' => (int) $detail->qty,
+                        'name' => substr($detail->buku->judul ?? 'Buku', 0, 50),
+                    ];
+                })->toArray();
+
+                $params = [
+                    'transaction_details' => [
+                        'order_id' => $orderId_midtrans,
+                        'gross_amount' => (int) $total,
+                    ],
+                    'customer_details' => [
+                        'first_name' => $pesanan->user->nama ?? 'Customer',
+                        'email' => $pesanan->user->email ?? '',
+                    ],
+                    'item_details' => $itemDetails,
+                ];
+
+                $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+                $pesanan->update(['snap_token' => $snapToken]);
+
+                DB::commit();
+
+                // Redirect balik ke halaman detail dengan snap token buat popup
+                return redirect()->route('admin.pesanan.show', $id)
+                    ->with('snap_token', $snapToken)
+                    ->with('midtrans_order_id', $orderId_midtrans);
+            }
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Gagal memproses pembayaran: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
+     * Callback setelah Midtrans offline berhasil bayar dari admin
+     */
+    public function processOfflineMidtransCallback(Request $request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $pesanan = Pesanan::with('pembayaran')->findOrFail($id);
+
+            if ($pesanan->metode_pembayaran !== 'offline') {
+                return response()->json(['success' => false, 'message' => 'Bukan pesanan offline.']);
+            }
+
+            // Update atau buat record pembayaran
+            if ($pesanan->pembayaran) {
+                $pesanan->pembayaran->update([
+                    'midtrans_transaction_id' => $request->transaction_id,
+                    'midtrans_order_id' => $request->order_id,
+                    'metode' => $request->payment_type ?? 'midtrans',
+                    'jumlah' => $pesanan->total_harga,
+                    'status_verifikasi' => 'valid',
+                ]);
+            } else {
+                Pembayaran::create([
+                    'id_pesanan' => $pesanan->id_pesanan,
+                    'midtrans_transaction_id' => $request->transaction_id,
+                    'midtrans_order_id' => $request->order_id,
+                    'metode' => $request->payment_type ?? 'midtrans',
+                    'jumlah' => $pesanan->total_harga,
+                    'status_verifikasi' => 'valid',
+                ]);
+            }
+
+            $pesanan->update(['status' => 'selesai']);
+
+            // Notifikasi buat user
+            PesanKontak::create([
+                'id_user' => $pesanan->id_user,
+                'subjek' => 'Pesanan #' . $pesanan->id_pesanan . ' — Pembayaran Berhasil',
+                'isi_pesan' => 'Pembayaran Midtrans untuk pesanan offline #' . $pesanan->id_pesanan . ' telah berhasil.',
+                'tanggal' => now(),
+                'balasan_admin' => 'Pembayaran berhasil. Pesanan #' . $pesanan->id_pesanan . ' selesai. Terima kasih!',
+                'tanggal_balas' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json(['success' => true, 'message' => 'Pembayaran Midtrans berhasil. Pesanan selesai.']);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Gagal: ' . $e->getMessage()]);
+        }
+    }
     /**
      * Hapus pesanan (riwayat) dan urutkan ulang ID-nya
      */
@@ -509,7 +695,7 @@ class AdminController extends Controller
             'penulis' => 'required|string|max:150',
             'penerbit' => 'required|string|max:150',
             'tahun_terbit' => 'required|integer|min:1900|max:' . (date('Y') + 1),
-            'stok' => 'required|integer|min:0',
+            'stok_adjustment' => 'nullable|integer',
             'harga' => 'required|numeric|min:0',
             'deskripsi' => 'nullable|string',
             'cover' => 'nullable|url|max:500',
@@ -521,7 +707,6 @@ class AdminController extends Controller
             'penulis.required' => 'Penulis wajib diisi',
             'penerbit.required' => 'Penerbit wajib diisi',
             'tahun_terbit.required' => 'Tahun terbit wajib diisi',
-            'stok.required' => 'Stok wajib diisi',
             'harga.required' => 'Harga wajib diisi',
             'cover.url' => 'Cover harus berupa URL yang valid',
         ]);
