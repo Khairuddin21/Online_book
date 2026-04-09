@@ -75,6 +75,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     
     // Laporan
     Route::get('/laporan', [AdminController::class, 'laporan'])->name('admin.laporan');
+    Route::get('/laporan/download', [AdminController::class, 'downloadLaporan'])->name('admin.laporan.download');
 });
 
 // User Routes
@@ -91,9 +92,6 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::get('/inbox/new-messages', [UserController::class, 'getNewMessages'])->name('user.inbox.newMessages');
     Route::get('/inbox/check-unread', [UserController::class, 'checkUnreadMessages'])->name('user.inbox.checkUnread');
     Route::delete('/inbox/{id}', [UserController::class, 'deleteInboxMessage'])->name('user.inbox.delete');
-    Route::get('/contact', [UserController::class, 'contact'])->name('user.contact');
-    Route::post('/contact/submit', [UserController::class, 'submitContact'])->name('user.contact.submit');
-    
     // Book Detail & Related
     Route::get('/book/{id}', [UserController::class, 'bookDetail'])->name('user.book.detail');
     Route::post('/book/{id}/favorite', [UserController::class, 'toggleFavorite'])->name('user.book.favorite');
@@ -106,6 +104,7 @@ Route::middleware(['auth', 'user'])->group(function () {
     Route::post('/payment/{order_id}/process', [UserController::class, 'processPayment'])->name('user.payment.process');
     Route::post('/orders/{order_id}/cancel', [UserController::class, 'cancelOrder'])->name('user.order.cancel');
     Route::post('/orders/{order_id}/upload-cod', [UserController::class, 'uploadBuktiCod'])->name('user.order.uploadCod');
+    Route::get('/orders/{order_id}/invoice', [UserController::class, 'downloadInvoice'])->name('user.order.invoice');
     
     // Address Management Routes
     Route::post('/address/store', [UserController::class, 'storeAddress'])->name('user.address.store');

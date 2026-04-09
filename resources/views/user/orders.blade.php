@@ -138,6 +138,14 @@
                                     <i class="fas fa-truck"></i> Dalam perjalanan
                                 </span>
                             @endif
+                            <a href="{{ route('user.order.invoice', $order->id_pesanan) }}" class="btn-order-action btn-invoice">
+                                <i class="fas fa-file-download"></i> Invoice
+                            </a>
+                        @endif
+                        @if($order->status === 'selesai')
+                            <a href="{{ route('user.order.invoice', $order->id_pesanan) }}" class="btn-order-action btn-invoice">
+                                <i class="fas fa-file-download"></i> Download Invoice
+                            </a>
                         @endif
                     </div>
                 </div>
@@ -149,8 +157,8 @@
             <i class="fas fa-box-open"></i>
             <h2>Belum Ada Pesanan</h2>
             <p>Anda belum memiliki riwayat pesanan</p>
-            <a href="{{ route('user.books') }}" class="btn btn-green">
-                <i class="fas fa-shopping-bag"></i> Mulai Berbelanja
+            <a href="{{ route('user.books') }}" class="btn btn-green btn-sm">
+                Mulai Berbelanja
             </a>
         </div>
     @endif
@@ -413,6 +421,16 @@
 .btn-cancel:hover {
     background: #fef2f2;
     border-color: #dc2626;
+}
+
+.btn-invoice {
+    background: white;
+    color: #2d6a4f;
+    border: 1.5px solid #a8d5a2;
+}
+.btn-invoice:hover {
+    background: #f0faf4;
+    border-color: #2d6a4f;
 }
 
 .order-info-note {

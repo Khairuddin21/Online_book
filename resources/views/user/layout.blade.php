@@ -32,8 +32,15 @@
                 <li><a href="{{ route('user.books') }}" class="{{ request()->routeIs('user.books') ? 'active' : '' }}">Katalog</a></li>
                 @auth
                 <li><a href="{{ route('user.orders') }}" class="{{ request()->routeIs('user.orders') ? 'active' : '' }}">Pesanan</a></li>
+                <li>
+                    <a href="{{ route('user.inbox') }}" class="{{ request()->routeIs('user.inbox') ? 'active' : '' }}">
+                        Chat
+                        @if(($inboxNotifCount ?? 0) > 0)
+                            <span class="nav-badge">{{ $inboxNotifCount }}</span>
+                        @endif
+                    </a>
+                </li>
                 @endauth
-                <li><a href="{{ route('user.contact') }}" class="{{ request()->routeIs('user.contact') ? 'active' : '' }}">Kontak</a></li>
             </ul>
 
             <div class="navbar-actions">
@@ -57,11 +64,6 @@
                     <div class="dropdown" role="menu" aria-labelledby="userMenuButton">
                         <a href="{{ route('user.profile') }}"><i class="fas fa-user-circle"></i> Profil</a>
                         <a href="{{ route('user.orders') }}"><i class="fas fa-box"></i> Pesanan</a>
-                        <a href="{{ route('user.inbox') }}"><i class="fas fa-envelope"></i> Pesan
-                            @if(($inboxNotifCount ?? 0) > 0)
-                                <span style="background: #ef4444; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 50px; margin-left: 4px;">{{ $inboxNotifCount }}</span>
-                            @endif
-                        </a>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit"><i class="fas fa-sign-out-alt"></i> Logout</button>
@@ -102,7 +104,6 @@
                 <ul>
                     <li><a href="{{ route('user.home') }}">Beranda</a></li>
                     <li><a href="{{ route('user.books') }}">Katalog Buku</a></li>
-                    <li><a href="{{ route('user.contact') }}">Kontak</a></li>
                 </ul>
             </div>
 

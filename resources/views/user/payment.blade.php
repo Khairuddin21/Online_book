@@ -184,8 +184,11 @@
         </div>
 
         <div class="invoice-actions">
+            <a href="#" id="btnDownloadInvoice" class="btn-invoice-download" style="display:none;">
+                <i class="fas fa-file-download"></i> Download Invoice
+            </a>
             <button type="button" class="btn-invoice-close" id="btnInvoiceClose">
-                <i class="fas fa-shopping-bag"></i> Lihat Pesanan Saya
+                Lihat Pesanan Saya
             </button>
         </div>
     </div>
@@ -677,10 +680,36 @@
 .invoice-actions {
     padding: 15px 25px 25px;
     text-align: center;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-invoice-download {
+    flex: 1;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    border: 1.5px solid #a8d5a2;
+    border-radius: 12px;
+    cursor: pointer;
+    background: white;
+    color: #2d6a4f;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+.btn-invoice-download:hover {
+    background: #f0faf4;
+    border-color: #2d6a4f;
+    transform: translateY(-2px);
 }
 
 .btn-invoice-close {
-    width: 100%;
+    flex: 1;
     padding: 14px;
     font-size: 15px;
     font-weight: 700;
@@ -827,6 +856,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const overlay = document.getElementById('invoiceOverlay');
         overlay.style.display = 'flex';
+
+        // Set download invoice link
+        const btnDownload = document.getElementById('btnDownloadInvoice');
+        btnDownload.href = '/orders/' + invoice.id_pesanan + '/invoice';
+        btnDownload.style.display = 'inline-flex';
 
         document.getElementById('btnInvoiceClose').addEventListener('click', function() {
             window.location.href = redirectUrl;

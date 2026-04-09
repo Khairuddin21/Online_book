@@ -7,9 +7,14 @@
 
 <!-- Filter Bar -->
 <div class="laporan-filter">
-    <div class="filter-info">
-        <i class="fas fa-calendar-alt"></i>
-        <span>Periode: <strong>{{ $bulanNama[$bulan] }} {{ $tahun }}</strong></span>
+    <div class="filter-left">
+        <div class="filter-info">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Periode: <strong>{{ $bulanNama[$bulan] }} {{ $tahun }}</strong></span>
+        </div>
+        <a href="{{ route('admin.laporan.download', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btn-download-pdf">
+            <i class="fas fa-file-download"></i> Download PDF
+        </a>
     </div>
     <form method="GET" action="{{ route('admin.laporan') }}" class="filter-form">
         <select name="bulan" class="filter-select">
@@ -264,6 +269,32 @@
 .filter-info i {
     color: var(--green-dark, #6b9e65);
     font-size: 18px;
+}
+
+.filter-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.btn-download-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2d6a4f;
+    background: #f0faf4;
+    border: 1.5px solid #a8d5a2;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.btn-download-pdf:hover {
+    background: #2d6a4f;
+    color: #fff;
+    border-color: #2d6a4f;
 }
 
 .filter-form {

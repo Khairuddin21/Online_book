@@ -13,6 +13,7 @@ use App\Models\PesanKontak;
 use App\Models\ChatMessage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
 {
@@ -928,5 +929,113 @@ class AdminController extends Controller
             'statusCounts', 'metodePembayaran',
             'bukuTerlaris', 'topCustomers', 'userBaru'
         ));
+    }
+
+    /**
+     * Download laporan bulanan as PDF
+     */
+    public function downloadLaporan(Request $request)
+    {
+        $bulanNama = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        $bulan = (int) $request->get('bulan', now()->month);
+        $tahun = (int) $request->get('tahun', now()->year);
+
+        $startDate = \Carbon\Carbon::create($tahun, $bulan, 1)->startOfMonth();
+        $endDate = $startDate->copy()->endOfMonth();
+
+        $totalPesanan = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])->count();
+        $pesananSelesai = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])->where('status', 'selesai')->count();
+        $pesananDiproses = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])->whereIn('status', ['menunggu', 'diproses', 'dikirim'])->count();
+        $pesananDibatalkan = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])->where('status', 'dibatalkan')->count();
+
+        $pendapatanBulanIni = DB::table('pembayaran')
+            ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->where('pembayaran.status_verifikasi', 'valid')
+            ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
+            ->sum('pembayaran.jumlah');
+
+        $prevStart = $startDate->copy()->subMonth()->startOfMonth();
+        $prevEnd = $startDate->copy()->subMonth()->endOfMonth();
+        $pendapatanBulanLalu = DB::table('pembayaran')
+            ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->where('pembayaran.status_verifikasi', 'valid')
+            ->whereBetween('pesanan.tanggal_pesanan', [$prevStart, $prevEnd])
+            ->sum('pembayaran.jumlah');
+        $totalPesananBulanLalu = Pesanan::whereBetween('tanggal_pesanan', [$prevStart, $prevEnd])->count();
+
+        $dailyRevenue = DB::table('pembayaran')
+            ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->where('pembayaran.status_verifikasi', 'valid')
+            ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
+            ->select(DB::raw('DAY(pesanan.tanggal_pesanan) as hari'), DB::raw('SUM(pembayaran.jumlah) as total'))
+            ->groupBy('hari')->orderBy('hari')->get();
+
+        $daysInMonth = $startDate->daysInMonth;
+        $chartDailyLabels = [];
+        $chartDailyRevenue = [];
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $chartDailyLabels[] = $d;
+            $rev = $dailyRevenue->firstWhere('hari', $d);
+            $chartDailyRevenue[] = $rev ? (float) $rev->total : 0;
+        }
+
+        $dailyOrders = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])
+            ->select(DB::raw('DAY(tanggal_pesanan) as hari'), DB::raw('COUNT(*) as total'))
+            ->groupBy('hari')->orderBy('hari')->get();
+
+        $chartDailyOrders = [];
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $ord = $dailyOrders->firstWhere('hari', $d);
+            $chartDailyOrders[] = $ord ? (int) $ord->total : 0;
+        }
+
+        $statusCounts = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])
+            ->select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')->pluck('total', 'status')->toArray();
+
+        $metodePembayaran = DB::table('pembayaran')
+            ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->where('pembayaran.status_verifikasi', 'valid')
+            ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
+            ->select('pembayaran.metode', DB::raw('COUNT(*) as jumlah'), DB::raw('SUM(pembayaran.jumlah) as total'))
+            ->groupBy('pembayaran.metode')->orderByDesc('total')->get();
+
+        $bukuTerlaris = DB::table('pesanan_detail')
+            ->join('pesanan', 'pesanan_detail.id_pesanan', '=', 'pesanan.id_pesanan')
+            ->join('buku', 'pesanan_detail.id_buku', '=', 'buku.id_buku')
+            ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
+            ->whereIn('pesanan.status', ['diproses', 'dikirim', 'selesai'])
+            ->select('buku.id_buku', 'buku.judul', 'buku.penulis', 'buku.harga',
+                DB::raw('SUM(pesanan_detail.qty) as total_terjual'),
+                DB::raw('SUM(pesanan_detail.qty * pesanan_detail.harga_satuan) as total_pendapatan'))
+            ->groupBy('buku.id_buku', 'buku.judul', 'buku.penulis', 'buku.harga')
+            ->orderByDesc('total_terjual')->limit(10)->get();
+
+        $topCustomers = DB::table('pesanan')
+            ->join('users', 'pesanan.id_user', '=', 'users.id_user')
+            ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
+            ->whereIn('pesanan.status', ['diproses', 'dikirim', 'selesai'])
+            ->select('users.id_user', 'users.nama', 'users.email',
+                DB::raw('COUNT(pesanan.id_pesanan) as total_pesanan'),
+                DB::raw('SUM(pesanan.total_harga) as total_belanja'))
+            ->groupBy('users.id_user', 'users.nama', 'users.email')
+            ->orderByDesc('total_belanja')->limit(5)->get();
+
+        $userBaru = User::where('role', 'user')
+            ->whereBetween('created_at', [$startDate, $endDate])->count();
+
+        $pdf = Pdf::loadView('admin.laporan-pdf', compact(
+            'bulan', 'tahun', 'bulanNama',
+            'totalPesanan', 'pesananSelesai', 'pesananDiproses', 'pesananDibatalkan',
+            'pendapatanBulanIni', 'pendapatanBulanLalu', 'totalPesananBulanLalu',
+            'chartDailyLabels', 'chartDailyRevenue', 'chartDailyOrders',
+            'statusCounts', 'metodePembayaran',
+            'bukuTerlaris', 'topCustomers', 'userBaru'
+        ))->setPaper('a4', 'portrait');
+
+        $filename = 'laporan-' . $bulanNama[$bulan] . '-' . $tahun . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

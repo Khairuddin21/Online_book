@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserController extends Controller
 {
@@ -653,52 +654,6 @@ class UserController extends Controller
     }
     
     /**
-     * Display contact page
-     */
-    public function contact()
-    {
-        return view('user.contact');
-    }
-    
-    /**
-     * Submit contact form
-     */
-    public function submitContact(Request $request)
-    {
-        $request->validate([
-            'nama' => 'required|string|max:150',
-            'email' => 'required|email|max:255',
-            'subjek' => 'required|string|max:150',
-            'pesan' => 'required|string|min:10',
-        ], [
-            'nama.required' => 'Nama wajib diisi',
-            'email.required' => 'Email wajib diisi',
-            'email.email' => 'Format email tidak valid',
-            'subjek.required' => 'Subjek wajib diisi',
-            'pesan.required' => 'Pesan wajib diisi',
-            'pesan.min' => 'Pesan minimal 10 karakter',
-        ]);
-        
-        try {
-            // Create chat message from contact form
-            ChatMessage::create([
-                'id_user' => Auth::id(),
-                'pengirim' => 'user',
-                'pesan' => "[{$request->subjek}]\n\n{$request->pesan}",
-                'waktu' => now(),
-            ]);
-            
-            return redirect()->route('user.inbox')
-                ->with('success', 'Pesan Anda berhasil dikirim. Silakan cek inbox untuk balasan.');
-                
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal mengirim pesan: ' . $e->getMessage())
-                ->withInput();
-        }
-    }
-    
-    /**
      * Show checkout page with address form
      */
     public function showCheckout()
@@ -963,6 +918,25 @@ class UserController extends Controller
             Log::error('Process Payment Error: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Terjadi kesalahan.'], 500);
         }
+    }
+
+    /**
+     * Download invoice PDF for an order
+     */
+    public function downloadInvoice($orderId)
+    {
+        $pesanan = Pesanan::where('id_pesanan', $orderId)
+            ->where('id_user', Auth::id())
+            ->with(['details.buku', 'user', 'pembayaran'])
+            ->firstOrFail();
+
+        if (!in_array($pesanan->status, ['diproses', 'dikirim', 'selesai'])) {
+            return redirect()->route('user.orders')->with('error', 'Invoice belum tersedia untuk pesanan ini.');
+        }
+
+        $pdf = Pdf::loadView('user.invoice-pdf', compact('pesanan'));
+
+        return $pdf->download('invoice-' . $pesanan->id_pesanan . '.pdf');
     }
 
     /**
