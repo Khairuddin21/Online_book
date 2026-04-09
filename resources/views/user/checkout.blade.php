@@ -9,7 +9,7 @@
         <p class="page-subtitle">Lengkapi informasi pengiriman untuk melanjutkan</p>
     </div>
 
-    <!-- Progress Steps -->
+    <!-- Langkah-Langkah Checkout -->
     <div class="checkout-steps">
         <div class="step active">
             <div class="step-number">1</div>
@@ -23,9 +23,9 @@
     </div>
 
     <div class="checkout-layout">
-        <!-- Main Content -->
+        <!-- Konten Utama -->
         <div>
-            <!-- Order Items Preview -->
+            <!-- Preview Item Pesanan -->
             <div class="checkout-section">
                 <div class="checkout-section-header">
                     <h3><i class="fas fa-box"></i> Pesanan ({{ $cartItems->count() }} Item)</h3>
@@ -78,7 +78,7 @@
                 </div>
             </div>
 
-            <!-- Shipping Address Section -->
+            <!-- Bagian Alamat Pengiriman -->
             <div class="checkout-section" style="margin-top: 24px;">
                 <div class="checkout-section-header">
                     <h3><i class="fas fa-shipping-fast"></i> Alamat Pengiriman</h3>
@@ -130,7 +130,7 @@
                 </div>
                 @endif
 
-                <!-- Add/Edit Address Form -->
+                <!-- Form Tambah/Edit Alamat -->
                 <div id="addressFormContainer" class="address-form-container" style="display: none;">
                     <h4 class="address-form-title">
                         <span id="formTitle">Tambah Alamat Baru</span>
@@ -195,7 +195,7 @@
             </div>
         </div>
 
-        <!-- Order Summary -->
+        <!-- Ringkasan Pesanan -->
         <div class="checkout-summary">
             <h3 class="order-summary-title">
                 <i class="fas fa-receipt"></i> Ringkasan Belanja
@@ -214,7 +214,7 @@
                 <span>Rp {{ number_format($total, 0, ',', '.') }}</span>
             </div>
 
-            <!-- Payment Method Selection -->
+            <!-- Pilih Metode Pembayaran -->
             <div class="payment-method-section">
                 <h4 class="pm-section-title"><i class="fas fa-wallet"></i> Metode Pembayaran</h4>
                 <div class="pm-options">

@@ -5,7 +5,7 @@
 
 @section('content')
 
-<!-- Filter Bar -->
+<!-- Bagian Filter Bulan & Tahun -->
 <div class="laporan-filter">
     <div class="filter-left">
         <div class="filter-info">
@@ -33,7 +33,7 @@
     </form>
 </div>
 
-<!-- Summary Cards -->
+<!-- Kartu Ringkasan Data -->
 <div class="laporan-stats">
     <div class="lap-card lap-card-revenue">
         <div class="lap-card-icon">
@@ -114,7 +114,7 @@
     </div>
 </div>
 
-<!-- Charts Row -->
+<!-- Baris Grafik Harian -->
 <div class="laporan-charts">
     <div class="lap-chart-card">
         <h4><i class="fas fa-chart-area"></i> Pendapatan Harian</h4>
@@ -126,7 +126,7 @@
     </div>
 </div>
 
-<!-- Status + Metode Row -->
+<!-- Baris Status Pesanan & Metode Bayar -->
 <div class="laporan-charts">
     <div class="lap-chart-card lap-chart-small">
         <h4><i class="fas fa-chart-pie"></i> Distribusi Status Pesanan</h4>
@@ -157,7 +157,7 @@
     </div>
 </div>
 
-<!-- Buku Terlaris -->
+<!-- Daftar Buku Paling Laris -->
 <div class="lap-table-card">
     <h4><i class="fas fa-fire"></i> Buku Terlaris Bulan Ini</h4>
     @if($bukuTerlaris->count() > 0)
@@ -212,7 +212,7 @@
     @endif
 </div>
 
-<!-- Top Customers -->
+<!-- Pelanggan Paling Sering Belanja -->
 <div class="lap-table-card">
     <h4><i class="fas fa-crown"></i> Pelanggan Teratas</h4>
     @if($topCustomers->count() > 0)
@@ -244,7 +244,7 @@
 
 @push('styles')
 <style>
-/* Filter Bar */
+/* Styling buat bagian filter */
 .laporan-filter {
     display: flex;
     align-items: center;
@@ -341,7 +341,7 @@
     box-shadow: 0 4px 12px rgba(74, 124, 68, 0.3);
 }
 
-/* Summary Cards */
+/* Styling buat kartu ringkasan */
 .laporan-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -429,7 +429,7 @@
     color: #9ca3af;
 }
 
-/* Charts Row */
+/* Styling buat baris grafik */
 .laporan-charts {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -465,7 +465,7 @@
     position: relative;
 }
 
-/* Metode Pembayaran */
+/* Styling buat metode pembayaran */
 .metode-list {
     display: flex;
     flex-direction: column;
@@ -509,7 +509,7 @@
     color: var(--green-dark, #6b9e65);
 }
 
-/* Tables */
+/* Styling buat tabel data */
 .lap-table-card {
     background: white;
     border-radius: 14px;
@@ -633,7 +633,7 @@
     white-space: nowrap;
 }
 
-/* Customer Grid */
+/* Styling buat grid pelanggan */
 .customer-grid {
     display: flex;
     flex-direction: column;
@@ -716,7 +716,7 @@
     color: var(--green-dark, #6b9e65);
 }
 
-/* Empty State */
+/* Styling kalo datanya kosong */
 .empty-state-mini {
     text-align: center;
     padding: 40px 20px;
@@ -734,7 +734,7 @@
     margin: 0;
 }
 
-/* Responsive */
+/* Biar responsive di HP */
 @media (max-width: 1200px) {
     .laporan-stats {
         grid-template-columns: repeat(2, 1fr);
@@ -775,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const blue = '#3498db';
     const blueLight = 'rgba(52, 152, 219, 0.15)';
 
-    // Daily Revenue Chart
+    // Grafik pendapatan per hari
     new Chart(document.getElementById('dailyRevenueChart'), {
         type: 'line',
         data: {
@@ -828,7 +828,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Daily Orders Chart
+    // Grafik pesanan per hari
     new Chart(document.getElementById('dailyOrdersChart'), {
         type: 'bar',
         data: {
@@ -868,7 +868,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Status Doughnut Chart
+    // Grafik donat buat status pesanan
     const statusData = {!! json_encode($statusCounts) !!};
     const statusLabels = [];
     const statusValues = [];

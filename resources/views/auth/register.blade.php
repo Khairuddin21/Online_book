@@ -8,7 +8,7 @@
         <i class="fas fa-times"></i>
     </a>
     <div class="auth-wrapper">
-        <!-- Left Panel - Gradient -->
+        <!-- Panel Kiri - Background Gradient -->
         <div class="auth-left">
             <div class="auth-left-content">
                 <div class="auth-logo-white">
@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <!-- Right Panel - Register Form -->
+        <!-- Panel Kanan - Form Daftar -->
         <div class="auth-right">
             <div class="auth-form-container">
                 <div class="auth-header">

@@ -17,7 +17,7 @@ class KategoriBuku extends Model
     ];
 
     /**
-     * Get all buku for this kategori
+     * Ambil semua buku di kategori ini
      */
     public function buku(): HasMany
     {

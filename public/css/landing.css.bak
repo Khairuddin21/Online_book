@@ -1,4 +1,4 @@
-/* Landing Page Styles - Blue Theme */
+/* Style Halaman Landing - Tema Biru */
 
 :root {
     --primary-blue: #1e40af;
@@ -45,7 +45,7 @@ body {
 body::-webkit-scrollbar {
     display: none;
 }
-/* Hide scrollbars globally without affecting scroll behavior */
+/* Sembunyiin scrollbar tanpa ngaruhin perilaku scroll */
 /* Chrome, Edge (Chromium), Safari */
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,
@@ -178,7 +178,7 @@ body {
     box-shadow: 0 6px 20px rgba(30, 64, 175, 0.25);
 }
 
-/* Buttons */
+/* Tombol-Tombol */
 .btn {
     padding: 12px 28px;
     border-radius: 50px;
@@ -271,7 +271,7 @@ body {
     margin-right: 8px;
 }
 
-/* Hero Section - Enhanced with Advanced Effects */
+/* Bagian Hero - Ditambahin Efek Keren */
 .hero-section {
     min-height: 100vh;
     background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #60a5fa 100%);
@@ -282,7 +282,7 @@ body {
     overflow: hidden;
 }
 
-/* Animated Gradient Mesh Background */
+/* Background Gradien Mesh Animasi */
 .hero-section::before {
     content: '';
     position: absolute;
@@ -298,7 +298,7 @@ body {
     z-index: 0;
 }
 
-/* Aurora Wave Effect */
+/* Efek Gelombang Aurora */
 .hero-section::after {
     content: '';
     position: absolute;
@@ -320,7 +320,7 @@ body {
     z-index: 1;
 }
 
-/* Floating Light Particles */
+/* Partikel Cahaya Melayang */
 .hero-particles {
     position: absolute;
     top: 0;
@@ -358,7 +358,7 @@ body {
 
 
 
-/* 3D Decorative Elements - Removed */
+/* Elemen Dekoratif 3D - Dihapus */
 
 .hero-content {
     max-width: 1400px;
@@ -422,7 +422,7 @@ body {
     background: rgba(255, 255, 255, 0.9);
 }
 
-/* Hero Image */
+/* Gambar Hero */
 .hero-image {
     position: relative;
     animation: fadeInRight 1s ease;
@@ -441,7 +441,7 @@ body {
     z-index: 2;
 }
 
-/* Orbit Particles Container */
+/* Container Partikel Orbit */
 .orbit-container {
     position: absolute;
     top: 50%;
@@ -452,7 +452,7 @@ body {
     pointer-events: none;
 }
 
-/* Orbit Rings */
+/* Cincin Orbit */
 .orbit-ring {
     position: absolute;
     top: 50%;
@@ -480,7 +480,7 @@ body {
     animation: rotate-orbit 25s linear infinite;
 }
 
-/* Orbit Particles */
+/* Partikel Orbit */
 .orbit-particle {
     position: absolute;
     width: 12px;
@@ -537,7 +537,7 @@ body {
     right: 15%;
 }
 
-/* Floating Stars */
+/* Bintang Melayang */
 .orbit-star {
     position: absolute;
     width: 8px;
@@ -604,7 +604,7 @@ body {
     }
 }
 
-/* Keyframe Animations */
+/* Animasi Keyframe */
 @keyframes rotate-orbit {
     from {
         transform: translate(-50%, -50%) rotate(0deg);
@@ -625,7 +625,7 @@ body {
     }
 }
 
-/* Stats Section */
+/* Bagian Statistik */
 .stats-section {
     background: white;
     padding: 60px 40px;
@@ -675,7 +675,7 @@ body {
     font-weight: 500;
 }
 
-/* Features Section */
+/* Bagian Fitur */
 .features-section {
     padding: 100px 40px;
     background: var(--bg-light);
@@ -772,7 +772,7 @@ body {
     line-height: 1.8;
 }
 
-/* Books Showcase */
+/* Showcase Buku */
 .books-section {
     padding: 100px 40px;
     background: white;
@@ -870,7 +870,7 @@ body {
     box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
 }
 
-/* CTA Section */
+/* Bagian CTA */
 .cta-section {
     padding: 100px 40px;
     background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
@@ -922,7 +922,7 @@ body {
     padding: 18px 45px;
 }
 
-/* CTA Primary Button */
+/* Tombol CTA Utama */
 .btn-cta-primary {
     background: white;
     color: var(--primary-blue);
@@ -943,7 +943,7 @@ body {
     font-size: 20px;
 }
 
-/* CTA Outline Button */
+/* Tombol CTA Outline */
 .btn-cta-outline {
     background: transparent;
     border: 3px solid white;
@@ -1041,7 +1041,7 @@ body {
     color: rgba(255, 255, 255, 0.5);
 }
 
-/* Advanced Animations */
+/* Animasi Lanjutan */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -1134,7 +1134,7 @@ body {
     }
 }
 
-/* Scroll reveal animation */
+/* Animasi scroll reveal */
 .reveal {
     opacity: 0;
     transform: translateY(50px);
@@ -1146,7 +1146,7 @@ body {
     transform: translateY(0);
 }
 
-/* Responsive */
+/* Responsif */
 @media (max-width: 1024px) {
     .hero-content {
         grid-template-columns: 1fr;

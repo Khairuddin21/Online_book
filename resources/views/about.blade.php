@@ -7,14 +7,14 @@
     
     <title>Tentang Kami - Toko Buku Online</title>
 
-    <!-- Fonts -->
+    <!-- Import Font -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
     
-    <!-- Font Awesome -->
+    <!-- Icon Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Custom Styles -->
+    <!-- Style Kustom -->
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}">
     
     <style>
@@ -228,7 +228,7 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Bagian Navbar -->
     <nav class="landing-navbar">
         <div class="navbar-content">
             <a href="{{ route('home') }}" class="navbar-logo">
@@ -257,16 +257,16 @@
 
     <div class="about-page">
         <div class="about-container">
-            <!-- Header Section -->
+            <!-- Bagian Header -->
             <div class="about-header">
                 <img src="{{ asset('gambar/home asset/about-us.jpg') }}" alt="Tentang Kami - Toko Buku Online">
                 <h1>Tentang Kami</h1>
                 <p>Sekilas informasi mengenai Toko Buku Online kami</p>
             </div>
 
-            <!-- Content Section -->
+            <!-- Bagian Isi Konten -->
             <div class="about-content">
-                <!-- Apa itu Toko Buku Online? -->
+                <!-- Penjelasan Toko Buku Online -->
                 <div class="about-section">
                     <h2>Apa itu Toko Buku Online?</h2>
                     <p>
@@ -283,7 +283,7 @@
                     </p>
                 </div>
 
-                <!-- Di mana saya bisa mengetahui update di media sosial? -->
+                <!-- Info Media Sosial -->
                 <div class="about-section">
                     <h2>Di mana saya bisa mengetahui update di media sosial?</h2>
                     <p>Kamu bisa temukan kami di media sosial berikut:</p>
@@ -303,7 +303,7 @@
                     </div>
                 </div>
 
-                <!-- Bagaimana cara menghubungi Customer Service? -->
+                <!-- Cara Hubungi CS -->
                 <div class="about-section">
                     <h2>Bagaimana cara menghubungi Customer Service?</h2>
                     <p>Silakan hubungi layanan Customer Service kami melalui email:</p>
@@ -316,7 +316,7 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Script JS -->
     <script src="{{ asset('js/landing.js') }}?v={{ time() }}" defer></script>
 </body>
 

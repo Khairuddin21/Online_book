@@ -28,7 +28,7 @@ class PesanKontak extends Model
     ];
 
     /**
-     * Get the user that owns this pesan
+     * Ambil user yang punya pesan ini
      */
     public function user(): BelongsTo
     {

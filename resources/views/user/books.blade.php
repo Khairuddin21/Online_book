@@ -9,7 +9,7 @@
         <p class="page-subtitle">Temukan buku favoritmu dari koleksi terlengkap kami</p>
     </div>
 
-    <!-- Search & Filter -->
+    <!-- Pencarian & Filter -->
     <div class="catalog-controls">
         <form method="GET" action="{{ route('user.books') }}" class="catalog-search">
             <input type="text" 
@@ -44,7 +44,7 @@
     </p>
     @endif
 
-    <!-- Books Grid -->
+    <!-- Grid Daftar Buku -->
     <section class="books-section">
         <div class="books-grid">
             @forelse($books as $book)
@@ -89,7 +89,7 @@
             @endforelse
         </div>
         
-        <!-- Pagination -->
+        <!-- Navigasi Halaman -->
         @if($books->hasPages())
         <div class="pagination-wrapper">
             <div class="custom-pagination">

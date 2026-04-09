@@ -1,8 +1,8 @@
-﻿// Landing Page JavaScript - Clean & Smooth
+﻿// JavaScript Halaman Landing - Bersih & Halus
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Navbar scroll effect
+    // Efek navbar pas scroll
     const navbar = document.querySelector('.landing-navbar');
     if (navbar) {
         window.addEventListener('scroll', () => {
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Smooth scrolling for anchor links
+    // Scroll halus buat link anchor
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Scroll reveal animation
+    // Animasi scroll reveal
     const revealElements = document.querySelectorAll('.reveal');
 
     const revealOnScroll = () => {
@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', revealOnScroll);
     revealOnScroll();
 
-    // Feature cards staggered animation
+    // Animasi kartu fitur bertahap
     const featureCards = document.querySelectorAll('.feature-card');
     featureCards.forEach(card => {
         card.style.opacity = '0';
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', animateFeatures);
     animateFeatures();
 
-    // Book card hover z-index + 3D tilt
+    // Efek hover kartu buku z-index + miring 3D
     document.querySelectorAll('.book-card').forEach(card => {
         card.addEventListener('mouseenter', function() { this.style.zIndex = '10'; });
         card.addEventListener('mouseleave', function() { 
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 3D Book Stack - Drag to Rotate
+    // Tumpukan Buku 3D - Drag buat Rotasi
     var bookStack = document.getElementById('book3dStack');
     var bookScene = document.getElementById('book3dScene');
     if (bookStack && bookScene) {
@@ -131,12 +131,12 @@ document.addEventListener('DOMContentLoaded', function() {
             bookStack.classList.remove('dragging');
         }
 
-        // Mouse events
+        // Event mouse
         bookScene.addEventListener('mousedown', onPointerDown);
         window.addEventListener('mousemove', onPointerMove);
         window.addEventListener('mouseup', onPointerUp);
 
-        // Touch events
+        // Event sentuh
         bookScene.addEventListener('touchstart', function(e) { onPointerDown(e.touches[0]); }, { passive: false });
         window.addEventListener('touchmove', function(e) {
             if (isDragging) {
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { passive: false });
         window.addEventListener('touchend', onPointerUp);
 
-        // Floating icons parallax on mouse move over hero
+        // Parallax ikon melayang pas gerakin mouse di hero
         var heroImage = document.querySelector('.hero-image');
         var floatingIcons = heroImage ? heroImage.querySelectorAll('.floating-icon') : [];
         if (heroImage) {
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Feature card 3D tilt on hover
+    // Efek miring 3D kartu fitur pas hover
     document.querySelectorAll('.feature-card').forEach(function(card) {
         card.addEventListener('mousemove', function(e) {
             var rect = this.getBoundingClientRect();
@@ -184,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Mobile menu toggle
+    // Toggle menu HP
     const createMobileMenu = () => {
         if (window.innerWidth <= 768 && !document.querySelector('.mobile-menu-toggle')) {
             const navContent = document.querySelector('.navbar-content');
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
     createMobileMenu();
     window.addEventListener('resize', createMobileMenu);
 
-    // Add mobile menu CSS
+    // Tambahin CSS menu HP
     const style = document.createElement('style');
     style.textContent = [
         '@media (max-width: 768px) {',
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
     ].join('\n');
     document.head.appendChild(style);
 
-    // Lazy loading for images
+    // Lazy loading buat gambar
     const images = document.querySelectorAll('img[data-src]');
     const imageObserver = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {

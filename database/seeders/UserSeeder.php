@@ -10,11 +10,11 @@ use Illuminate\Support\Facades\Hash;
 class UserSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Jalanin seeder database
      */
     public function run(): void
     {
-        // Create Admin User
+        // Bikin User Admin
         User::create([
             'nama' => 'Admin Toko Buku',
             'email' => 'admin@tokobuku.com',
@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
             'no_hp' => '081234567890',
         ]);
 
-        // Create Regular User
+        // Bikin User Biasa
         User::create([
             'nama' => 'User Test',
             'email' => 'user@tokobuku.com',

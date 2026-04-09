@@ -1,4 +1,4 @@
-﻿/* Landing Page Styles - Clean Pastel Book.com Theme */
+﻿/* Style Halaman Landing - Tema Buku Pastel Bersih */
 
 :root {
     --green-pastel: #a8d5a2;
@@ -164,7 +164,7 @@ body {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* HERO SECTION */
+/* BAGIAN HERO */
 .hero-section {
     min-height: 100vh;
     background: linear-gradient(160deg, #ffffff 0%, #faf8f5 30%, #f5f0ea 60%, #f0ebe3 100%);
@@ -290,7 +290,7 @@ body {
     animation: fadeInRight 1s ease;
 }
 
-/* ===== 3D BOOK STACK ===== */
+/* ===== TUMPUKAN BUKU 3D ===== */
 .book3d-scene {
     width: 100%;
     max-width: 520px;
@@ -333,7 +333,7 @@ body {
     75% { transform: rotateX(-16deg) rotateY(-20deg) scale(1.35); }
 }
 
-/* Individual book */
+/* Buku satuan */
 .book3d {
     position: absolute;
     bottom: 0;
@@ -350,7 +350,7 @@ body {
     left: 0;
 }
 
-/* Front cover */
+/* Cover depan */
 .book3d-front {
     width: var(--book-width);
     height: var(--book-height);
@@ -360,7 +360,7 @@ body {
     box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1);
 }
 
-/* Back cover */
+/* Cover belakang */
 .book3d-back {
     width: var(--book-width);
     height: var(--book-height);
@@ -369,7 +369,7 @@ body {
     border-radius: 2px;
 }
 
-/* Spine (left side) */
+/* Punggung buku (sisi kiri) */
 .book3d-spine {
     width: var(--book-depth);
     height: var(--book-height);
@@ -380,7 +380,7 @@ body {
     box-shadow: inset 0 2px 4px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.1);
 }
 
-/* Page edge (right side) */
+/* Tepi halaman (sisi kanan) */
 .book3d-edge {
     width: var(--book-depth);
     height: var(--book-height);
@@ -396,7 +396,7 @@ body {
     );
 }
 
-/* Top face */
+/* Sisi atas */
 .book3d-top {
     width: var(--book-width);
     height: var(--book-depth);
@@ -406,7 +406,7 @@ body {
     box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
 }
 
-/* Bottom face */
+/* Sisi bawah */
 .book3d-bottom {
     width: var(--book-width);
     height: var(--book-depth);
@@ -415,8 +415,8 @@ body {
     transform: rotateX(-90deg) translateZ(calc(var(--book-height) / 2));
 }
 
-/* ===== WOODEN SHELF ===== */
-/* Shelf: solid 3D box — 300w x 14h x 160d */
+/* ===== RAK KAYU ===== */
+/* Rak: kotak 3D solid — 300w x 14h x 160d */
 .shelf3d {
     position: absolute;
     bottom: 0px;
@@ -431,7 +431,7 @@ body {
     position: absolute;
 }
 
-/* Front */
+/* Depan */
 .shelf3d-front {
     width: 300px;
     height: 14px;
@@ -440,7 +440,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* Back */
+/* Belakang */
 .shelf3d-back {
     width: 300px;
     height: 14px;
@@ -448,7 +448,7 @@ body {
     transform: rotateY(180deg) translateZ(80px);
 }
 
-/* Top */
+/* Atas */
 .shelf3d-top {
     width: 300px;
     height: 160px;
@@ -459,7 +459,7 @@ body {
     box-shadow: inset 0 0 30px rgba(0,0,0,0.08);
 }
 
-/* Bottom */
+/* Bawah */
 .shelf3d-bottom {
     width: 300px;
     height: 160px;
@@ -469,7 +469,7 @@ body {
     transform: rotateX(-90deg) translateZ(7px);
 }
 
-/* Left */
+/* Kiri */
 .shelf3d-left {
     width: 160px;
     height: 14px;
@@ -478,7 +478,7 @@ body {
     transform: rotateY(-90deg) translateZ(150px);
 }
 
-/* Right */
+/* Kanan */
 .shelf3d-right {
     width: 160px;
     height: 14px;
@@ -487,7 +487,7 @@ body {
     transform: rotateY(90deg) translateZ(150px);
 }
 
-/* ===== STANDING BOOKS ===== */
+/* ===== BUKU BERDIRI ===== */
 .standing-book {
     position: absolute;
     bottom: 0;
@@ -555,7 +555,7 @@ body {
     transform: rotateX(-90deg) translateZ(calc(var(--sb-h) / 2));
 }
 
-/* Shadow under shelf */
+/* Bayangan di bawah rak */
 .book3d-stack::after {
     content: '';
     position: absolute;
@@ -634,7 +634,7 @@ body {
     50% { transform: translateY(-12px); }
 }
 
-/* INFO BAR */
+/* BAR INFO */
 .info-bar {
     background: var(--bg-white);
     padding: 50px 40px;
@@ -677,7 +677,7 @@ body {
     align-self: stretch;
 }
 
-/* FEATURES SECTION */
+/* BAGIAN FITUR */
 .features-section {
     padding: 100px 40px;
     background: var(--bg-section);
@@ -765,7 +765,7 @@ body {
     line-height: 1.7;
 }
 
-/* BOOKS SHOWCASE */
+/* SHOWCASE BUKU */
 .books-section {
     padding: 100px 40px;
     background: var(--bg-white);
@@ -783,7 +783,7 @@ body {
     margin-top: 50px;
 }
 
-/* BOOK CARDS */
+/* KARTU BUKU */
 .books-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -886,7 +886,7 @@ body {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
-/* ABOUT SECTION */
+/* BAGIAN TENTANG */
 .about-section {
     padding: 100px 40px 60px;
     background: var(--bg-section);
@@ -942,7 +942,7 @@ body {
     margin-bottom: 14px;
 }
 
-/* Stats Grid */
+/* Grid Statistik */
 .about-stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -984,7 +984,7 @@ body {
     font-weight: 500;
 }
 
-/* Social Card */
+/* Kartu Sosmed */
 .about-social-card {
     background: var(--bg-white);
     border: 1px solid rgba(168, 213, 162, 0.3);
@@ -1045,7 +1045,7 @@ body {
     text-align: center;
 }
 
-/* Contact Info */
+/* Info Kontak */
 .about-contact-info {
     display: flex;
     flex-direction: column;
@@ -1090,7 +1090,7 @@ body {
     color: var(--text-light);
 }
 
-/* About CTA */
+/* CTA Tentang */
 .about-cta {
     text-align: center;
     padding: 50px 40px;
@@ -1219,7 +1219,7 @@ body {
     font-size: 14px;
 }
 
-/* ANIMATIONS */
+/* ANIMASI */
 @keyframes fadeInUp {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1246,7 +1246,7 @@ body {
     transform: translateY(0);
 }
 
-/* RESPONSIVE */
+/* RESPONSIF */
 @media (max-width: 1024px) {
     .hero-content {
         grid-template-columns: 1fr;

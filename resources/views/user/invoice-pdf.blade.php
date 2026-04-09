@@ -69,7 +69,7 @@
 </head>
 <body>
     <div class="invoice-container">
-        <!-- Header -->
+        <!-- Bagian Header -->
         <div class="invoice-top">
             <div class="invoice-brand">
                 <h1>Book.com</h1>
@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <!-- Info -->
+        <!-- Info Pesanan -->
         <div class="invoice-info">
             <div class="info-col">
                 <h4>Ditagihkan Kepada</h4>
@@ -99,7 +99,7 @@
             </div>
         </div>
 
-        <!-- Items Table -->
+        <!-- Tabel Daftar Item -->
         <table class="items-table">
             <thead>
                 <tr>
@@ -128,7 +128,7 @@
             </tbody>
         </table>
 
-        <!-- Totals -->
+        <!-- Total Harga -->
         <div class="totals">
             <div class="totals-row grand">
                 <span>Total</span>
@@ -136,7 +136,7 @@
             </div>
         </div>
 
-        <!-- Payment Info -->
+        <!-- Info Pembayaran -->
         @if($pesanan->pembayaran)
         <div class="payment-info">
             <h4>Informasi Pembayaran</h4>
@@ -161,7 +161,7 @@
         </div>
         @endif
 
-        <!-- Footer -->
+        <!-- Bagian Footer -->
         <div class="invoice-footer">
             <p>Terima kasih telah berbelanja di Book.com</p>
             <p>Invoice ini dibuat secara otomatis dan sah tanpa tanda tangan</p>

@@ -27,7 +27,7 @@ class Pembayaran extends Model
     ];
 
     /**
-     * Get the pesanan that owns this pembayaran
+     * Ambil pesanan yang punya pembayaran ini
      */
     public function pesanan(): BelongsTo
     {

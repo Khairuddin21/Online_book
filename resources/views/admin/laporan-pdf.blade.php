@@ -8,7 +8,7 @@
         body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 12px; color: #333; line-height: 1.5; }
         .container { padding: 30px 40px; }
 
-        /* Header */
+        /* Bagian Header */
         .header { display: table; width: 100%; margin-bottom: 25px; border-bottom: 3px solid #2d6a4f; padding-bottom: 15px; }
         .header-left { display: table-cell; vertical-align: middle; }
         .header-left h1 { font-size: 22px; color: #2d6a4f; }
@@ -18,7 +18,7 @@
         .header-right .period { font-size: 13px; color: #555; margin-top: 4px; font-weight: 600; }
         .header-right .generated { font-size: 10px; color: #999; margin-top: 2px; }
 
-        /* Summary Cards */
+        /* Kartu Ringkasan */
         .section-title { font-size: 14px; font-weight: 700; color: #2d6a4f; margin: 20px 0 10px; padding-bottom: 5px; border-bottom: 1px solid #e0e0e0; }
         .summary-grid { display: table; width: 100%; margin-bottom: 20px; }
         .summary-row { display: table-row; }
@@ -30,7 +30,7 @@
         .summary-box .trend-up { color: #27ae60; }
         .summary-box .trend-down { color: #e74c3c; }
 
-        /* Tables */
+        /* Styling Tabel */
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
         table thead th { background: #2d6a4f; color: #fff; padding: 8px 10px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; }
         table thead th:last-child, table thead th.right { text-align: right; }
@@ -39,12 +39,12 @@
         table tbody td.center { text-align: center; }
         table tbody tr:nth-child(even) { background: #fafafa; }
 
-        /* Rank badges */
+        /* Badge peringkat */
         .rank-1 { background: #FFD700; color: #333; padding: 2px 7px; border-radius: 10px; font-weight: 700; font-size: 10px; }
         .rank-2 { background: #C0C0C0; color: #333; padding: 2px 7px; border-radius: 10px; font-weight: 700; font-size: 10px; }
         .rank-3 { background: #CD7F32; color: #fff; padding: 2px 7px; border-radius: 10px; font-weight: 700; font-size: 10px; }
 
-        /* Status */
+        /* Status pesanan */
         .status-grid { display: table; width: 100%; margin-bottom: 15px; }
         .status-cell { display: table-cell; padding: 4px 8px; }
         .status-item { background: #f5f5f5; border-radius: 6px; padding: 8px 12px; text-align: center; }
@@ -56,11 +56,11 @@
         .status-selesai { color: #27ae60; }
         .status-dibatalkan { color: #e74c3c; }
 
-        /* Footer */
+        /* Bagian Footer */
         .footer { margin-top: 30px; text-align: center; border-top: 1px solid #eee; padding-top: 12px; }
         .footer p { font-size: 10px; color: #999; }
 
-        /* Page break */
+        /* Buat pindah halaman */
         .page-break { page-break-before: always; }
     </style>
 </head>

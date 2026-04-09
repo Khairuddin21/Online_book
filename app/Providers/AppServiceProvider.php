@@ -12,7 +12,7 @@ use App\Models\ChatMessage;
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Daftarin service aplikasi
      */
     public function register(): void
     {
@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Bootstrap service aplikasi
      */
     public function boot(): void
     {

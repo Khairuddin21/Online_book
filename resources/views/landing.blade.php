@@ -7,18 +7,18 @@
     
     <title>Book.com - Temukan Buku Favoritmu</title>
 
-    <!-- Fonts -->
+    <!-- Import Font -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800,900&display=swap" rel="stylesheet" />
     
-    <!-- Font Awesome -->
+    <!-- Icon Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Custom Styles -->
+    <!-- Style Kustom -->
     <link rel="stylesheet" href="{{ asset('css/landing.css') }}?v={{ time() }}">
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Bagian Navbar -->
     <nav class="landing-navbar">
         <div class="navbar-content">
             <a href="#" class="navbar-logo">
@@ -38,7 +38,7 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
+    <!-- Bagian Hero / Banner Utama -->
     <section class="hero-section" id="home">
         <div class="hero-content">
             <div class="hero-text">
@@ -51,7 +51,7 @@
             </div>
 
             <div class="hero-image">
-                <!-- Floating decorative icons -->
+                <!-- Ikon dekorasi melayang -->
                 <div class="floating-icon icon-idea">
                     <i class="fas fa-book"></i>
                 </div>
@@ -62,10 +62,10 @@
                     <i class="fas fa-mug-hot"></i>
                 </div>
                 
-                <!-- 3D Book Stack -->
+                <!-- Tumpukan Buku 3D -->
                 <div class="book3d-scene" id="book3dScene">
                     <div class="book3d-stack" id="book3dStack">
-                        <!-- Wooden Shelf -->
+                        <!-- Rak Kayu -->
                         <div class="shelf3d">
                             <div class="shelf3d-face shelf3d-top"></div>
                             <div class="shelf3d-face shelf3d-bottom"></div>
@@ -75,7 +75,7 @@
                             <div class="shelf3d-face shelf3d-right"></div>
                         </div>
 
-                        <!-- Book 5 (bottom) - Teal -->
+                        <!-- Buku 5 (paling bawah) - Warna Teal -->
                         <div class="book3d" style="--book-color: #2a9d8f; --book-color-dark: #1f7a6e; --book-pages: #f5f0e8; --book-height: 36px; --book-width: 180px; --book-depth: 130px; transform: translateY(-10px);">
                             <div class="book3d-face book3d-front"></div>
                             <div class="book3d-face book3d-back"></div>
@@ -84,7 +84,7 @@
                             <div class="book3d-face book3d-top"></div>
                             <div class="book3d-face book3d-bottom"></div>
                         </div>
-                        <!-- Book 4 - Gold -->
+                        <!-- Buku 4 - Warna Emas -->
                         <div class="book3d" style="--book-color: #e9b44c; --book-color-dark: #c89a3a; --book-pages: #f8f3ea; --book-height: 34px; --book-width: 170px; --book-depth: 125px; transform: translateY(-46px) rotateY(6deg);">
                             <div class="book3d-face book3d-front"></div>
                             <div class="book3d-face book3d-back"></div>
@@ -93,7 +93,7 @@
                             <div class="book3d-face book3d-top"></div>
                             <div class="book3d-face book3d-bottom"></div>
                         </div>
-                        <!-- Book 3 - Pink -->
+                        <!-- Buku 3 - Warna Pink -->
                         <div class="book3d" style="--book-color: #e8a0bf; --book-color-dark: #d18aaa; --book-pages: #faf5f8; --book-height: 30px; --book-width: 165px; --book-depth: 120px; transform: translateY(-80px) rotateY(-4deg);">
                             <div class="book3d-face book3d-front"></div>
                             <div class="book3d-face book3d-back"></div>
@@ -102,7 +102,7 @@
                             <div class="book3d-face book3d-top"></div>
                             <div class="book3d-face book3d-bottom"></div>
                         </div>
-                        <!-- Book 2 - Red/Coral -->
+                        <!-- Buku 2 - Warna Merah/Coral -->
                         <div class="book3d" style="--book-color: #e07a5f; --book-color-dark: #c4654a; --book-pages: #f5f0e8; --book-height: 28px; --book-width: 160px; --book-depth: 118px; transform: translateY(-110px) rotateY(3deg);">
                             <div class="book3d-face book3d-front"></div>
                             <div class="book3d-face book3d-back"></div>
@@ -111,7 +111,7 @@
                             <div class="book3d-face book3d-top"></div>
                             <div class="book3d-face book3d-bottom"></div>
                         </div>
-                        <!-- Book 1 (top) - Blue -->
+                        <!-- Buku 1 (paling atas) - Warna Biru -->
                         <div class="book3d" style="--book-color: #3d5a80; --book-color-dark: #2c4360; --book-pages: #f0ece4; --book-height: 32px; --book-width: 168px; --book-depth: 122px; transform: translateY(-138px) rotateY(-3deg);">
                             <div class="book3d-face book3d-front"></div>
                             <div class="book3d-face book3d-back"></div>
@@ -121,7 +121,7 @@
                             <div class="book3d-face book3d-bottom"></div>
                         </div>
 
-                        <!-- Standing books (right side) -->
+                        <!-- Buku yang berdiri (sebelah kanan) -->
                         <div class="standing-book" style="--sb-color: #6b4226; --sb-color-dark: #4a2e1a; --sb-pages: #e8d8c4; --sb-h: 90px; --sb-w: 14px; --sb-d: 60px; transform: translateX(110px) translateY(-10px) translateZ(5px);">
                             <div class="book3d-face sb-front"></div>
                             <div class="book3d-face sb-back"></div>
@@ -145,7 +145,7 @@
         </div>
     </section>
 
-    <!-- Bottom Info Bar -->
+    <!-- Bar Info Bawah -->
     <section class="info-bar">
         <div class="info-bar-content">
             <div class="info-col">
@@ -165,7 +165,7 @@
         </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- Bagian Fitur Unggulan -->
     <section class="features-section" id="features">
         <div class="features-container">
             <div class="section-header reveal">
@@ -209,7 +209,7 @@
         </div>
     </section>
 
-    <!-- Books Showcase Section -->
+    <!-- Bagian Showcase Buku -->
     <section class="books-section" id="books">
         <div class="books-container">
             <div class="section-header reveal">
@@ -264,7 +264,7 @@
         </div>
     </section>
 
-    <!-- About Us Section -->
+    <!-- Bagian Tentang Kami -->
     <section class="about-section" id="about">
         <div class="about-container">
             <div class="section-header reveal">
@@ -272,7 +272,7 @@
                 <p>Kenali lebih dekat siapa kami dan apa yang kami tawarkan</p>
             </div>
 
-            <!-- Row 1: Text Left, Visual Right -->
+            <!-- Baris 1: Teks Kiri, Visual Kanan -->
             <div class="about-row reveal">
                 <div class="about-text">
                     <span class="about-badge"><i class="fas fa-book-open"></i> Siapa Kami</span>
@@ -306,7 +306,7 @@
                 </div>
             </div>
 
-            <!-- Row 2: Visual Left, Text Right -->
+            <!-- Baris 2: Visual Kiri, Teks Kanan -->
             <div class="about-row about-row-reverse reveal">
                 <div class="about-visual">
                     <div class="about-social-card">
@@ -358,7 +358,7 @@
                 </div>
             </div>
 
-            <!-- CTA -->
+            <!-- Tombol Ajakan Daftar -->
             <div class="about-cta reveal">
                 <h3>Siap Memulai Petualangan Membaca?</h3>
                 <p>Bergabunglah dengan ribuan pembaca lainnya dan dapatkan akses ke koleksi buku terlengkap.</p>
@@ -369,7 +369,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
+    <!-- Bagian Footer -->
     <footer class="landing-footer" id="contact">
         <div class="footer-content">
             <div class="footer-section">
@@ -417,7 +417,7 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
+    <!-- Script JS -->
     <script src="{{ asset('js/landing.js') }}?v={{ time() }}" defer></script>
     
     <script>

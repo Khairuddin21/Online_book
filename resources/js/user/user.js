@@ -1,7 +1,7 @@
-// User/Customer Frontend JavaScript
+// JavaScript Frontend User/Customer
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile menu toggle
+    // Toggle menu HP
     const menuToggle = document.getElementById('menuToggle');
     const navbarMenu = document.querySelector('.navbar-menu');
     
@@ -11,10 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Update cart badge on page load
+    // Update badge keranjang pas halaman dimuat
     updateCartBadge();
 
-    // Add to cart functionality
+    // Fitur tambah ke keranjang
     const addToCartButtons = document.querySelectorAll('.add-to-cart');
     addToCartButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Search functionality
+    // Fitur pencarian
     const searchInput = document.querySelector('.navbar-search input');
     const searchButton = document.querySelector('.navbar-search button');
     
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Category card click handlers
+    // Handler klik kartu kategori
     const categoryCards = document.querySelectorAll('.category-card');
     categoryCards.forEach(card => {
         card.addEventListener('click', function() {
@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Smooth scroll for anchor links
+    // Scroll halus buat link anchor
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             const href = this.getAttribute('href');
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Auto-hide alerts after 5 seconds
+    // Auto-sembunyiin notifikasi setelah 5 detik
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 
-    // Promo carousel (left banner)
+    // Carousel promo (banner kiri)
     const carousel = document.querySelector('.promo-carousel');
     if (carousel) {
         const interval = parseInt(carousel.getAttribute('data-interval') || '5000', 10);
@@ -120,11 +120,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Add to cart function with visual feedback
+// Fungsi tambah ke keranjang pake feedback visual
 function addToCart(bookId, buttonElement) {
     const originalHTML = buttonElement.innerHTML;
     
-    // Show loading state
+    // Tampilin state loading
     buttonElement.disabled = true;
     buttonElement.innerHTML = '<span class="loading"></span> Menambahkan...';
     
@@ -142,13 +142,13 @@ function addToCart(bookId, buttonElement) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Success state
+            // State berhasil
             buttonElement.innerHTML = '<i class="fas fa-check"></i> Ditambahkan!';
             buttonElement.style.background = 'var(--user-success)';
             showNotification('Buku berhasil ditambahkan ke keranjang!', 'success');
             updateCartBadge();
             
-            // Reset button after 2 seconds
+            // Reset tombol setelah 2 detik
             setTimeout(() => {
                 buttonElement.innerHTML = originalHTML;
                 buttonElement.style.background = '';
@@ -178,7 +178,7 @@ function updateCartBadge() {
                 badge.textContent = data.count;
                 badge.style.display = 'flex';
                 
-                // Add bounce animation
+                // Tambahin animasi bounce
                 badge.style.animation = 'bounce 0.5s ease';
                 setTimeout(() => {
                     badge.style.animation = '';
@@ -193,7 +193,7 @@ function updateCartBadge() {
         });
 }
 
-// Perform search
+// Jalanin pencarian
 function performSearch(query) {
     if (!query || query.trim().length < 2) {
         showNotification('Masukkan minimal 2 karakter untuk pencarian', 'warning');
@@ -203,9 +203,9 @@ function performSearch(query) {
     window.location.href = `/user/books?search=${encodeURIComponent(query.trim())}`;
 }
 
-// Show notification with auto-dismiss
+// Tampilin notifikasi yang otomatis ilang
 function showNotification(message, type = 'info') {
-    // Remove existing notifications
+    // Hapus notifikasi yang udah ada
     document.querySelectorAll('.notification-toast').forEach(n => n.remove());
     
     const notification = document.createElement('div');
@@ -256,7 +256,7 @@ function showNotification(message, type = 'info') {
     }, 4000);
 }
 
-// Format price in Indonesian Rupiah
+// Format harga dalam Rupiah Indonesia
 function formatPrice(price) {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
@@ -265,7 +265,7 @@ function formatPrice(price) {
     }).format(price);
 }
 
-// Debounce function for performance
+// Fungsi debounce buat performa
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -278,7 +278,7 @@ function debounce(func, wait) {
     };
 }
 
-// Add CSS animations dynamically
+// Tambahin animasi CSS secara dinamis
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideInRight {
@@ -310,7 +310,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Promotional Banners Slider
+// Slider Banner Promo
 (function() {
     const promoBannerSlider = document.querySelector('.promo-banners-slider');
     if (!promoBannerSlider) return;
@@ -324,11 +324,11 @@ document.head.appendChild(style);
     let autoSlideInterval;
 
     function showSlide(index) {
-        // Hide all slides
+        // Sembunyiin semua slide
         slides.forEach(slide => slide.classList.remove('active'));
         dots.forEach(dot => dot.classList.remove('active'));
         
-        // Show current slide
+        // Tampilin slide yang sekarang
         if (slides[index]) {
             slides[index].classList.add('active');
             dots[index].classList.add('active');
@@ -357,7 +357,7 @@ document.head.appendChild(style);
         }
     }
 
-    // Event listeners
+    // Event listener
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
             nextSlide();
@@ -379,11 +379,11 @@ document.head.appendChild(style);
         });
     });
 
-    // Pause on hover
+    // Pause pas hover
     promoBannerSlider.addEventListener('mouseenter', stopAutoSlide);
     promoBannerSlider.addEventListener('mouseleave', startAutoSlide);
 
-    // Initialize
+    // Inisialisasi
     showSlide(0);
     startAutoSlide();
 })();

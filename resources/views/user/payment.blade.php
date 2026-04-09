@@ -6,7 +6,7 @@
 <div class="user-container" style="min-height: 60vh; padding: 40px 20px;">
     <h1 class="section-title" style="text-align: center; margin-bottom: 40px;">Pembayaran</h1>
     
-    <!-- Progress Steps -->
+    <!-- Langkah-Langkah Pembayaran -->
     <div class="checkout-steps">
         <div class="step completed">
             <div class="step-number">
@@ -36,7 +36,7 @@
     @endif
     
     <div style="display: grid; grid-template-columns: 1fr 400px; gap: 30px; margin-top: 40px; align-items: start;">
-        <!-- Order Details -->
+        <!-- Detail Pesanan -->
         <div>
             <div class="payment-section">
                 <h3 class="payment-section-title">
@@ -70,7 +70,7 @@
                 </div>
             </div>
 
-            <!-- Payment Info -->
+            <!-- Info Pembayaran -->
             <div class="payment-section" style="margin-top: 25px;">
                 <h3 class="payment-section-title">
                     <i class="fas fa-shield-alt"></i> Pembayaran Aman
@@ -95,7 +95,7 @@
             </div>
         </div>
         
-        <!-- Payment Summary (Sticky) -->
+        <!-- Ringkasan Pembayaran (Nempel di Atas) -->
         <div class="payment-summary">
             <h3 class="payment-section-title" style="margin-bottom: 20px;">Rincian Pembayaran</h3>
             
@@ -124,10 +124,10 @@
     </div>
 </div>
 
-<!-- Midtrans Snap JS -->
+<!-- Script Midtrans Snap -->
 <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ $clientKey }}"></script>
 
-<!-- Invoice Modal -->
+<!-- Modal Invoice -->
 <div id="invoiceOverlay" class="invoice-overlay" style="display:none;">
     <div class="invoice-modal">
         <div class="invoice-header">
@@ -172,7 +172,7 @@
             <div class="receipt-divider"></div>
 
             <div class="receipt-items" id="inv-items">
-                <!-- items injected by JS -->
+                <!-- item dimasukin pake JS -->
             </div>
 
             <div class="receipt-divider"></div>

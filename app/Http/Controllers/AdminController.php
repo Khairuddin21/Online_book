@@ -18,17 +18,17 @@ use Barryvdh\DomPDF\Facade\Pdf;
 class AdminController extends Controller
 {
     /**
-     * Display admin dashboard
+     * Nampilin halaman dashboard admin
      */
     public function dashboard()
     {
-        // Get statistics
+        // Ambil data statistik
         $totalBuku = Buku::count();
         $totalPesanan = Pesanan::count();
         $pesananDibatalkan = Pesanan::where('status', 'dibatalkan')->count();
         $totalPendapatan = Pembayaran::where('status_verifikasi', 'valid')->sum('jumlah');
         
-        // Monthly revenue for last 6 months (from pembayaran with valid status)
+        // Pendapatan bulanan 6 bulan terakhir (dari pembayaran yang udah valid)
         $monthlyRevenue = DB::table('pembayaran')
             ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
             ->where('pembayaran.status_verifikasi', 'valid')
@@ -43,7 +43,7 @@ class AdminController extends Controller
             ->orderBy('bulan')
             ->get();
 
-        // Monthly orders count for last 6 months
+        // Jumlah pesanan per bulan 6 bulan terakhir
         $monthlyOrders = Pesanan::where('tanggal_pesanan', '>=', now()->subMonths(5)->startOfMonth())
             ->select(
                 DB::raw('MONTH(tanggal_pesanan) as bulan'),
@@ -55,7 +55,7 @@ class AdminController extends Controller
             ->orderBy('bulan')
             ->get();
 
-        // Build chart labels and data for last 6 months
+        // Bikin label dan data buat grafik 6 bulan terakhir
         $chartLabels = [];
         $chartRevenue = [];
         $chartOrders = [];
@@ -74,13 +74,13 @@ class AdminController extends Controller
             $chartOrders[] = $ord ? (int) $ord->total : 0;
         }
 
-        // Order status distribution
+        // Distribusi status pesanan
         $statusCounts = Pesanan::select('status', DB::raw('COUNT(*) as total'))
             ->groupBy('status')
             ->pluck('total', 'status')
             ->toArray();
 
-        // Get latest orders with user relationship
+        // Ambil pesanan terbaru beserta relasi user
         $pesananTerbaru = Pesanan::with(['user', 'pembayaran'])
             ->orderBy('tanggal_pesanan', 'desc')
             ->limit(10)
@@ -100,13 +100,13 @@ class AdminController extends Controller
     }
     
     /**
-     * Display list of pesanan
+     * Nampilin daftar pesanan
      */
     public function indexPesanan(Request $request)
     {
         $query = Pesanan::with(['user', 'pembayaran']);
 
-        // Search by user name or order id
+        // Cari berdasarkan nama user atau id pesanan
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -118,7 +118,7 @@ class AdminController extends Controller
             });
         }
 
-        // Filter by status
+        // Filter berdasarkan status
         if ($request->has('status') && $request->status) {
             $query->where('status', $request->status);
         }
@@ -129,7 +129,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Show pesanan details
+     * Nampilin detail pesanan
      */
     public function showPesanan($id)
     {
@@ -143,7 +143,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Update pesanan status
+     * Update status pesanan
      */
     public function updateStatusPesanan(Request $request, $id)
     {
@@ -155,7 +155,7 @@ class AdminController extends Controller
             $pesanan = Pesanan::findOrFail($id);
             $pesanan->update(['status' => $request->status]);
 
-            // If status is "selesai" and pembayaran exists, mark as valid
+            // Kalo statusnya "selesai" dan ada pembayaran, tandai jadi valid
             if ($request->status === 'selesai' && $pesanan->pembayaran) {
                 $pesanan->pembayaran->update(['status_verifikasi' => 'valid']);
             }
@@ -170,7 +170,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Verify COD proof — accept or reject
+     * Verifikasi bukti COD — terima atau tolak
      */
     public function verifyCod(Request $request, $id)
     {
@@ -191,7 +191,7 @@ class AdminController extends Controller
                     $pesanan->pembayaran->update(['status_verifikasi' => 'valid']);
                 }
 
-                // Create inbox notification
+                // Bikin notifikasi inbox buat user
                 PesanKontak::create([
                     'id_user' => $pesanan->id_user,
                     'subjek' => 'COD Pesanan #' . $pesanan->id_pesanan . ' Terverifikasi',
@@ -207,7 +207,7 @@ class AdminController extends Controller
                 if ($pesanan->pembayaran) {
                     $pesanan->pembayaran->update(['status_verifikasi' => 'invalid']);
                 }
-                // Clear bukti so user can re-upload
+                // Hapus bukti biar user bisa upload ulang
                 $pesanan->update(['bukti_cod' => null]);
 
                 PesanKontak::create([
@@ -229,7 +229,7 @@ class AdminController extends Controller
     }
     
     /**
-     * Delete pesanan (history) and renumber subsequent IDs
+     * Hapus pesanan (riwayat) dan urutkan ulang ID-nya
      */
     public function deletePesanan($id)
     {
@@ -239,23 +239,23 @@ class AdminController extends Controller
             $pesanan = Pesanan::findOrFail($id);
             $deletedId = $pesanan->id_pesanan;
 
-            // Delete related records first
+            // Hapus data yang terkait dulu
             PesananDetail::where('id_pesanan', $deletedId)->delete();
             Pembayaran::where('id_pesanan', $deletedId)->delete();
 
-            // Delete pesanan
+            // Hapus pesanan
             $pesanan->delete();
 
             DB::commit();
 
-            // Renumber: shift all IDs greater than the deleted one down by 1
+            // Urutkan ulang: geser semua ID yang lebih besar dari yang dihapus
             DB::statement('SET FOREIGN_KEY_CHECKS=0');
             DB::update('UPDATE pesanan_detail SET id_pesanan = id_pesanan - 1 WHERE id_pesanan > ?', [$deletedId]);
             DB::update('UPDATE pembayaran SET id_pesanan = id_pesanan - 1 WHERE id_pesanan > ?', [$deletedId]);
             DB::update('UPDATE pesanan SET id_pesanan = id_pesanan - 1 WHERE id_pesanan > ?', [$deletedId]);
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
-            // Reset AUTO_INCREMENT to max id + 1 (DDL outside transaction)
+            // Reset AUTO_INCREMENT ke id max + 1 (DDL diluar transaksi)
             $maxId = Pesanan::max('id_pesanan') ?? 0;
             DB::statement('ALTER TABLE pesanan AUTO_INCREMENT = ' . ($maxId + 1));
 
@@ -270,17 +270,17 @@ class AdminController extends Controller
     }
     
     // ============================================
-    // KATEGORI BUKU CRUD
+    // CRUD KATEGORI BUKU
     // ============================================
     
     /**
-     * Display list of kategori
+     * Nampilin daftar kategori
      */
     public function indexKategori(Request $request)
     {
         $query = KategoriBuku::withCount('buku');
         
-        // Search functionality
+        // Fitur pencarian
         if ($request->has('search') && $request->search) {
             $query->where('nama_kategori', 'like', '%' . $request->search . '%');
         }
@@ -291,7 +291,7 @@ class AdminController extends Controller
     }
     
     /**
-     * Show form to create new kategori
+     * Nampilin form buat bikin kategori baru
      */
     public function createKategori()
     {
@@ -299,7 +299,7 @@ class AdminController extends Controller
     }
     
     /**
-     * Store new kategori
+     * Simpan kategori baru
      */
     public function storeKategori(Request $request)
     {
@@ -327,7 +327,7 @@ class AdminController extends Controller
     }
     
     /**
-     * Show form to edit kategori
+     * Nampilin form edit kategori
      */
     public function editKategori($id)
     {
@@ -336,7 +336,7 @@ class AdminController extends Controller
     }
     
     /**
-     * Update kategori
+     * Update data kategori
      */
     public function updateKategori(Request $request, $id)
     {
@@ -366,14 +366,14 @@ class AdminController extends Controller
     }
     
     /**
-     * Delete kategori
+     * Hapus kategori
      */
     public function destroyKategori($id)
     {
         try {
             $kategori = KategoriBuku::withCount('buku')->findOrFail($id);
             
-            // Check if kategori has books
+            // Cek apakah kategori masih punya buku
             if ($kategori->buku_count > 0) {
                 return redirect()->back()
                     ->with('error', "Kategori tidak dapat dihapus karena masih memiliki {$kategori->buku_count} buku");
@@ -391,17 +391,17 @@ class AdminController extends Controller
     }
     
     // ============================================
-    // BUKU CRUD
+    // CRUD BUKU
     // ============================================
     
     /**
-     * Display list of buku
+     * Nampilin daftar buku
      */
     public function indexBuku(Request $request)
     {
         $query = Buku::with('kategori');
         
-        // Search functionality
+        // Fitur pencarian
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -412,7 +412,7 @@ class AdminController extends Controller
             });
         }
         
-        // Filter by kategori
+        // Filter berdasarkan kategori
         if ($request->has('kategori') && $request->kategori) {
             $query->where('id_kategori', $request->kategori);
         }
@@ -424,7 +424,7 @@ class AdminController extends Controller
     }
     
     /**
-     * Show form to create new buku
+     * Nampilin form buat bikin buku baru
      */
     public function createBuku()
     {
@@ -433,7 +433,7 @@ class AdminController extends Controller
     }
     
     /**
-     * Store new buku
+     * Simpan buku baru
      */
     public function storeBuku(Request $request)
     {
@@ -486,7 +486,7 @@ class AdminController extends Controller
     }
     
     /**
-     * Show form to edit buku
+     * Nampilin form edit buku
      */
     public function editBuku($id)
     {
@@ -496,7 +496,7 @@ class AdminController extends Controller
     }
     
     /**
-     * Update buku
+     * Update data buku
      */
     public function updateBuku(Request $request, $id)
     {
@@ -551,14 +551,14 @@ class AdminController extends Controller
     }
     
     /**
-     * Delete buku
+     * Hapus buku
      */
     public function destroyBuku($id)
     {
         try {
             $buku = Buku::findOrFail($id);
             
-            // Check if buku has related keranjang or pesanan
+            // Cek apakah buku masih ada di keranjang atau pesanan
             $hasKeranjang = $buku->keranjang()->exists();
             $hasPesanan = $buku->pesananDetail()->exists();
             
@@ -579,17 +579,17 @@ class AdminController extends Controller
     }
     
     // ============================================
-    // USERS MANAGEMENT
+    // MANAJEMEN USER
     // ============================================
     
     /**
-     * Display list of users with their orders
+     * Nampilin daftar user beserta pesanannya
      */
     public function indexUsers(Request $request)
     {
         $query = User::withCount('pesanan');
         
-        // Search functionality
+        // Fitur pencarian
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -598,7 +598,7 @@ class AdminController extends Controller
             });
         }
         
-        // Filter by role
+        // Filter berdasarkan role
         if ($request->has('role') && $request->role) {
             $query->where('role', $request->role);
         }
@@ -609,7 +609,7 @@ class AdminController extends Controller
     }
     
     /**
-     * Update user role
+     * Update role user
      */
     public function updateUserRole(Request $request, $id)
     {
@@ -620,7 +620,7 @@ class AdminController extends Controller
         try {
             $user = User::findOrFail($id);
             
-            // Prevent changing own role
+            // Gabisa ganti role sendiri
             if ($user->id_user == Auth::id()) {
                 return redirect()->back()
                     ->with('error', 'Tidak dapat mengubah role Anda sendiri');
@@ -638,11 +638,11 @@ class AdminController extends Controller
     }
     
     /**
-     * Display all pesan kontak (inbox)
+     * Nampilin semua pesan kontak (inbox)
      */
     public function indexPesan(Request $request)
     {
-        // Clean up expired conversations (24h from first message per user)
+        // Bersihin percakapan yang udah expired (24 jam dari pesan pertama per user)
         $userIds = ChatMessage::select('id_user')->distinct()->pluck('id_user');
         foreach ($userIds as $uid) {
             $first = ChatMessage::where('id_user', $uid)->orderBy('waktu', 'asc')->first();
@@ -651,7 +651,7 @@ class AdminController extends Controller
             }
         }
 
-        // If a user is selected, mark their messages as read FIRST (before counting unread)
+        // Kalo ada user yang dipilih, tandai pesannya jadi udah dibaca DULU (sebelum ngitung yang belum dibaca)
         $selectedUser = null;
         $messages = collect();
         $chatExpiresAt = null;
@@ -667,7 +667,7 @@ class AdminController extends Controller
                     ->orderBy('waktu', 'asc')
                     ->get();
 
-                // Calculate expiry
+                // Hitung waktu expired-nya
                 $firstMsg = $messages->first();
                 if ($firstMsg) {
                     $chatExpiresAt = $firstMsg->waktu->copy()->addHours(24);
@@ -700,7 +700,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Admin sends a chat message to user
+     * Admin ngirim pesan chat ke user
      */
     public function sendPesan(Request $request)
     {
@@ -721,7 +721,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Admin deletes entire conversation with a user
+     * Admin hapus seluruh percakapan sama user
      */
     public function deletePesan($id)
     {
@@ -737,14 +737,14 @@ class AdminController extends Controller
     }
 
     /**
-     * Get new messages for polling (AJAX)
+     * Ambil pesan baru buat polling (AJAX)
      */
     public function getNewMessages(Request $request)
     {
         $userId = $request->user_id;
         $lastId = $request->last_id ?? 0;
 
-        // Check 24h expiry
+        // Cek expired 24 jam
         $firstMessage = ChatMessage::where('id_user', $userId)->orderBy('waktu', 'asc')->first();
         if ($firstMessage && $firstMessage->waktu->diffInHours(now()) >= 24) {
             ChatMessage::where('id_user', $userId)->delete();
@@ -753,7 +753,7 @@ class AdminController extends Controller
 
         $expiresAt = $firstMessage ? $firstMessage->waktu->copy()->addHours(24)->toIso8601String() : null;
 
-        // Mark user messages as read
+        // Tandai pesan user jadi udah dibaca
         ChatMessage::where('id_user', $userId)
             ->where('pengirim', 'user')
             ->where('dibaca', false)
@@ -779,13 +779,13 @@ class AdminController extends Controller
     }
 
     /**
-     * Display laporan bulanan page
+     * Nampilin halaman laporan bulanan
      */
     public function laporan(Request $request)
     {
         $bulanNama = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-        // Default: current month/year
+        // Default: bulan dan tahun sekarang
         $bulan = (int) $request->get('bulan', now()->month);
         $tahun = (int) $request->get('tahun', now()->year);
 
@@ -804,7 +804,7 @@ class AdminController extends Controller
             ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
             ->sum('pembayaran.jumlah');
 
-        // Previous month for comparison
+        // Bulan sebelumnya buat perbandingan
         $prevStart = $startDate->copy()->subMonth()->startOfMonth();
         $prevEnd = $startDate->copy()->subMonth()->endOfMonth();
         $pendapatanBulanLalu = DB::table('pembayaran')
@@ -814,7 +814,7 @@ class AdminController extends Controller
             ->sum('pembayaran.jumlah');
         $totalPesananBulanLalu = Pesanan::whereBetween('tanggal_pesanan', [$prevStart, $prevEnd])->count();
 
-        // === PENDAPATAN HARIAN (chart) ===
+        // === PENDAPATAN HARIAN (buat grafik) ===
         $dailyRevenue = DB::table('pembayaran')
             ->join('pesanan', 'pembayaran.id_pesanan', '=', 'pesanan.id_pesanan')
             ->where('pembayaran.status_verifikasi', 'valid')
@@ -836,7 +836,7 @@ class AdminController extends Controller
             $chartDailyRevenue[] = $rev ? (float) $rev->total : 0;
         }
 
-        // === PESANAN HARIAN (chart) ===
+        // === PESANAN HARIAN (buat grafik) ===
         $dailyOrders = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])
             ->select(
                 DB::raw('DAY(tanggal_pesanan) as hari'),
@@ -852,7 +852,7 @@ class AdminController extends Controller
             $chartDailyOrders[] = $ord ? (int) $ord->total : 0;
         }
 
-        // === STATUS DISTRIBUTION ===
+        // === DISTRIBUSI STATUS ===
         $statusCounts = Pesanan::whereBetween('tanggal_pesanan', [$startDate, $endDate])
             ->select('status', DB::raw('COUNT(*) as total'))
             ->groupBy('status')
@@ -869,7 +869,7 @@ class AdminController extends Controller
             ->orderByDesc('total')
             ->get();
 
-        // === BUKU TERLARIS ===
+        // === BUKU PALING LARIS ===
         $bukuTerlaris = DB::table('pesanan_detail')
             ->join('pesanan', 'pesanan_detail.id_pesanan', '=', 'pesanan.id_pesanan')
             ->join('buku', 'pesanan_detail.id_buku', '=', 'buku.id_buku')
@@ -889,7 +889,7 @@ class AdminController extends Controller
             ->limit(10)
             ->get();
 
-        // === PELANGGAN TERATAS ===
+        // === PELANGGAN PALING TOP ===
         $topCustomers = DB::table('pesanan')
             ->join('users', 'pesanan.id_user', '=', 'users.id_user')
             ->whereBetween('pesanan.tanggal_pesanan', [$startDate, $endDate])
@@ -932,7 +932,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Download laporan bulanan as PDF
+     * Download laporan bulanan jadi PDF
      */
     public function downloadLaporan(Request $request)
     {

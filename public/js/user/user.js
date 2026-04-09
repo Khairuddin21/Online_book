@@ -1,7 +1,7 @@
-// User/Customer Frontend JavaScript
+// JavaScript Frontend User/Customer
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Mobile menu toggle
+    // Toggle menu HP
     const menuToggle = document.getElementById('menuToggle');
     const mainNavbar = document.getElementById('mainNavbar');
     const navMenu = document.getElementById('navMenu');
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Close mobile menu when clicking a nav link
+        // Tutup menu HP pas klik link navigasi
         navMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 navMenu.classList.remove('active');
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Navbar scroll effect
+    // Efek navbar pas scroll
     if (mainNavbar) {
         window.addEventListener('scroll', function() {
             if (window.scrollY > 20) {
@@ -40,14 +40,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Update cart badge on page load
+    // Update badge keranjang pas halaman dimuat
     updateCartBadge();
 
-    // Add to cart functionality - use event delegation to prevent duplicate listeners
+    // Fitur tambah ke keranjang - pake event delegation biar ga dobel listener
     document.body.removeEventListener('click', handleAddToCart); // Remove any existing listener
     document.body.addEventListener('click', handleAddToCart);
 
-    // Search functionality
+    // Fitur pencarian
     const searchInput = document.getElementById('navSearchInput');
     const searchButton = document.getElementById('navSearchBtn');
     
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Category card click handlers
+    // Handler klik kartu kategori
     const categoryCards = document.querySelectorAll('.category-card');
     categoryCards.forEach(card => {
         card.addEventListener('click', function() {
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Smooth scroll for anchor links
+    // Scroll halus buat link anchor
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             const href = this.getAttribute('href');
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Auto-hide alerts after 5 seconds
+    // Auto-sembunyiin notifikasi setelah 5 detik
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -105,12 +105,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 
-    // User menu dropdown toggle (click action)
+    // Toggle dropdown menu user (aksi klik)
     const userMenuButton = document.getElementById('userMenuButton');
     const userMenuDropdown = document.querySelector('.user-menu .dropdown');
     
     if (userMenuButton && userMenuDropdown) {
-        // Toggle dropdown on button click
+        // Toggle dropdown pas tombol diklik
         userMenuButton.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Close dropdown when clicking outside
+        // Tutup dropdown kalo klik di luar
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.user-menu')) {
                 userMenuDropdown.classList.remove('show');
@@ -131,12 +131,12 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Prevent dropdown from closing when clicking inside it
+        // Cegah dropdown nutup pas diklik di dalamnya
         userMenuDropdown.addEventListener('click', function(e) {
             e.stopPropagation();
         });
 
-        // Close on Escape key
+        // Tutup pas pencet tombol Escape
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 userMenuDropdown.classList.remove('show');
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Handle add to cart with event delegation (prevents duplicate listeners)
+// Handle tambah keranjang pake event delegation (cegah listener dobel)
 function handleAddToCart(e) {
     const button = e.target.closest('.add-to-cart');
     if (!button) return;
@@ -157,12 +157,12 @@ function handleAddToCart(e) {
     addToCart(bookId, button);
 }
 
-// Track ongoing requests to prevent double submission
+// Track request yang lagi jalan biar ga submit dobel
 const ongoingRequests = new Set();
 
-// Add to cart function with visual feedback
+// Fungsi tambah ke keranjang pake feedback visual
 function addToCart(bookId, buttonElement) {
-    // Prevent duplicate requests for the same book
+    // Cegah request dobel buat buku yang sama
     const requestKey = `cart-${bookId}`;
     if (ongoingRequests.has(requestKey)) {
         console.log('Request already in progress for book:', bookId);
@@ -171,11 +171,11 @@ function addToCart(bookId, buttonElement) {
     
     const originalHTML = buttonElement.innerHTML;
     
-    // Show loading state
+    // Tampilin state loading
     buttonElement.disabled = true;
     buttonElement.innerHTML = '<span class="loading"></span> Menambahkan...';
     
-    // Mark request as ongoing
+    // Tandai request lagi jalan
     ongoingRequests.add(requestKey);
     
     fetch((window.APP_URL || '') + '/api/cart/add', {
@@ -192,18 +192,18 @@ function addToCart(bookId, buttonElement) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Success state
+            // State berhasil
             buttonElement.innerHTML = '<i class="fas fa-check"></i> Ditambahkan!';
             buttonElement.style.background = 'var(--green-dark)';
             showNotification('Buku berhasil ditambahkan ke keranjang!', 'success');
             updateCartBadge();
             
-            // Reset button after 2 seconds
+            // Reset tombol setelah 2 detik
             setTimeout(() => {
                 buttonElement.innerHTML = originalHTML;
                 buttonElement.style.background = '';
                 buttonElement.disabled = false;
-                // Remove from ongoing requests
+                // Hapus dari request yang lagi jalan
                 ongoingRequests.delete(requestKey);
             }, 2000);
         } else {
@@ -215,12 +215,12 @@ function addToCart(bookId, buttonElement) {
         showNotification(error.message || 'Terjadi kesalahan', 'error');
         buttonElement.innerHTML = originalHTML;
         buttonElement.disabled = false;
-        // Remove from ongoing requests on error
+        // Hapus dari request yang lagi jalan pas error
         ongoingRequests.delete(requestKey);
     });
 }
 
-// Update cart badge
+// Update badge keranjang
 function updateCartBadge() {
     const badge = document.querySelector('.cart-badge');
     if (!badge) return;
@@ -232,7 +232,7 @@ function updateCartBadge() {
                 badge.textContent = data.count;
                 badge.style.display = 'flex';
                 
-                // Add bounce animation
+                // Tambahin animasi bounce
                 badge.style.animation = 'bounce 0.5s ease';
                 setTimeout(() => {
                     badge.style.animation = '';
@@ -247,7 +247,7 @@ function updateCartBadge() {
         });
 }
 
-// Perform search
+// Jalanin pencarian
 function performSearch(query) {
     if (!query || query.trim().length < 2) {
         showNotification('Masukkan minimal 2 karakter untuk pencarian', 'warning');
@@ -257,9 +257,9 @@ function performSearch(query) {
     window.location.href = `/user/books?search=${encodeURIComponent(query.trim())}`;
 }
 
-// Show notification with auto-dismiss
+// Tampilin notifikasi yang otomatis ilang
 function showNotification(message, type = 'info') {
-    // Remove existing notifications
+    // Hapus notifikasi yang udah ada
     document.querySelectorAll('.notification-toast').forEach(n => n.remove());
     
     const notification = document.createElement('div');
@@ -311,7 +311,7 @@ function showNotification(message, type = 'info') {
     }, 4000);
 }
 
-// Format price in Indonesian Rupiah
+// Format harga dalam Rupiah Indonesia
 function formatPrice(price) {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
@@ -320,7 +320,7 @@ function formatPrice(price) {
     }).format(price);
 }
 
-// Debounce function for performance
+// Fungsi debounce buat performa
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -333,7 +333,7 @@ function debounce(func, wait) {
     };
 }
 
-// Add CSS animations dynamically
+// Tambahin animasi CSS secara dinamis
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideInRight {
@@ -365,7 +365,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Books Carousel
+// Carousel Buku
 (function() {
     const carousel = document.getElementById('booksCarousel');
     const prevBtn = document.getElementById('booksCarouselPrev');
@@ -393,7 +393,7 @@ document.head.appendChild(style);
     updateButtons();
 })();
 
-// Promotional Banners Slider
+// Slider Banner Promo
 (function() {
     const promoBannerSlider = document.querySelector('.promo-banners-slider');
     if (!promoBannerSlider) return;
@@ -407,11 +407,11 @@ document.head.appendChild(style);
     let autoSlideInterval;
 
     function showSlide(index) {
-        // Hide all slides
+        // Sembunyiin semua slide
         slides.forEach(slide => slide.classList.remove('active'));
         dots.forEach(dot => dot.classList.remove('active'));
         
-        // Show current slide
+        // Tampilin slide yang sekarang
         if (slides[index]) {
             slides[index].classList.add('active');
             dots[index].classList.add('active');
@@ -440,7 +440,7 @@ document.head.appendChild(style);
         }
     }
 
-    // Event listeners
+    // Event listener
     if (nextBtn) {
         nextBtn.addEventListener('click', () => {
             nextSlide();
@@ -462,11 +462,11 @@ document.head.appendChild(style);
         });
     });
 
-    // Pause on hover
+    // Pause pas hover
     promoBannerSlider.addEventListener('mouseenter', stopAutoSlide);
     promoBannerSlider.addEventListener('mouseleave', startAutoSlide);
 
-    // Initialize
+    // Inisialisasi
     showSlide(0);
     startAutoSlide();
 })();

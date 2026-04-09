@@ -6,20 +6,20 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Beranda') - Book.com</title>
     
-    <!-- Fonts -->
+    <!-- Import Font -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800,900" rel="stylesheet">
     
-    <!-- Styles -->
+    <!-- Style CSS -->
     <link rel="stylesheet" href="{{ asset('css/user/user.css') }}?v={{ time() }}">
     
-    <!-- Font Awesome -->
+    <!-- Icon Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     @stack('styles')
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- Bagian Navbar -->
     <nav class="user-navbar" id="mainNavbar">
         <div class="navbar-container">
             <a href="{{ route('user.home') }}" class="navbar-logo">
@@ -86,12 +86,12 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Konten Utama -->
     <main>
         @yield('content')
     </main>
 
-    <!-- Footer -->
+    <!-- Bagian Footer -->
     <footer class="user-footer">
         <div class="footer-container">
             <div class="footer-section">
@@ -132,7 +132,7 @@
         </div>
     </footer>
 
-    <!-- Scripts -->
+    <!-- Script JS -->
     <script>
         window.APP_URL = '{{ rtrim(url('/'), '/') }}';
     </script>

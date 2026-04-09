@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+// pake Illuminate\Contracts\Auth\MustVerifyEmail kalo mau verifikasi email
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,13 +12,13 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<\Database\Factories\UserFactory> - pake factory buat bikin data user */
     use HasFactory, Notifiable;
 
     protected $primaryKey = 'id_user';
 
     /**
-     * The attributes that are mass assignable.
+     * Atribut yang bisa diisi massal
      *
      * @var list<string>
      */
@@ -32,7 +32,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Atribut yang disembunyiin pas serialisasi
      *
      * @var list<string>
      */
@@ -42,7 +42,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Ambil atribut yang harus di-cast
      *
      * @return array<string, string>
      */
@@ -55,7 +55,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all pesan kontak for this user
+     * Ambil semua pesan kontak buat user ini
      */
     public function pesanKontak(): HasMany
     {
@@ -63,7 +63,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all keranjang items for this user
+     * Ambil semua item keranjang buat user ini
      */
     public function keranjang(): HasMany
     {
@@ -71,7 +71,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all pesanan for this user
+     * Ambil semua pesanan buat user ini
      */
     public function pesanan(): HasMany
     {
@@ -89,7 +89,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all shipping addresses for this user
+     * Ambil semua alamat pengiriman buat user ini
      */
     public function alamatPengiriman(): HasMany
     {

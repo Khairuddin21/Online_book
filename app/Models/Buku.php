@@ -31,7 +31,7 @@ class Buku extends Model
     ];
 
     /**
-     * Get the kategori that owns this buku
+     * Ambil kategori yang punya buku ini
      */
     public function kategori(): BelongsTo
     {
@@ -39,7 +39,7 @@ class Buku extends Model
     }
 
     /**
-     * Get all keranjang items for this buku
+     * Ambil semua item keranjang buat buku ini
      */
     public function keranjang(): HasMany
     {
@@ -47,7 +47,7 @@ class Buku extends Model
     }
 
     /**
-     * Get all pesanan details for this buku
+     * Ambil semua detail pesanan buat buku ini
      */
     public function pesananDetail(): HasMany
     {

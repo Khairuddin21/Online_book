@@ -2,20 +2,20 @@
    USER CHAT - Constrained to Navbar Bounds
    ============================================= */
 
-/* Page wrapper: fill viewport, hide footer */
+/* Wrapper halaman: isi viewport, sembunyiin footer */
 .user-chat-page {
-    padding-top: 56px; /* navbar height */
+    padding-top: 56px; /* tinggi navbar */
     height: 100vh;
     overflow: hidden;
     background: #f6f3ee;
 }
 
-/* Hide footer when chat page is active */
+/* Sembunyiin footer kalo halaman chat aktif */
 main:has(.user-chat-page) + .user-footer {
     display: none;
 }
 
-/* Remove main default spacing */
+/* Hapus jarak default main */
 main:has(.user-chat-page) {
     padding: 0;
     margin: 0;
@@ -32,7 +32,7 @@ main:has(.user-chat-page) {
     overflow: hidden;
 }
 
-/* ---- Header ---- */
+/* ---- Bagian Header ---- */
 .user-chat-header {
     display: flex;
     align-items: center;
@@ -43,7 +43,7 @@ main:has(.user-chat-page) {
     min-height: 62px;
 }
 
-/* ---- 24h Timer Banner ---- */
+/* ---- Banner Timer 24 Jam ---- */
 .user-chat-timer-banner {
     display: flex;
     align-items: center;
@@ -102,7 +102,7 @@ main:has(.user-chat-page) {
     color: #6b9e65;
 }
 
-/* ---- Messages ---- */
+/* ---- Pesan-Pesan ---- */
 .user-chat-messages {
     flex: 1;
     overflow-y: auto;
@@ -129,7 +129,7 @@ main:has(.user-chat-page) {
     box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
-/* ---- Bubbles ---- */
+/* ---- Gelembung Chat ---- */
 .user-chat-bubble {
     max-width: 60%;
     padding: 10px 16px;
@@ -190,7 +190,7 @@ main:has(.user-chat-page) {
     color: #6b9e65;
 }
 
-/* ---- Welcome ---- */
+/* ---- Selamat Datang ---- */
 .user-chat-welcome {
     flex: 1;
     display: flex;
@@ -233,7 +233,7 @@ main:has(.user-chat-page) {
     line-height: 1.6;
 }
 
-/* ---- Input (floating bottom-right, always on screen) ---- */
+/* ---- Input (nempel di kanan bawah, selalu keliatan) ---- */
 .user-chat-input-area {
     position: fixed;
     bottom: 24px;
@@ -314,7 +314,7 @@ main:has(.user-chat-page) {
     background: #b8b0a4;
 }
 
-/* ---- Responsive ---- */
+/* ---- Responsif ---- */
 @media (max-width: 768px) {
     .user-chat-wrapper {
         padding: 0 16px;

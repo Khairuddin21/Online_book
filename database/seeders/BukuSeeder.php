@@ -9,7 +9,7 @@ class BukuSeeder extends Seeder
 {
     public function run(): void
     {
-        // Clear existing data
+        // Bersihin data yang udah ada
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         DB::table('buku')->truncate();
         DB::table('kategori_buku')->truncate();
@@ -25,7 +25,7 @@ class BukuSeeder extends Seeder
 
         DB::table('kategori_buku')->insert($categories);
 
-        // Map nama -> id_kategori (auto-increment starts at 1)
+        // Map nama -> id_kategori (auto-increment mulai dari 1)
         $kat = [
             'terjemahan' => 1,
             'indo'       => 2,

@@ -23,7 +23,7 @@ class Keranjang extends Model
     ];
 
     /**
-     * Get the user that owns this keranjang
+     * Ambil user yang punya keranjang ini
      */
     public function user(): BelongsTo
     {
@@ -31,7 +31,7 @@ class Keranjang extends Model
     }
 
     /**
-     * Get the buku that belongs to this keranjang
+     * Ambil buku yang ada di keranjang ini
      */
     public function buku(): BelongsTo
     {

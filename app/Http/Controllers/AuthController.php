@@ -14,11 +14,11 @@ use Illuminate\Support\Str;
 class AuthController extends Controller
 {
     /**
-     * Show login form
+     * Nampilin form login
      */
     public function showLoginForm()
     {
-        // Redirect if already logged in
+        // Redirect kalo udah login
         if (Auth::check()) {
             return $this->redirectBasedOnRole();
         }
@@ -27,11 +27,11 @@ class AuthController extends Controller
     }
 
     /**
-     * Show register form
+     * Nampilin form register
      */
     public function showRegisterForm()
     {
-        // Redirect if already logged in
+        // Redirect kalo udah login
         if (Auth::check()) {
             return $this->redirectBasedOnRole();
         }
@@ -40,11 +40,11 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle login request
+     * Proses login
      */
     public function login(Request $request)
     {
-        // Validation rules
+        // Aturan validasi
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|min:6',
@@ -61,35 +61,35 @@ class AuthController extends Controller
                 ->withInput($request->only('email'));
         }
 
-        // Prepare credentials
+        // Siapin data login
         $credentials = [
             'email' => $request->email,
             'password' => $request->password,
         ];
 
-        // Remember me option
+        // Opsi ingat saya
         $remember = $request->has('remember');
 
-        // Attempt login
+        // Coba login
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
-            // Redirect based on user role
+            // Arahkan sesuai role user
             return $this->redirectBasedOnRole();
         }
 
-        // Login failed
+        // Login gagal
         return redirect()->back()
             ->withErrors(['email' => 'Email atau kata sandi salah.'])
             ->withInput($request->only('email'));
     }
 
     /**
-     * Handle register request
+     * Proses registrasi
      */
     public function register(Request $request)
     {
-        // Validation rules
+        // Aturan validasi
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|min:3|max:150',
             'email' => 'required|email|unique:users,email|max:255',
@@ -112,28 +112,28 @@ class AuthController extends Controller
         }
 
         try {
-            // Create new user
+            // Bikin user baru
             $user = User::create([
                 'nama' => $request->nama,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'role' => 'user', // Default role is user
+                'role' => 'user', // Role default-nya user
                 'alamat' => null,
                 'no_hp' => null,
             ]);
 
-            // Auto login after registration
+            // Auto login abis daftar
             Auth::login($user);
 
-            // Regenerate session
+            // Bikin session baru
             $request->session()->regenerate();
 
-            // Redirect to user home with success message
+            // Arahkan ke halaman user dengan pesan sukses
             return redirect()->route('user.home')
                 ->with('success', 'Registrasi berhasil! Selamat datang di Toko Buku Online.');
 
         } catch (\Exception $e) {
-            // Log error for debugging
+            // Catat error buat debugging
             Log::error('Registration error: ' . $e->getMessage());
 
             return redirect()->back()
@@ -143,7 +143,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle logout request
+     * Proses logout
      */
     public function logout(Request $request)
     {
@@ -157,7 +157,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Redirect user based on their role
+     * Arahkan user sesuai role-nya
      */
     private function redirectBasedOnRole()
     {
@@ -170,7 +170,7 @@ class AuthController extends Controller
         return redirect()->route('user.home');
     }
 
-    // ===== GOOGLE OAUTH =====
+    // ===== LOGIN PAKE GOOGLE =====
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->redirect();

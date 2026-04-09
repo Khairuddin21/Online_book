@@ -1,7 +1,7 @@
-// Admin Dashboard JavaScript
+// JavaScript Dashboard Admin
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Sidebar toggle for mobile
+    // Toggle sidebar buat HP
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.querySelector('.admin-sidebar');
     
@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Active menu item
+    // Menu yang lagi aktif
     const currentPath = window.location.pathname;
     const menuLinks = document.querySelectorAll('.admin-sidebar nav a');
     
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Confirm delete actions
+    // Konfirmasi aksi hapus
     const deleteButtons = document.querySelectorAll('.btn-delete');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(e) {
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Auto-hide alerts
+    // Auto-sembunyiin notifikasi
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Format currency
+// Format mata uang
 function formatCurrency(amount) {
     return new Intl.NumberFormat('id-ID', {
         style: 'currency',
@@ -49,7 +49,7 @@ function formatCurrency(amount) {
     }).format(amount);
 }
 
-// Search functionality
+// Fitur pencarian
 function searchTable(inputId, tableId) {
     const input = document.getElementById(inputId);
     const table = document.getElementById(tableId);

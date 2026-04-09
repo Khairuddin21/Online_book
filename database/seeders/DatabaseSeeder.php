@@ -3,13 +3,13 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+// pake Illuminate\Database\Console\Seeds\WithoutModelEvents kalo mau matiin event
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Isi database aplikasi pake data awal
      */
     public function run(): void
     {

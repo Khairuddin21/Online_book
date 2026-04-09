@@ -1,4 +1,4 @@
-/* Admin Dashboard Styles */
+/* Style Dashboard Admin */
 :root {
     --admin-primary: #2c3e50;
     --admin-secondary: #34495e;
@@ -75,7 +75,7 @@ body {
     width: 20px;
 }
 
-/* Main Content */
+/* Konten Utama */
 .admin-main {
     margin-left: 260px;
     min-height: 100vh;
@@ -113,12 +113,12 @@ body {
     color: var(--admin-primary);
 }
 
-/* Content Area */
+/* Area Konten */
 .admin-content {
     padding: 30px;
 }
 
-/* Cards */
+/* Kartu */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -183,7 +183,7 @@ body {
     color: var(--admin-danger);
 }
 
-/* Table */
+/* Tabel */
 .data-table {
     background: white;
     border-radius: 10px;
@@ -220,7 +220,7 @@ table tr:hover {
     background: #f8f9fa;
 }
 
-/* Buttons */
+/* Tombol-Tombol */
 .btn {
     padding: 10px 20px;
     border: none;
@@ -264,7 +264,7 @@ table tr:hover {
     font-size: 12px;
 }
 
-/* Responsive */
+/* Responsif */
 @media (max-width: 768px) {
     .admin-sidebar {
         left: -260px;
