@@ -24,7 +24,7 @@ class PesananDetail extends Model
     ];
 
     /**
-     * Get the pesanan that owns this detail
+     * Ambil pesanan yang punya detail ini
      */
     public function pesanan(): BelongsTo
     {
@@ -32,7 +32,7 @@ class PesananDetail extends Model
     }
 
     /**
-     * Get the buku that belongs to this detail
+     * Ambil buku yang ada di detail ini
      */
     public function buku(): BelongsTo
     {

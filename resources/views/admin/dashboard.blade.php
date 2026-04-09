@@ -4,7 +4,7 @@
 @section('page-title', 'Dashboard')
 
 @section('content')
-<!-- Stats Cards -->
+<!-- Kartu Statistik -->
 <div class="stats-grid">
     <div class="stat-card primary">
         <div class="stat-info">
@@ -47,9 +47,9 @@
     </div>
 </div>
 
-<!-- Charts Section -->
+<!-- Bagian Grafik -->
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 28px;">
-    <!-- Revenue Chart -->
+    <!-- Grafik Pendapatan -->
     <div class="card">
         <div class="card-header">
             <i class="fas fa-chart-line"></i>
@@ -60,7 +60,7 @@
         </div>
     </div>
 
-    <!-- Status Distribution -->
+    <!-- Grafik Distribusi Status -->
     <div class="card">
         <div class="card-header">
             <i class="fas fa-chart-pie"></i>
@@ -72,7 +72,7 @@
     </div>
 </div>
 
-<!-- Orders Chart -->
+<!-- Grafik Jumlah Pesanan -->
 <div class="card" style="margin-bottom: 28px;">
     <div class="card-header">
         <i class="fas fa-chart-bar"></i>
@@ -83,7 +83,7 @@
     </div>
 </div>
 
-<!-- Recent Orders Table -->
+<!-- Tabel Pesanan Terbaru -->
 <div class="data-table">
     <h2><i class="fas fa-clock" style="color: var(--green-dark); margin-right: 8px;"></i>Pesanan Terbaru</h2>
 
@@ -170,7 +170,7 @@
     const chartOrders = {!! json_encode($chartOrders ?? []) !!};
     const statusCounts = {!! json_encode($statusCounts ?? (object)[]) !!};
 
-    // Revenue Chart
+    // Grafik Pendapatan
     new Chart(document.getElementById('revenueChart'), {
         type: 'line',
         data: {
@@ -216,7 +216,7 @@
         }
     });
 
-    // Orders Chart
+    // Grafik Jumlah Pesanan
     new Chart(document.getElementById('ordersChart'), {
         type: 'bar',
         data: {
@@ -249,7 +249,7 @@
         }
     });
 
-    // Status Distribution Chart
+    // Grafik Distribusi Status Pesanan
     const statusLabels = Object.keys(statusCounts).map(s => s.charAt(0).toUpperCase() + s.slice(1));
     const statusData = Object.values(statusCounts);
     const statusColors = {

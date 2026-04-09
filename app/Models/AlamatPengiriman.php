@@ -23,7 +23,7 @@ class AlamatPengiriman extends Model
     ];
     
     /**
-     * Get the user that owns the address
+     * Ambil user yang punya alamat ini
      */
     public function user()
     {

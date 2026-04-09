@@ -1,6 +1,6 @@
-// Admin Panel JavaScript - Green Pastel Theme
+// JavaScript Panel Admin - Tema Hijau Pastel
 
-// Sidebar Toggle (Mobile)
+// Toggle Sidebar (HP)
 function toggleSidebar() {
     const sidebar = document.getElementById('adminSidebar');
     const overlay = document.getElementById('sidebarOverlay');
@@ -9,7 +9,7 @@ function toggleSidebar() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-hide alerts after 5s
+    // Auto-sembunyiin notifikasi setelah 5 detik
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     });
 
-    // Close sidebar on ESC key (mobile)
+    // Tutup sidebar pas pencet ESC (HP)
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const sidebar = document.getElementById('adminSidebar');
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Search functionality
+// Fitur pencarian
 function searchTable(inputId, tableId) {
     const input = document.getElementById(inputId);
     const table = document.getElementById(tableId);

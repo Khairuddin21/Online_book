@@ -4,28 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin Dashboard') - Book.com</title>
+    <title>@yield('title', 'Admin Dashboard') - 6BUCKS.litera</title>
 
-    <!-- Google Fonts - Inter -->
+    <!-- Import Google Fonts - Inter -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
 
-    <!-- Font Awesome -->
+    <!-- Icon Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Admin Styles -->
+    <!-- Style Admin -->
     <link rel="stylesheet" href="{{ asset('css/admin/admin.css') }}?v={{ time() }}">
 
     @stack('styles')
 </head>
 <body>
-    <!-- Mobile Sidebar Overlay -->
+    <!-- Overlay Sidebar buat HP -->
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <!-- Sidebar -->
+    <!-- Sidebar Menu -->
     <aside class="admin-sidebar" id="adminSidebar">
         <div class="logo">
-            <h2><i class="fas fa-book-open"></i> Book.com</h2>
+            <h2><i class="fas fa-book-open"></i> 6BUCKS.litera</h2>
         </div>
 
         <nav>
@@ -65,7 +65,10 @@
                 <li class="sidebar-label">Komunikasi</li>
                 <li>
                     <a href="{{ route('admin.pesan.index') }}" class="{{ request()->routeIs('admin.pesan.*') ? 'active' : '' }}">
-                        <i class="fas fa-envelope"></i> Pesan Kontak
+                        <i class="fas fa-comments"></i> Chat
+                        @if(($adminChatNotifCount ?? 0) > 0)
+                            <span style="background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:50px;margin-left:6px;">{{ $adminChatNotifCount }}</span>
+                        @endif
                     </a>
                 </li>
 
@@ -79,9 +82,9 @@
         </nav>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Konten Utama -->
     <main class="admin-main">
-        <!-- Header -->
+        <!-- Bagian Header -->
         <header class="admin-header">
             <div style="display: flex; align-items: center; gap: 12px;">
                 <button class="mobile-toggle" onclick="toggleSidebar()">
@@ -102,7 +105,7 @@
             </div>
         </header>
 
-        <!-- Content -->
+        <!-- Isi Konten -->
         <div class="admin-content">
             @if(session('success'))
                 <div class="alert alert-success">
@@ -120,7 +123,7 @@
         </div>
     </main>
 
-    <!-- Admin JS -->
+    <!-- Script JS Admin -->
     <script src="{{ asset('js/admin/admin.js') }}?v={{ time() }}"></script>
     @stack('scripts')
 </body>

@@ -6,10 +6,10 @@
 <div class="user-container" style="min-height: 60vh;">
     <div class="page-header">
         <h1 class="page-title">Checkout</h1>
-        <p class="page-subtitle">Lengkapi informasi pengiriman untuk melanjutkan</p>
+        <p class="page-subtitle">Pilih metode pembayaran dan lengkapi informasi untuk melanjutkan</p>
     </div>
 
-    <!-- Progress Steps -->
+    <!-- Langkah-Langkah Checkout -->
     <div class="checkout-steps">
         <div class="step active">
             <div class="step-number">1</div>
@@ -23,9 +23,9 @@
     </div>
 
     <div class="checkout-layout">
-        <!-- Main Content -->
+        <!-- Konten Utama -->
         <div>
-            <!-- Order Items Preview -->
+            <!-- Preview Item Pesanan -->
             <div class="checkout-section">
                 <div class="checkout-section-header">
                     <h3><i class="fas fa-box"></i> Pesanan ({{ $cartItems->count() }} Item)</h3>
@@ -78,8 +78,8 @@
                 </div>
             </div>
 
-            <!-- Shipping Address Section -->
-            <div class="checkout-section" style="margin-top: 24px;">
+            <!-- Bagian Alamat Pengiriman -->
+            <div class="checkout-section" id="shippingSection" style="margin-top: 24px;">
                 <div class="checkout-section-header">
                     <h3><i class="fas fa-shipping-fast"></i> Alamat Pengiriman</h3>
                     <button id="toggleAddressForm" class="btn btn-outline-green btn-sm">
@@ -87,14 +87,15 @@
                     </button>
                 </div>
 
-                @if($addresses->count() > 0)
                 <form action="{{ route('user.checkout.process') }}" method="POST" id="checkoutForm">
                     @csrf
-                    <div class="saved-addresses">
+
+                @if($addresses->count() > 0)
+                    <div class="saved-addresses" id="addressList">
                         @foreach($addresses as $address)
                         <label class="address-card">
                             <input type="radio" name="id_alamat" value="{{ $address->id_alamat }}" 
-                                   {{ $address->is_default ? 'checked' : '' }} required>
+                                   {{ $address->is_default ? 'checked' : '' }}>
                             <div class="address-content">
                                 <div class="address-header">
                                     <span class="address-label">{{ $address->label }}</span>
@@ -122,15 +123,15 @@
                     @error('id_alamat')
                         <span class="form-error">{{ $message }}</span>
                     @enderror
-                </form>
                 @else
-                <div class="address-empty">
+                <div class="address-empty" id="addressEmpty">
                     <i class="fas fa-map-marker-alt"></i>
                     <p>Belum ada alamat tersimpan. Tambahkan alamat pengiriman Anda.</p>
                 </div>
                 @endif
+                </form>
 
-                <!-- Add/Edit Address Form -->
+                <!-- Form Tambah/Edit Alamat -->
                 <div id="addressFormContainer" class="address-form-container" style="display: none;">
                     <h4 class="address-form-title">
                         <span id="formTitle">Tambah Alamat Baru</span>
@@ -195,7 +196,7 @@
             </div>
         </div>
 
-        <!-- Order Summary -->
+        <!-- Ringkasan Pesanan -->
         <div class="checkout-summary">
             <h3 class="order-summary-title">
                 <i class="fas fa-receipt"></i> Ringkasan Belanja
@@ -214,7 +215,7 @@
                 <span>Rp {{ number_format($total, 0, ',', '.') }}</span>
             </div>
 
-            <!-- Payment Method Selection -->
+            <!-- Pilih Metode Pembayaran -->
             <div class="payment-method-section">
                 <h4 class="pm-section-title"><i class="fas fa-wallet"></i> Metode Pembayaran</h4>
                 <div class="pm-options">
@@ -229,29 +230,33 @@
                         </div>
                     </label>
                     <label class="pm-option">
-                        <input type="radio" name="metode_pembayaran" value="cod" form="checkoutForm">
+                        <input type="radio" name="metode_pembayaran" value="offline" form="checkoutForm">
                         <div class="pm-option-content">
-                            <div class="pm-option-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <div class="pm-option-icon"><i class="fas fa-store"></i></div>
                             <div class="pm-option-text">
-                                <span class="pm-option-name">COD (Bayar di Tempat)</span>
-                                <span class="pm-option-desc">Bayar saat barang diterima, kirim bukti foto</span>
+                                <span class="pm-option-name">Payment Offline</span>
+                                <span class="pm-option-desc">Bayar langsung di kasir offline</span>
                             </div>
                         </div>
                     </label>
                 </div>
             </div>
 
-            <button type="submit" form="checkoutForm" class="btn btn-green btn-block" 
+            <button type="submit" form="checkoutForm" class="btn btn-green btn-block" id="checkoutSubmitBtn"
                     style="padding: 14px; font-size: 16px; margin-top: 20px;" 
                     {{ $addresses->count() == 0 ? 'disabled' : '' }}>
                 <i class="fas fa-shopping-bag"></i> Lanjut Pembayaran
             </button>
 
-            @if($addresses->count() == 0)
-            <p class="checkout-warning">
+            <p class="checkout-warning" id="addressWarning" style="{{ $addresses->count() == 0 ? '' : 'display:none;' }}">
                 <i class="fas fa-exclamation-circle"></i> Tambahkan alamat pengiriman terlebih dahulu
             </p>
-            @endif
+
+            <!-- Info muncul kalo pilih offline -->
+            <div id="offlineInfo" style="display:none; margin-top: 12px; padding: 12px 16px; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 10px; font-size: 13px; color: #92400e;">
+                <i class="fas fa-store" style="margin-right: 6px;"></i>
+                Pembayaran offline — Anda bisa langsung datang ke store kami untuk mengambil dan membayar buku.
+            </div>
         </div>
     </div>
 </div>
@@ -259,6 +264,48 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // === Toggle payment method: sembunyiin alamat kalo offline ===
+    const paymentRadios = document.querySelectorAll('input[name="metode_pembayaran"]');
+    const shippingSection = document.getElementById('shippingSection');
+    const submitBtn = document.getElementById('checkoutSubmitBtn');
+    const addressWarning = document.getElementById('addressWarning');
+    const offlineInfo = document.getElementById('offlineInfo');
+    const hasAddresses = {{ $addresses->count() > 0 ? 'true' : 'false' }};
+
+    function toggleShipping() {
+        const selectedMethod = document.querySelector('input[name="metode_pembayaran"]:checked');
+        const isOffline = selectedMethod && selectedMethod.value === 'offline';
+
+        if (isOffline) {
+            // Sembunyiin section alamat, enable tombol, tampilin info offline
+            shippingSection.style.display = 'none';
+            submitBtn.disabled = false;
+            if (addressWarning) addressWarning.style.display = 'none';
+            offlineInfo.style.display = 'block';
+            submitBtn.innerHTML = '<i class="fas fa-store"></i> Buat Pesanan Offline';
+        } else {
+            // Tampilin lagi section alamat
+            shippingSection.style.display = '';
+            offlineInfo.style.display = 'none';
+            submitBtn.innerHTML = '<i class="fas fa-shopping-bag"></i> Lanjut Pembayaran';
+            if (!hasAddresses) {
+                submitBtn.disabled = true;
+                if (addressWarning) addressWarning.style.display = '';
+            } else {
+                submitBtn.disabled = false;
+                if (addressWarning) addressWarning.style.display = 'none';
+            }
+        }
+    }
+
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', toggleShipping);
+    });
+
+    // Jalanin pas load pertama kali
+    toggleShipping();
+
+    // === Toggle order items ===
     const toggleBtn = document.getElementById('toggleOrderItems');
     const hiddenItems = document.querySelectorAll('.order-item-hidden');
     let isExpanded = false;
@@ -332,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function deleteAddress(addressId) {
     if (!confirm('Yakin ingin menghapus alamat ini?')) return;
 
-    fetch(`/address/delete/${addressId}`, {
+    fetch(`{{ url('/address/delete') }}/${addressId}`, {
         method: 'DELETE',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,

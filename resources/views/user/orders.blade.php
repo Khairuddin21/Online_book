@@ -6,7 +6,7 @@
 <div class="user-container" style="min-height: 60vh;">
     <div class="page-header">
         <h1 class="page-title">Pesanan Saya</h1>
-        <p class="page-subtitle">Lacak dan kelola riwayat pesanan Anda</p>
+        <p class="page-subtitle">Riwayat pesanan Anda</p>
     </div>
 
     @if(session('success'))
@@ -30,8 +30,8 @@
                 <div class="order-card-header">
                     <div class="order-meta">
                         <span class="order-id">#{{ $order->id_pesanan }}</span>
-                        @if($order->metode_pembayaran === 'cod')
-                            <span class="order-method-badge method-cod"><i class="fas fa-money-bill-wave"></i> COD</span>
+                        @if($order->metode_pembayaran === 'offline')
+                            <span class="order-method-badge method-offline"><i class="fas fa-store"></i> Offline</span>
                         @else
                             <span class="order-method-badge method-online"><i class="fas fa-credit-card"></i> Online</span>
                         @endif
@@ -95,9 +95,9 @@
                     </div>
                     <div class="order-actions">
                         @if($order->status === 'menunggu')
-                            @if($order->metode_pembayaran === 'cod')
+                            @if($order->metode_pembayaran === 'offline')
                                 <span class="order-info-note">
-                                    <i class="fas fa-clock"></i> Menunggu admin memproses pesanan COD
+                                    <i class="fas fa-clock"></i> Menunggu admin memproses pesanan offline
                                 </span>
                             @else
                                 <a href="{{ route('user.payment', $order->id_pesanan) }}" class="btn-order-action btn-pay">
@@ -112,9 +112,9 @@
                             </form>
                         @endif
                         @if($order->status === 'diproses')
-                            @if($order->metode_pembayaran === 'cod')
+                            @if($order->metode_pembayaran === 'offline')
                                 <span class="order-info-note">
-                                    <i class="fas fa-box"></i> Pesanan sedang dikemas (COD)
+                                    <i class="fas fa-box"></i> Pesanan sedang dikemas (Offline)
                                 </span>
                             @else
                                 <span class="order-info-note">
@@ -123,14 +123,14 @@
                             @endif
                         @endif
                         @if($order->status === 'dikirim')
-                            @if($order->metode_pembayaran === 'cod')
-                                @if($order->bukti_cod)
-                                    <span class="order-info-note cod-uploaded">
-                                        <i class="fas fa-check-circle"></i> Bukti COD sudah diunggah — menunggu verifikasi admin
+                            @if($order->metode_pembayaran === 'offline')
+                                @if($order->bukti_offline)
+                                    <span class="order-info-note offline-uploaded">
+                                        <i class="fas fa-check-circle"></i> Bukti pembayaran offline sudah diunggah — menunggu verifikasi admin
                                     </span>
                                 @else
-                                    <button type="button" class="btn-order-action btn-upload-cod" onclick="openCodModal({{ $order->id_pesanan }})">
-                                        <i class="fas fa-camera"></i> Upload Bukti COD
+                                    <button type="button" class="btn-order-action btn-upload-offline" onclick="openOfflineModal({{ $order->id_pesanan }})">
+                                        <i class="fas fa-camera"></i> Upload Bukti Pembayaran
                                     </button>
                                 @endif
                             @else
@@ -138,6 +138,14 @@
                                     <i class="fas fa-truck"></i> Dalam perjalanan
                                 </span>
                             @endif
+                            <a href="{{ route('user.order.invoice', $order->id_pesanan) }}" class="btn-order-action btn-invoice">
+                                <i class="fas fa-file-download"></i> Invoice
+                            </a>
+                        @endif
+                        @if($order->status === 'selesai')
+                            <a href="{{ route('user.order.invoice', $order->id_pesanan) }}" class="btn-order-action btn-invoice">
+                                <i class="fas fa-file-download"></i> Download Invoice
+                            </a>
                         @endif
                     </div>
                 </div>
@@ -149,46 +157,46 @@
             <i class="fas fa-box-open"></i>
             <h2>Belum Ada Pesanan</h2>
             <p>Anda belum memiliki riwayat pesanan</p>
-            <a href="{{ route('user.books') }}" class="btn btn-green">
-                <i class="fas fa-shopping-bag"></i> Mulai Berbelanja
+            <a href="{{ route('user.books') }}" class="btn btn-green btn-sm">
+                Mulai Berbelanja
             </a>
         </div>
     @endif
 </div>
 
-<!-- COD Upload Modal -->
-<div id="codModal" class="cod-modal-overlay" style="display:none;">
-    <div class="cod-modal">
-        <div class="cod-modal-header">
-            <h3><i class="fas fa-camera"></i> Upload Bukti COD</h3>
-            <button type="button" class="cod-modal-close" onclick="closeCodModal()">&times;</button>
+<!-- Offline Payment Upload Modal -->
+<div id="offlineModal" class="offline-modal-overlay" style="display:none;">
+    <div class="offline-modal">
+        <div class="offline-modal-header">
+            <h3><i class="fas fa-camera"></i> Upload Bukti Pembayaran Offline</h3>
+            <button type="button" class="offline-modal-close" onclick="closeOfflineModal()">&times;</button>
         </div>
-        <form id="codUploadForm" method="POST" enctype="multipart/form-data">
+        <form id="offlineUploadForm" method="POST" enctype="multipart/form-data">
             @csrf
-            <div class="cod-modal-body">
-                <div class="cod-info-box">
+            <div class="offline-modal-body">
+                <div class="offline-info-box">
                     <i class="fas fa-info-circle"></i>
                     <div>
                         <p><strong>Kirim foto sebagai bukti bahwa:</strong></p>
                         <ul>
                             <li>Anda telah menerima buku pesanan</li>
-                            <li>Pembayaran COD telah dilakukan</li>
+                            <li>Pembayaran offline telah dilakukan di kasir</li>
                         </ul>
                     </div>
                 </div>
-                <div class="cod-upload-area" id="codUploadArea">
-                    <input type="file" name="bukti_cod" id="codFileInput" accept="image/jpeg,image/jpg,image/png,image/webp" required style="display:none;">
-                    <div class="cod-upload-placeholder" id="codPlaceholder">
+                <div class="offline-upload-area" id="offlineUploadArea">
+                    <input type="file" name="bukti_offline" id="offlineFileInput" accept="image/jpeg,image/jpg,image/png,image/webp" required style="display:none;">
+                    <div class="offline-upload-placeholder" id="offlinePlaceholder">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <p>Klik atau seret foto ke sini</p>
                         <span>JPG, PNG, WebP (maks. 5MB)</span>
                     </div>
-                    <img id="codPreview" class="cod-preview-img" style="display:none;" alt="Preview">
+                    <img id="offlinePreview" class="offline-preview-img" style="display:none;" alt="Preview">
                 </div>
             </div>
-            <div class="cod-modal-footer">
-                <button type="button" class="btn-cod-cancel" onclick="closeCodModal()">Batal</button>
-                <button type="submit" class="btn-cod-submit">
+            <div class="offline-modal-footer">
+                <button type="button" class="btn-offline-cancel" onclick="closeOfflineModal()">Batal</button>
+                <button type="submit" class="btn-offline-submit">
                     <i class="fas fa-upload"></i> Kirim Bukti
                 </button>
             </div>
@@ -415,6 +423,16 @@
     border-color: #dc2626;
 }
 
+.btn-invoice {
+    background: white;
+    color: #2d6a4f;
+    border: 1.5px solid #a8d5a2;
+}
+.btn-invoice:hover {
+    background: #f0faf4;
+    border-color: #2d6a4f;
+}
+
 .order-info-note {
     font-size: 13px;
     color: #6b7280;
@@ -466,28 +484,28 @@
     font-size: 11px;
     font-weight: 700;
 }
-.method-cod { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.method-offline { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
 .method-online { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
 
-/* Upload COD Button */
-.btn-upload-cod {
+/* Upload Offline Button */
+.btn-upload-offline {
     background: linear-gradient(135deg, #f59e0b, #d97706) !important;
     color: white !important;
     border: none !important;
     box-shadow: 0 3px 10px rgba(217, 119, 6, 0.3);
 }
-.btn-upload-cod:hover {
+.btn-upload-offline:hover {
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(217, 119, 6, 0.4);
 }
 
-.cod-uploaded {
+.offline-uploaded {
     color: #059669 !important;
     font-weight: 600;
 }
 
-/* COD Modal */
-.cod-modal-overlay {
+/* Offline Payment Modal */
+.offline-modal-overlay {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.6);
@@ -499,7 +517,7 @@
     backdrop-filter: blur(4px);
 }
 
-.cod-modal {
+.offline-modal {
     background: white;
     border-radius: 18px;
     max-width: 480px;
@@ -513,7 +531,7 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-.cod-modal-header {
+.offline-modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -521,7 +539,7 @@
     border-bottom: 1px solid #f0f0f0;
 }
 
-.cod-modal-header h3 {
+.offline-modal-header h3 {
     font-size: 18px;
     font-weight: 700;
     color: #374151;
@@ -531,9 +549,9 @@
     gap: 8px;
 }
 
-.cod-modal-header h3 i { color: var(--green-dark, #6b9e65); }
+.offline-modal-header h3 i { color: var(--green-dark, #6b9e65); }
 
-.cod-modal-close {
+.offline-modal-close {
     background: none;
     border: none;
     font-size: 24px;
@@ -543,11 +561,11 @@
     line-height: 1;
 }
 
-.cod-modal-close:hover { color: #374151; }
+.offline-modal-close:hover { color: #374151; }
 
-.cod-modal-body { padding: 20px 24px; }
+.offline-modal-body { padding: 20px 24px; }
 
-.cod-info-box {
+.offline-info-box {
     display: flex;
     gap: 12px;
     padding: 14px;
@@ -559,12 +577,12 @@
     color: #92400e;
 }
 
-.cod-info-box i { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
-.cod-info-box p { margin: 0 0 6px; }
-.cod-info-box ul { margin: 0; padding-left: 18px; }
-.cod-info-box li { margin-bottom: 2px; }
+.offline-info-box i { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+.offline-info-box p { margin: 0 0 6px; }
+.offline-info-box ul { margin: 0; padding-left: 18px; }
+.offline-info-box li { margin-bottom: 2px; }
 
-.cod-upload-area {
+.offline-upload-area {
     border: 2px dashed #d1d5db;
     border-radius: 14px;
     cursor: pointer;
@@ -572,36 +590,36 @@
     overflow: hidden;
 }
 
-.cod-upload-area:hover, .cod-upload-area.dragover {
+.offline-upload-area:hover, .offline-upload-area.dragover {
     border-color: var(--green-dark, #6b9e65);
     background: #f0fdf4;
 }
 
-.cod-upload-placeholder {
+.offline-upload-placeholder {
     text-align: center;
     padding: 40px 20px;
     color: #9ca3af;
 }
 
-.cod-upload-placeholder i { font-size: 40px; margin-bottom: 10px; display: block; }
-.cod-upload-placeholder p { font-size: 14px; margin: 0 0 4px; font-weight: 600; color: #6b7280; }
-.cod-upload-placeholder span { font-size: 12px; }
+.offline-upload-placeholder i { font-size: 40px; margin-bottom: 10px; display: block; }
+.offline-upload-placeholder p { font-size: 14px; margin: 0 0 4px; font-weight: 600; color: #6b7280; }
+.offline-upload-placeholder span { font-size: 12px; }
 
-.cod-preview-img {
+.offline-preview-img {
     width: 100%;
     max-height: 280px;
     object-fit: contain;
     display: block;
 }
 
-.cod-modal-footer {
+.offline-modal-footer {
     display: flex;
     gap: 10px;
     padding: 16px 24px;
     border-top: 1px solid #f0f0f0;
 }
 
-.btn-cod-cancel {
+.btn-offline-cancel {
     flex: 1;
     padding: 12px;
     background: #f3f4f6;
@@ -614,9 +632,9 @@
     cursor: pointer;
     transition: background 0.2s;
 }
-.btn-cod-cancel:hover { background: #e5e7eb; }
+.btn-offline-cancel:hover { background: #e5e7eb; }
 
-.btn-cod-submit {
+.btn-offline-submit {
     flex: 1;
     padding: 12px;
     background: linear-gradient(135deg, var(--green-dark, #6b9e65), var(--green-deeper, #4a7c44));
@@ -634,7 +652,7 @@
     transition: all 0.2s;
     box-shadow: 0 3px 10px rgba(74, 124, 68, 0.3);
 }
-.btn-cod-submit:hover {
+.btn-offline-submit:hover {
     transform: translateY(-1px);
     box-shadow: 0 5px 15px rgba(74, 124, 68, 0.4);
 }
@@ -643,24 +661,24 @@
 
 @push('scripts')
 <script>
-function openCodModal(orderId) {
-    const form = document.getElementById('codUploadForm');
-    form.action = '/Online_book/public/orders/' + orderId + '/upload-cod';
-    document.getElementById('codFileInput').value = '';
-    document.getElementById('codPreview').style.display = 'none';
-    document.getElementById('codPlaceholder').style.display = 'block';
-    document.getElementById('codModal').style.display = 'flex';
+function openOfflineModal(orderId) {
+    const form = document.getElementById('offlineUploadForm');
+    form.action = '/Online_book/public/orders/' + orderId + '/upload-offline';
+    document.getElementById('offlineFileInput').value = '';
+    document.getElementById('offlinePreview').style.display = 'none';
+    document.getElementById('offlinePlaceholder').style.display = 'block';
+    document.getElementById('offlineModal').style.display = 'flex';
 }
 
-function closeCodModal() {
-    document.getElementById('codModal').style.display = 'none';
+function closeOfflineModal() {
+    document.getElementById('offlineModal').style.display = 'none';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const uploadArea = document.getElementById('codUploadArea');
-    const fileInput = document.getElementById('codFileInput');
-    const preview = document.getElementById('codPreview');
-    const placeholder = document.getElementById('codPlaceholder');
+    const uploadArea = document.getElementById('offlineUploadArea');
+    const fileInput = document.getElementById('offlineFileInput');
+    const preview = document.getElementById('offlinePreview');
+    const placeholder = document.getElementById('offlinePlaceholder');
 
     if (uploadArea) {
         uploadArea.addEventListener('click', () => fileInput.click());
@@ -696,10 +714,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Close modal on overlay click
-    const modal = document.getElementById('codModal');
+    const modal = document.getElementById('offlineModal');
     if (modal) {
         modal.addEventListener('click', function(e) {
-            if (e.target === this) closeCodModal();
+            if (e.target === this) closeOfflineModal();
         });
     }
 });

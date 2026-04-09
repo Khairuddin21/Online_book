@@ -17,7 +17,7 @@
         </div>
     @endif
 
-    <!-- Breadcrumb -->
+    <!-- Navigasi Breadcrumb -->
     <nav class="detail-breadcrumb">
         <a href="{{ route('user.home') }}">Beranda</a>
         <i class="fas fa-chevron-right"></i>
@@ -30,9 +30,9 @@
         <span>{{ $book->judul }}</span>
     </nav>
 
-    <!-- Book Detail Main -->
+    <!-- Bagian Utama Detail Buku -->
     <div class="book-detail-main">
-        <!-- Left: Cover Image -->
+        <!-- Kiri: Gambar Cover -->
         <div class="book-detail-cover">
             <div class="cover-image-wrapper">
                 <img src="{{ $book->cover ?: 'https://via.placeholder.com/400x560?text=No+Cover' }}" 
@@ -41,12 +41,12 @@
             </div>
         </div>
 
-        <!-- Right: Book Info -->
+        <!-- Kanan: Info Buku -->
         <div class="book-detail-info">
             <p class="detail-author">{{ $book->penulis }}</p>
             <h1 class="detail-title">{{ $book->judul }}</h1>
 
-            <!-- Rating Summary -->
+            <!-- Ringkasan Rating -->
             <div class="detail-rating-summary">
                 <div class="stars-display">
                     @for($i = 1; $i <= 5; $i++)
@@ -63,7 +63,7 @@
 
             <div class="detail-price">Rp{{ number_format($book->harga, 0, ',', '.') }}</div>
 
-            <!-- Action Buttons -->
+            <!-- Tombol Aksi (Favorit & Share) -->
             <div class="detail-action-row">
                 <button class="btn-favorite {{ $isFavorited ? 'favorited' : '' }}" id="favoriteBtn" data-book-id="{{ $book->id_buku }}">
                     <i class="{{ $isFavorited ? 'fas' : 'far' }} fa-heart"></i>
@@ -75,7 +75,7 @@
                 </button>
             </div>
 
-            <!-- Format Selection -->
+            <!-- Pilihan Format Buku -->
             <div class="detail-section">
                 <h3 class="detail-section-label">Format Buku</h3>
                 <div class="format-options">
@@ -84,7 +84,7 @@
                 </div>
             </div>
 
-            <!-- Store Info -->
+            <!-- Info Toko -->
             <div class="detail-section">
                 <h3 class="detail-section-label">Toko</h3>
                 <div class="store-info-card">
@@ -98,13 +98,13 @@
                 </div>
             </div>
 
-            <!-- Stock Info -->
+            <!-- Info Stok Buku -->
             <div class="detail-stock {{ $book->stok > 0 ? 'in-stock' : 'out-stock' }}">
                 <i class="fas {{ $book->stok > 0 ? 'fa-check-circle' : 'fa-times-circle' }}"></i>
                 {{ $book->stok > 0 ? 'Stok Tersedia ('.$book->stok.')' : 'Stok Habis' }}
             </div>
 
-            <!-- Add to Cart -->
+            <!-- Tombol Tambah ke Keranjang -->
             <div class="detail-cart-actions">
                 @if($book->stok > 0)
                 <div class="qty-selector">
@@ -124,7 +124,7 @@
         </div>
     </div>
 
-    <!-- Description & Details Tabs -->
+    <!-- Tab Deskripsi & Detail -->
     <div class="book-detail-tabs">
         <div class="tabs-nav">
             <button class="tab-btn active" data-tab="description">Deskripsi</button>
@@ -132,7 +132,7 @@
             <button class="tab-btn" data-tab="reviews">Ulasan ({{ $reviewCount }})</button>
         </div>
 
-        <!-- Description Tab -->
+        <!-- Tab Deskripsi -->
         <div class="tab-content active" id="tab-description">
             <div class="description-content">
                 @if($book->deskripsi)
@@ -143,7 +143,7 @@
             </div>
         </div>
 
-        <!-- Details Tab -->
+        <!-- Tab Detail Buku -->
         <div class="tab-content" id="tab-details">
             <table class="book-details-table">
                 <tr>
@@ -177,9 +177,9 @@
             </table>
         </div>
 
-        <!-- Reviews Tab -->
+        <!-- Tab Ulasan -->
         <div class="tab-content" id="tab-reviews">
-            <!-- Review Summary -->
+            <!-- Ringkasan Ulasan -->
             <div class="review-summary">
                 <div class="review-avg">
                     <span class="avg-number">{{ number_format($avgRating, 1) }}</span>
@@ -211,7 +211,7 @@
                 </div>
             </div>
 
-            <!-- Write Review -->
+            <!-- Form Tulis Ulasan -->
             <div class="write-review-section">
                 <h3>{{ $userReview ? 'Edit Ulasan Anda' : 'Tulis Ulasan' }}</h3>
                 <form action="{{ route('user.book.review', $book->id_buku) }}" method="POST" class="review-form">
@@ -230,7 +230,7 @@
                 </form>
             </div>
 
-            <!-- Review List -->
+            <!-- Daftar Ulasan -->
             <div class="review-list">
                 @forelse($book->ulasan->sortByDesc('created_at') as $review)
                 <div class="review-item">
@@ -266,7 +266,7 @@
         </div>
     </div>
 
-    <!-- Related Books -->
+    <!-- Buku Terkait / Rekomendasi -->
     @if($relatedBooks->count() > 0)
     <section class="related-books-section">
         <h2 class="section-title">Buku Terkait</h2>
@@ -294,7 +294,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Tabs
+    // Fungsi buat tab navigasi
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     tabBtns.forEach(btn => {
@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Quantity selector
+    // Tombol tambah/kurang jumlah buku
     const qtyInput = document.getElementById('qtyInput');
     const qtyMinus = document.getElementById('qtyMinus');
     const qtyPlus = document.getElementById('qtyPlus');
@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Add to cart
+    // Tambah ke keranjang via AJAX
     const addBtn = document.getElementById('addToCartDetail');
     if (addBtn) {
         addBtn.addEventListener('click', function() {
@@ -350,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         addBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Tambah ke Keranjang';
                         addBtn.disabled = false;
                     }, 2000);
-                    // Update cart count in navbar
+                    // Update jumlah keranjang di navbar
                     const cartCount = document.querySelector('.cart-count');
                     if (cartCount) {
                         fetch('{{ route("api.cart.count") }}')
@@ -371,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Favorite toggle
+    // Toggle tombol favorit
     const favBtn = document.getElementById('favoriteBtn');
     if (favBtn) {
         favBtn.addEventListener('click', function() {
@@ -402,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Format buttons
+    // Tombol pilih format buku
     document.querySelectorAll('.format-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'));
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Star rating input
+    // Input rating bintang
     document.querySelectorAll('.star-rating-input label').forEach(label => {
         label.addEventListener('click', function() {
             const radio = this.previousElementSibling;
@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     });
-    // Initialize star display if editing
+    // Set tampilan bintang kalo lagi edit ulasan
     const checkedStar = document.querySelector('.star-rating-input input:checked');
     if (checkedStar) {
         const val = parseInt(checkedStar.value);

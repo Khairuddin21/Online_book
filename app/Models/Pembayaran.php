@@ -17,17 +17,19 @@ class Pembayaran extends Model
         'midtrans_order_id',
         'metode',
         'jumlah',
+        'jumlah_dibayar',
         'bukti_pembayaran',
         'status_verifikasi',
     ];
 
     protected $casts = [
         'jumlah' => 'decimal:2',
+        'jumlah_dibayar' => 'decimal:2',
         'tanggal' => 'datetime',
     ];
 
     /**
-     * Get the pesanan that owns this pembayaran
+     * Ambil pesanan yang punya pembayaran ini
      */
     public function pesanan(): BelongsTo
     {

@@ -1,15 +1,15 @@
-// Landing Page JavaScript - Interactive & Smooth Animations
+// JavaScript Halaman Landing - Animasi Interaktif & Halus
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // ========== ADVANCED HERO EFFECTS ==========
+    // ========== EFEK HERO KEREN ==========
     
-    // Generate floating particles
+    // Bikin partikel melayang
     const generateParticles = () => {
         const heroSection = document.querySelector('.hero-section');
         if (!heroSection) return;
         
-        // Create particles container
+        // Bikin container partikel
         if (!document.querySelector('.hero-particles')) {
             const particlesContainer = document.createElement('div');
             particlesContainer.className = 'hero-particles';
@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
     
-    // Mouse tracking parallax effect
+    // Efek parallax ngikutin mouse
     const heroParallax = () => {
         const heroSection = document.querySelector('.hero-section');
         if (!heroSection) return;
@@ -36,20 +36,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const xPercent = (clientX / innerWidth - 0.5) * 2;
             const yPercent = (clientY / innerHeight - 0.5) * 2;
             
-            // Move orbit particles
+            // Gerakin partikel orbit
             const orbitRings = document.querySelectorAll('.orbit-ring');
             orbitRings.forEach((ring, index) => {
                 const speed = (index + 1) * 5;
                 ring.style.transform = `translate(-50%, -50%) rotate(${xPercent * speed}deg)`;
             });
             
-            // Move hero image
+            // Gerakin gambar hero
             const heroImage = document.querySelector('.hero-image img');
             if (heroImage) {
                 heroImage.style.transform = `translate(${xPercent * 15}px, ${yPercent * 15}px)`;
             }
             
-            // Move particles
+            // Gerakin partikel
             const particles = document.querySelectorAll('.light-particle');
             particles.forEach((particle, index) => {
                 const speed = (index % 3 + 1) * 3;
@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
         
-        // Reset on mouse leave
+        // Reset pas mouse keluar
         heroSection.addEventListener('mouseleave', () => {
             const heroImage = document.querySelector('.hero-image img');
             if (heroImage) {
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
     
-    // Magnetic button effect (exclude CTA buttons)
+    // Efek tombol magnetik (kecuali tombol CTA)
     const magneticButtons = () => {
         const buttons = document.querySelectorAll('.btn:not(.btn-cta-primary):not(.btn-cta-outline)');
         
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
     
-    // 3D tilt effect for cards
+    // Efek miring 3D buat kartu
     const tiltCards = () => {
         const cards = document.querySelectorAll('.book-card, .feature-card');
         
@@ -110,18 +110,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
     
-    // Scroll-based parallax
+    // Parallax pas scroll
     const scrollParallax = () => {
         window.addEventListener('scroll', () => {
             const scrolled = window.pageYOffset;
             
-            // Parallax for hero background
+            // Parallax buat background hero
             const heroSection = document.querySelector('.hero-section');
             if (heroSection) {
                 heroSection.style.transform = `translateY(${scrolled * 0.5}px)`;
             }
             
-            // Parallax for orbit container
+            // Parallax buat container orbit
             const orbitContainer = document.querySelector('.orbit-container');
             if (orbitContainer) {
                 orbitContainer.style.transform = `translate(-50%, -50%) scale(${1 - scrolled * 0.0005})`;
@@ -129,16 +129,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
     
-    // Initialize advanced effects
+    // Inisialisasi efek-efek keren
     generateParticles();
     heroParallax();
     magneticButtons();
     tiltCards();
     scrollParallax();
     
-    // ========== EXISTING EFFECTS ==========
+    // ========== EFEK YANG UDAH ADA ==========
     
-    // Navbar scroll effect
+    // Efek navbar pas scroll
     const navbar = document.querySelector('.landing-navbar');
     
     window.addEventListener('scroll', () => {
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Smooth scrolling for anchor links
+    // Scroll halus buat link anchor
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Scroll reveal animation
+    // Animasi scroll reveal
     const revealElements = document.querySelectorAll('.reveal');
     
     const revealOnScroll = () => {
@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', revealOnScroll);
     revealOnScroll(); // Initial check
 
-    // Counter animation for stats
+    // Animasi counter buat statistik
     const animateCounter = (element, target, duration = 2000) => {
         let start = 0;
         const increment = target / (duration / 16);
@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return num.toString();
     };
 
-    // Trigger counter animation when stats section is visible
+    // Trigger animasi counter pas bagian statistik keliatan
     const statsSection = document.querySelector('.stats-section');
     let statsAnimated = false;
 
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', animateStats);
     animateStats();
 
-    // Book card hover effect
+    // Efek hover kartu buku
     const bookCards = document.querySelectorAll('.book-card');
     
     bookCards.forEach(card => {
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Feature cards staggered animation
+    // Animasi kartu fitur bertahap
     const featureCards = document.querySelectorAll('.feature-card');
     
     const animateFeatures = () => {
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    // Set initial state for feature cards
+    // Set state awal buat kartu fitur
     featureCards.forEach(card => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(30px)';
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('scroll', animateFeatures);
     animateFeatures();
 
-    // Mobile menu toggle (if needed)
+    // Toggle menu HP (kalo butuh)
     const createMobileMenu = () => {
         const navbar = document.querySelector('.landing-navbar');
         const menu = document.querySelector('.navbar-menu');
@@ -296,14 +296,14 @@ document.addEventListener('DOMContentLoaded', function() {
     createMobileMenu();
     window.addEventListener('resize', createMobileMenu);
 
-    // Add to cart animation
+    // Animasi tambah ke keranjang
     const addToCartButtons = document.querySelectorAll('.book-btn');
     
     addToCartButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Create ripple effect
+            // Bikin efek ripple
             const ripple = document.createElement('span');
             ripple.style.cssText = `
                 position: absolute;
@@ -326,12 +326,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             setTimeout(() => ripple.remove(), 600);
             
-            // Show notification
+            // Tampilin notifikasi
             showNotification('Buku berhasil ditambahkan!');
         });
     });
 
-    // Notification system
+    // Sistem notifikasi
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = `notification notification-${type}`;
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    // Add CSS animations
+    // Tambahin animasi CSS
     const style = document.createElement('style');
     style.textContent = `
         @keyframes ripple {
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
     document.head.appendChild(style);
 
-    // Lazy loading for images
+    // Lazy loading buat gambar
     const images = document.querySelectorAll('img[data-src]');
     
     const imageObserver = new IntersectionObserver((entries, observer) => {
@@ -429,7 +429,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('✨ Landing page loaded with advanced effects!');
 });
 
-// Scroll progress indicator
+// Indikator progress scroll
 window.addEventListener('scroll', () => {
     const scrollProgress = document.querySelector('.scroll-progress');
     if (scrollProgress) {

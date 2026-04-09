@@ -1,4 +1,4 @@
-# 📚 Book.com — Toko Buku Online
+# 📚 6BUCKS.litera — Toko Buku Online
 
 Aplikasi toko buku online berbasis **Laravel** dengan integrasi **Midtrans Payment Gateway** dan **Google OAuth**. Dibangun dengan tema hijau pastel yang modern dan responsif.
 
@@ -784,7 +784,7 @@ Berikut alur dari sudut pandang **Admin** bernama **Pak Budi**.
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════╗
-║                        ALUR LENGKAP BOOK.COM                             ║
+║                        ALUR LENGKAP 6BUCKS.LITERA                        ║
 ╠═══════════════════════════════════════════════════════════════════════════╣
 ║                                                                          ║
 ║  GUEST                                                                   ║
@@ -933,4 +933,4 @@ Berikut alur dari sudut pandang **Admin** bernama **Pak Budi**.
 
 ---
 
-*Built with ❤️ using Laravel 11 — Book.com © 2026*
+*Built with ❤️ using Laravel 11 — 6BUCKS.litera © 2026*

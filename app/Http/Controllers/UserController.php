@@ -10,6 +10,7 @@ use App\Models\PesananDetail;
 use App\Models\Pembayaran;
 use App\Models\AlamatPengiriman;
 use App\Models\PesanKontak;
+use App\Models\ChatMessage;
 use App\Models\FavoritBuku;
 use App\Models\UlasanBuku;
 use Illuminate\Http\Request;
@@ -17,21 +18,22 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class UserController extends Controller
 {
     /**
-     * Display the user home page
+     * Nampilin halaman utama user
      */
     public function home()
     {
-        // Get latest books (limit to 10 for homepage) - order by id_buku since no timestamps
+        // Ambil buku terbaru (max 10 buat homepage) - urut berdasarkan id_buku soalnya ga pake timestamps
         $books = Buku::with('kategori')
             ->orderBy('id_buku', 'desc')
             ->take(10)
             ->get();
         
-        // Get all categories with book count
+        // Ambil semua kategori beserta jumlah bukunya
         $categories = KategoriBuku::withCount('buku')
             ->orderBy('nama_kategori', 'asc')
             ->get();
@@ -40,13 +42,13 @@ class UserController extends Controller
     }
     
     /**
-     * Display all books
+     * Nampilin semua buku
      */
     public function books(Request $request)
     {
         $query = Buku::with('kategori');
         
-        // Search functionality
+        // Fitur pencarian
         if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -56,7 +58,7 @@ class UserController extends Controller
             });
         }
         
-        // Filter by category
+        // Filter berdasarkan kategori
         if ($request->has('kategori') && $request->kategori) {
             $query->where('id_kategori', $request->kategori);
         }
@@ -68,7 +70,7 @@ class UserController extends Controller
     }
     
     /**
-     * Display book detail page
+     * Nampilin halaman detail buku
      */
     public function bookDetail($id)
     {
@@ -85,7 +87,7 @@ class UserController extends Controller
             ->where('id_buku', $id)
             ->first();
         
-        // Related books from same category
+        // Buku terkait dari kategori yang sama
         $relatedBooks = Buku::where('id_kategori', $book->id_kategori)
             ->where('id_buku', '!=', $book->id_buku)
             ->take(6)
@@ -97,7 +99,7 @@ class UserController extends Controller
     }
     
     /**
-     * Toggle book favorite
+     * Toggle favorit buku
      */
     public function toggleFavorite($id)
     {
@@ -114,7 +116,7 @@ class UserController extends Controller
     }
     
     /**
-     * Submit book review
+     * Kirim ulasan buku
      */
     public function submitReview(Request $request, $id)
     {
@@ -125,7 +127,7 @@ class UserController extends Controller
         
         $userId = Auth::id();
         
-        // Check if user already reviewed this book
+        // Cek apakah user udah pernah review buku ini
         $existing = UlasanBuku::where('id_user', $userId)->where('id_buku', $id)->first();
         if ($existing) {
             $existing->update([
@@ -146,7 +148,7 @@ class UserController extends Controller
     }
     
     /**
-     * Display all categories
+     * Nampilin semua kategori
      */
     public function categories()
     {
@@ -158,7 +160,7 @@ class UserController extends Controller
     }
     
     /**
-     * Display user's cart
+     * Nampilin keranjang belanja user
      */
     public function cart()
     {
@@ -167,7 +169,7 @@ class UserController extends Controller
             ->orderBy('id_keranjang', 'desc')
             ->paginate(4);
         
-        // Calculate total from all items (not just current page)
+        // Hitung total dari semua item (bukan cuma halaman sekarang)
         $allItems = Keranjang::where('id_user', Auth::id())
             ->with('buku')
             ->get();
@@ -182,7 +184,7 @@ class UserController extends Controller
     }
     
     /**
-     * Add item to cart (API)
+     * Tambah item ke keranjang (API)
      */
     public function addToCart(Request $request)
     {
@@ -196,14 +198,14 @@ class UserController extends Controller
             $bookId = $request->book_id;
             $quantity = $request->quantity;
             
-            // Use database transaction to ensure data consistency
+            // Pake transaksi database biar datanya konsisten
             DB::beginTransaction();
             
             try {
-                // Get book to check stock
+                // Ambil buku buat cek stok
                 $book = Buku::findOrFail($bookId);
                 
-                // Check if item already exists in cart
+                // Cek apakah item udah ada di keranjang
                 $cartItem = Keranjang::where('id_user', $userId)
                     ->where('id_buku', $bookId)
                     ->lockForUpdate()
@@ -211,7 +213,7 @@ class UserController extends Controller
                 
                 $newQty = $cartItem ? ($cartItem->qty + $quantity) : $quantity;
                 
-                // Validate stock
+                // Validasi stok
                 if ($newQty > $book->stok) {
                     DB::rollBack();
                     return response()->json([
@@ -221,11 +223,11 @@ class UserController extends Controller
                 }
                 
                 if ($cartItem) {
-                    // Update quantity if already exists
+                    // Update jumlah kalo udah ada
                     $cartItem->qty = $newQty;
                     $cartItem->save();
                 } else {
-                    // Create new cart item
+                    // Bikin item keranjang baru
                     $cartItem = Keranjang::create([
                         'id_user' => $userId,
                         'id_buku' => $bookId,
@@ -258,7 +260,7 @@ class UserController extends Controller
     }
     
     /**
-     * Get cart items count (API)
+     * Ambil jumlah item keranjang (API)
      */
     public function getCartCount()
     {
@@ -270,7 +272,7 @@ class UserController extends Controller
     }
     
     /**
-     * Update cart item quantity (API)
+     * Update jumlah item keranjang (API)
      */
     public function updateCart(Request $request)
     {
@@ -330,7 +332,7 @@ class UserController extends Controller
     }
     
     /**
-     * Remove item from cart (API)
+     * Hapus item dari keranjang (API)
      */
     public function removeFromCart($id)
     {
@@ -362,7 +364,7 @@ class UserController extends Controller
     }
     
     /**
-     * Display user's orders
+     * Nampilin pesanan user
      */
     public function orders()
     {
@@ -375,7 +377,7 @@ class UserController extends Controller
     }
     
     /**
-     * Cancel unpaid order and restore stock
+     * Batalin pesanan yang belum dibayar dan balikin stok
      */
     public function cancelOrder($orderId)
     {
@@ -414,32 +416,32 @@ class UserController extends Controller
     }
 
     /**
-     * Upload bukti COD (foto bukti penerimaan + pembayaran)
+     * Upload bukti pembayaran offline (foto bukti bayar di kasir)
      */
-    public function uploadBuktiCod(Request $request, $orderId)
+    public function uploadBuktiOffline(Request $request, $orderId)
     {
         $request->validate([
-            'bukti_cod' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
+            'bukti_offline' => 'required|image|mimes:jpeg,jpg,png,webp|max:5120',
         ], [
-            'bukti_cod.required' => 'Foto bukti wajib diunggah.',
-            'bukti_cod.image' => 'File harus berupa gambar.',
-            'bukti_cod.mimes' => 'Format gambar harus JPG, PNG, atau WebP.',
-            'bukti_cod.max' => 'Ukuran gambar maksimal 5MB.',
+            'bukti_offline.required' => 'Foto bukti wajib diunggah.',
+            'bukti_offline.image' => 'File harus berupa gambar.',
+            'bukti_offline.mimes' => 'Format gambar harus JPG, PNG, atau WebP.',
+            'bukti_offline.max' => 'Ukuran gambar maksimal 5MB.',
         ]);
 
         try {
             $pesanan = Pesanan::where('id_pesanan', $orderId)
                 ->where('id_user', Auth::id())
-                ->where('metode_pembayaran', 'cod')
+                ->where('metode_pembayaran', 'offline')
                 ->whereIn('status', ['dikirim', 'diproses'])
                 ->firstOrFail();
 
-            // Store the photo
-            $path = $request->file('bukti_cod')->store('bukti_cod', 'public');
+            // Simpan fotonya
+            $path = $request->file('bukti_offline')->store('bukti_offline', 'public');
 
-            $pesanan->update(['bukti_cod' => $path]);
+            $pesanan->update(['bukti_offline' => $path]);
 
-            // Update pembayaran bukti
+            // Update bukti di tabel pembayaran
             if ($pesanan->pembayaran) {
                 $pesanan->pembayaran->update([
                     'bukti_pembayaran' => $path,
@@ -447,7 +449,7 @@ class UserController extends Controller
             }
 
             return redirect()->route('user.orders')
-                ->with('success', 'Bukti penerimaan & pembayaran COD berhasil diunggah! Menunggu konfirmasi admin.');
+                ->with('success', 'Bukti pembayaran offline berhasil diunggah! Menunggu konfirmasi admin.');
 
         } catch (\Exception $e) {
             return redirect()->route('user.orders')
@@ -456,7 +458,7 @@ class UserController extends Controller
     }
 
     /**
-     * Display user profile
+     * Nampilin profil user
      */
     public function profile()
     {
@@ -464,7 +466,7 @@ class UserController extends Controller
     }
 
     /**
-     * Update user profile
+     * Update profil user
      */
     public function updateProfile(Request $request)
     {
@@ -488,7 +490,7 @@ class UserController extends Controller
     }
 
     /**
-     * Change user password
+     * Ganti password user
      */
     public function changePassword(Request $request)
     {
@@ -511,86 +513,148 @@ class UserController extends Controller
     }
     
     /**
-     * Display inbox page with messages
+     * Nampilin halaman inbox pesan
      */
     public function inbox()
     {
-        // Mark all unread messages as read when user opens inbox
-        PesanKontak::where('id_user', Auth::id())
-                   ->whereNotNull('balasan_admin')
-                   ->where(function ($q) {
-                       $q->whereNull('dibaca_user')->orWhere('dibaca_user', false);
-                   })
-                   ->update(['dibaca_user' => true]);
+        $userId = Auth::id();
 
-        $messages = PesanKontak::where('id_user', Auth::id())
-                               ->whereNotNull('balasan_admin')
-                               ->orderBy('tanggal_balas', 'desc')
-                               ->paginate(10);
-        
-        return view('user.inbox', compact('messages'));
+        // Hapus pesan yang udah expired (lebih dari 24 jam dari pesan pertama)
+        $firstMessage = ChatMessage::where('id_user', $userId)->orderBy('waktu', 'asc')->first();
+        $chatExpiresAt = null;
+        if ($firstMessage && $firstMessage->waktu->diffInHours(now()) >= 24) {
+            ChatMessage::where('id_user', $userId)->delete();
+            $firstMessage = null;
+        }
+
+        // Hitung sisa waktu
+        if ($firstMessage) {
+            $chatExpiresAt = $firstMessage->waktu->copy()->addHours(24);
+        }
+
+        // Tandai semua pesan admin jadi udah dibaca
+        ChatMessage::where('id_user', $userId)
+            ->where('pengirim', 'admin')
+            ->where('dibaca', false)
+            ->update(['dibaca' => true]);
+
+        $messages = ChatMessage::where('id_user', $userId)
+            ->orderBy('waktu', 'asc')
+            ->get();
+
+        return view('user.inbox', compact('messages', 'chatExpiresAt'));
     }
 
     /**
-     * Delete inbox message
+     * User ngirim pesan chat
+     */
+    public function sendMessage(Request $request)
+    {
+        $request->validate([
+            'pesan' => 'required|string|max:5000',
+        ]);
+
+        ChatMessage::create([
+            'id_user' => Auth::id(),
+            'pengirim' => 'user',
+            'pesan' => $request->pesan,
+            'waktu' => now(),
+        ]);
+
+        return redirect()->route('user.inbox')->with('success', 'Pesan terkirim');
+    }
+
+    /**
+     * Ambil pesan baru buat polling (AJAX)
+     */
+    public function getNewMessages(Request $request)
+    {
+        $userId = Auth::id();
+        $lastId = $request->last_id ?? 0;
+
+        // Cek expired 24 jam
+        $firstMessage = ChatMessage::where('id_user', $userId)->orderBy('waktu', 'asc')->first();
+        if ($firstMessage && $firstMessage->waktu->diffInHours(now()) >= 24) {
+            ChatMessage::where('id_user', $userId)->delete();
+            return response()->json(['messages' => [], 'expired' => true]);
+        }
+
+        $expiresAt = $firstMessage ? $firstMessage->waktu->copy()->addHours(24)->toIso8601String() : null;
+
+        // Tandai pesan admin jadi udah dibaca
+        ChatMessage::where('id_user', $userId)
+            ->where('pengirim', 'admin')
+            ->where('dibaca', false)
+            ->update(['dibaca' => true]);
+
+        $messages = ChatMessage::where('id_user', $userId)
+            ->where('id_chat', '>', $lastId)
+            ->orderBy('waktu', 'asc')
+            ->get();
+
+        return response()->json([
+            'messages' => $messages->map(function ($m) {
+                return [
+                    'id_chat' => $m->id_chat,
+                    'pengirim' => $m->pengirim,
+                    'pesan' => e($m->pesan),
+                    'waktu' => $m->waktu->format('H:i'),
+                    'tanggal' => $m->waktu->format('d M Y'),
+                ];
+            }),
+            'expires_at' => $expiresAt,
+        ]);
+    }
+
+    /**
+     * Hapus pesan inbox
      */
     public function deleteInboxMessage($id)
     {
-        $pesan = PesanKontak::where('id_user', Auth::id())->findOrFail($id);
+        $pesan = ChatMessage::where('id_user', Auth::id())->findOrFail($id);
         $pesan->delete();
 
         return redirect()->route('user.inbox')
             ->with('success', 'Pesan berhasil dihapus');
     }
-    
+
     /**
-     * Display contact page
+     * Cek pesan yang belum dibaca (buat notifikasi global polling)
      */
-    public function contact()
+    public function checkUnreadMessages()
     {
-        return view('user.contact');
-    }
-    
-    /**
-     * Submit contact form
-     */
-    public function submitContact(Request $request)
-    {
-        $request->validate([
-            'nama' => 'required|string|max:150',
-            'email' => 'required|email|max:255',
-            'subjek' => 'required|string|max:150',
-            'pesan' => 'required|string|min:10',
-        ], [
-            'nama.required' => 'Nama wajib diisi',
-            'email.required' => 'Email wajib diisi',
-            'email.email' => 'Format email tidak valid',
-            'subjek.required' => 'Subjek wajib diisi',
-            'pesan.required' => 'Pesan wajib diisi',
-            'pesan.min' => 'Pesan minimal 10 karakter',
-        ]);
-        
-        try {
-            // Create contact message
-            PesanKontak::create([
-                'id_user' => Auth::id(),
-                'subjek' => $request->subjek,
-                'isi_pesan' => "Nama: {$request->nama}\nEmail: {$request->email}\n\n{$request->pesan}",
-                'tanggal' => now(),
-            ]);
-            
-            return redirect()->back()
-                ->with('success', 'Pesan Anda berhasil dikirim. Kami akan segera menghubungi Anda.');
-                
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal mengirim pesan: ' . $e->getMessage())
-                ->withInput();
+        $userId = Auth::id();
+
+        $unreadCount = ChatMessage::where('id_user', $userId)
+            ->where('pengirim', 'admin')
+            ->where('dibaca', false)
+            ->count();
+
+        $latestMessage = null;
+        if ($unreadCount > 0) {
+            $latest = ChatMessage::where('id_user', $userId)
+                ->where('pengirim', 'admin')
+                ->where('dibaca', false)
+                ->orderBy('waktu', 'desc')
+                ->first();
+
+            if ($latest) {
+                $latestMessage = [
+                    'id_chat' => $latest->id_chat,
+                    'pesan' => mb_strlen($latest->pesan) > 80 ? mb_substr($latest->pesan, 0, 80) . '...' : $latest->pesan,
+                    'waktu' => $latest->waktu->format('H:i'),
+                ];
+            }
         }
+
+        return response()->json([
+            'unread_count' => $unreadCount,
+            'latest' => $latestMessage,
+        ]);
     }
     
     /**
-     * Show checkout page with address form
+     * Nampilin halaman checkout beserta form alamat
      */
     public function showCheckout()
     {
@@ -617,30 +681,39 @@ class UserController extends Controller
     }
     
     /**
-     * Process checkout and create order
+     * Proses checkout dan bikin pesanan
      */
     public function processCheckout(Request $request)
     {
-        $request->validate([
-            'id_alamat' => 'required|exists:alamat_pengiriman,id_alamat',
-            'metode_pembayaran' => 'required|in:midtrans,cod',
-        ], [
-            'id_alamat.required' => 'Pilih alamat pengiriman',
-            'id_alamat.exists' => 'Alamat tidak valid',
+        // Kalo offline, alamat gak wajib karena beli langsung di store
+        $rules = [
+            'metode_pembayaran' => 'required|in:midtrans,offline',
+        ];
+        $messages = [
             'metode_pembayaran.required' => 'Pilih metode pembayaran',
-        ]);
+        ];
+
+        if ($request->metode_pembayaran !== 'offline') {
+            $rules['id_alamat'] = 'required|exists:alamat_pengiriman,id_alamat';
+            $messages['id_alamat.required'] = 'Pilih alamat pengiriman';
+            $messages['id_alamat.exists'] = 'Alamat tidak valid';
+        }
+
+        $request->validate($rules, $messages);
         
         DB::beginTransaction();
         
         try {
             $userId = Auth::id();
             
-            // Verify address belongs to user
-            $alamat = AlamatPengiriman::where('id_alamat', $request->id_alamat)
-                ->where('id_user', $userId)
-                ->firstOrFail();
+            // Pastiin alamat punya user yang bersangkutan (skip kalo offline)
+            if ($request->metode_pembayaran !== 'offline' && $request->id_alamat) {
+                $alamat = AlamatPengiriman::where('id_alamat', $request->id_alamat)
+                    ->where('id_user', $userId)
+                    ->firstOrFail();
+            }
             
-            // Get cart items
+            // Ambil item keranjang
             $cartItems = Keranjang::where('id_user', $userId)
                 ->with('buku')
                 ->lockForUpdate()
@@ -666,16 +739,16 @@ class UserController extends Controller
                 'metode_pembayaran' => $request->metode_pembayaran,
             ]);
             
-            // Create order details and reduce stock
+            // Bikin detail pesanan dan kurangin stok
             foreach ($cartItems as $item) {
-                // Check stock availability
+                // Cek ketersediaan stok
                 if ($item->buku->stok < $item->qty) {
                     DB::rollBack();
                     return redirect()->route('user.cart')
                         ->with('error', "Stok {$item->buku->judul} tidak mencukupi");
                 }
                 
-                // Create order detail
+                // Bikin detail pesanan
                 PesananDetail::create([
                     'id_pesanan' => $pesanan->id_pesanan,
                     'id_buku' => $item->id_buku,
@@ -683,27 +756,27 @@ class UserController extends Controller
                     'harga_satuan' => $item->buku->harga,
                 ]);
                 
-                // Reduce stock
+                // Kurangin stok
                 $item->buku->decrement('stok', $item->qty);
             }
             
-            // Clear cart
+            // Kosongin keranjang
             Keranjang::where('id_user', $userId)->delete();
             
             DB::commit();
 
-            // COD: redirect to orders page, Midtrans: redirect to payment page
-            if ($request->metode_pembayaran === 'cod') {
-                // Create pembayaran record with 'menunggu' status for COD
+            // Offline: arahkan ke halaman pesanan, Midtrans: arahkan ke halaman bayar
+            if ($request->metode_pembayaran === 'offline') {
+                // Bikin record pembayaran dengan status 'menunggu' buat offline
                 Pembayaran::create([
                     'id_pesanan' => $pesanan->id_pesanan,
-                    'metode' => 'cod',
+                    'metode' => 'offline',
                     'jumlah' => $total,
                     'status_verifikasi' => 'menunggu',
                 ]);
 
                 return redirect()->route('user.orders')
-                    ->with('success', 'Pesanan COD berhasil dibuat! Siapkan pembayaran saat barang diterima.');
+                    ->with('success', 'Pesanan berhasil dibuat! Silakan lakukan pembayaran di kasir offline.');
             }
             
             return redirect()->route('user.payment', $pesanan->id_pesanan)
@@ -718,7 +791,7 @@ class UserController extends Controller
     }
     
     /**
-     * Show payment page with Midtrans Snap token
+     * Nampilin halaman pembayaran pake token Midtrans Snap
      */
     public function showPayment($orderId)
     {
@@ -727,15 +800,15 @@ class UserController extends Controller
             ->where('id_user', Auth::id())
             ->firstOrFail();
 
-        // Only allow payment for pending orders
+        // Cuma boleh bayar kalo pesanan masih pending
         if ($pesanan->status !== 'menunggu') {
             return redirect()->route('user.orders')
                 ->with('error', 'Pesanan ini sudah dibayar atau dibatalkan.');
         }
 
-        // Reuse existing snap token if available
+        // Pake ulang snap token yang udah ada kalo masih ada
         if (!$pesanan->snap_token) {
-            // Configure Midtrans
+            // Konfigurasi Midtrans
             \Midtrans\Config::$serverKey = config('midtrans.server_key');
             \Midtrans\Config::$isProduction = config('midtrans.is_production');
             \Midtrans\Config::$isSanitized = config('midtrans.is_sanitized', true);
@@ -780,7 +853,7 @@ class UserController extends Controller
     }
     
     /**
-     * Process payment after Midtrans Snap success (called via AJAX from frontend)
+     * Proses pembayaran setelah Midtrans Snap sukses (dipanggil lewat AJAX dari frontend)
      */
     public function processPayment(Request $request, $orderId)
     {
@@ -808,7 +881,7 @@ class UserController extends Controller
             // Update order status to 'diproses' (sedang dikemas)
             $pesanan->update(['status' => 'diproses']);
 
-            // Create inbox notification for user
+            // Bikin notifikasi inbox buat user
             PesanKontak::create([
                 'id_user' => Auth::id(),
                 'subjek' => 'Pesanan #' . $pesanan->id_pesanan . ' Berhasil Dibayar',
@@ -820,7 +893,7 @@ class UserController extends Controller
 
             DB::commit();
 
-            // Load invoice data
+            // Ambil data invoice
             $pesanan->load('details.buku');
             $user = Auth::user();
 
@@ -857,7 +930,26 @@ class UserController extends Controller
     }
 
     /**
-     * Handle Midtrans server-to-server notification (webhook)
+     * Download invoice PDF buat pesanan
+     */
+    public function downloadInvoice($orderId)
+    {
+        $pesanan = Pesanan::where('id_pesanan', $orderId)
+            ->where('id_user', Auth::id())
+            ->with(['details.buku', 'user', 'pembayaran'])
+            ->firstOrFail();
+
+        if (!in_array($pesanan->status, ['diproses', 'dikirim', 'selesai'])) {
+            return redirect()->route('user.orders')->with('error', 'Invoice belum tersedia untuk pesanan ini.');
+        }
+
+        $pdf = Pdf::loadView('user.invoice-pdf', compact('pesanan'));
+
+        return $pdf->download('invoice-' . $pesanan->id_pesanan . '.pdf');
+    }
+
+    /**
+     * Handle notifikasi server-to-server dari Midtrans (webhook)
      */
     public function midtransNotification(Request $request)
     {
@@ -872,7 +964,7 @@ class UserController extends Controller
             $orderId = $notification->order_id;
             $fraudStatus = $notification->fraud_status ?? null;
 
-            // Extract pesanan ID from order_id format: ORDER-{id}-{timestamp}
+            // Ambil ID pesanan dari format order_id: ORDER-{id}-{timestamp}
             $parts = explode('-', $orderId);
             if (count($parts) < 2) {
                 Log::warning('Midtrans notification: invalid order_id format: ' . $orderId);
@@ -922,9 +1014,9 @@ class UserController extends Controller
                     }
                 }
             } elseif ($transactionStatus == 'pending') {
-                // Payment is pending — keep status as 'menunggu'
+                // Pembayaran masih pending — status tetap 'menunggu'
             } elseif (in_array($transactionStatus, ['deny', 'cancel', 'expire'])) {
-                // Payment failed — cancel order and restore stock
+                // Pembayaran gagal — batalin pesanan dan balikin stok
                 if ($pesanan->status === 'menunggu') {
                     $pesanan->update(['status' => 'dibatalkan']);
 
@@ -957,7 +1049,7 @@ class UserController extends Controller
     }
     
     /**
-     * Store new shipping address
+     * Simpan alamat pengiriman baru
      */
     public function storeAddress(Request $request)
     {
@@ -971,7 +1063,7 @@ class UserController extends Controller
         DB::beginTransaction();
         
         try {
-            // If this is set as default, unset other defaults
+            // Kalo diset default, matiin default yang lain
             if ($request->has('is_default') && $request->is_default) {
                 AlamatPengiriman::where('id_user', Auth::id())
                     ->update(['is_default' => false]);
@@ -1000,7 +1092,7 @@ class UserController extends Controller
     }
     
     /**
-     * Update shipping address
+     * Update alamat pengiriman
      */
     public function updateAddress(Request $request, $id)
     {
@@ -1018,7 +1110,7 @@ class UserController extends Controller
                 ->where('id_user', Auth::id())
                 ->firstOrFail();
             
-            // If this is set as default, unset other defaults
+            // Kalo diset default, matiin default yang lain
             if ($request->has('is_default') && $request->is_default) {
                 AlamatPengiriman::where('id_user', Auth::id())
                     ->where('id_alamat', '!=', $id)
@@ -1047,7 +1139,7 @@ class UserController extends Controller
     }
     
     /**
-     * Delete shipping address
+     * Hapus alamat pengiriman
      */
     public function deleteAddress($id)
     {
@@ -1058,7 +1150,7 @@ class UserController extends Controller
             
             $address->delete();
             
-            // Return JSON for AJAX requests
+            // Balikin JSON kalo request-nya AJAX
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => true,
@@ -1070,7 +1162,7 @@ class UserController extends Controller
                 ->with('success', 'Alamat berhasil dihapus');
                 
         } catch (\Exception $e) {
-            // Return JSON for AJAX requests
+            // Balikin JSON kalo request-nya AJAX
             if (request()->expectsJson() || request()->ajax()) {
                 return response()->json([
                     'success' => false,

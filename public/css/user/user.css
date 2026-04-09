@@ -1,9 +1,9 @@
 ﻿/* ============================================
-   Book.com User Theme - Pastel Green & Cream
+   6BUCKS.litera User Theme - Pastel Green & Cream
    Matching Landing Page Design System
    ============================================ */
 
-/* --- Design Tokens --- */
+/* --- Token Desain --- */
 :root {
     --green-pastel: #a8d5a2;
     --green-dark: #6b9e65;
@@ -35,7 +35,7 @@
     --transition: 0.3s cubic-bezier(.4,0,.2,1);
 }
 
-/* --- Reset --- */
+/* --- Reset / Dasar --- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 body {
@@ -129,6 +129,18 @@ ul, ol { list-style: none; }
 .navbar-menu li a.active::after {
     width: 100%;
 }
+.navbar-menu li a i {
+    margin-right: 2px;
+}
+.nav-badge {
+    background: #ef4444;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 50px;
+    margin-left: 4px;
+}
 .navbar-actions {
     display: flex;
     gap: 14px;
@@ -194,7 +206,7 @@ ul, ol { list-style: none; }
     border: 2px solid #fff;
 }
 
-/* User dropdown */
+/* Dropdown user */
 .user-menu { position: relative; }
 .user-menu .dropdown {
     display: none;
@@ -240,7 +252,7 @@ ul, ol { list-style: none; }
 }
 .user-menu .dropdown form { margin: 0; }
 
-/* Mobile menu toggle */
+/* Toggle menu HP */
 .mobile-menu-toggle {
     display: none;
     background: none;
@@ -561,7 +573,7 @@ ul, ol { list-style: none; }
 .promo-price .new-price { font-size: 18px; font-weight: 800; }
 .promo-date { font-size: 11px; opacity: 0.8; }
 
-/* Announcement banner */
+/* Banner pengumuman */
 .announcement-banner {
     display: flex;
     align-items: center;
@@ -598,7 +610,7 @@ ul, ol { list-style: none; }
     flex-wrap: wrap;
 }
 
-/* Image-based category cards (like reference design) */
+/* Kartu kategori pake gambar (kayak desain referensi) */
 .category-card-img {
     width: 260px;
     height: 160px;
@@ -631,7 +643,7 @@ ul, ol { list-style: none; }
     text-shadow: 0 1px 6px rgba(0,0,0,0.4);
 }
 
-/* Legacy icon-based cards (keep for other pages) */
+/* Kartu lama pake ikon (simpen buat halaman lain) */
 .category-card {
     background: #fff;
     padding: 28px 18px;
@@ -741,7 +753,7 @@ ul, ol { list-style: none; }
 }
 .see-all-link:hover { color: var(--green-deeper); text-decoration: underline; }
 
-/* Carousel wrapper */
+/* Wrapper carousel */
 .books-carousel-wrapper {
     position: relative;
 }
@@ -784,7 +796,7 @@ ul, ol { list-style: none; }
 .books-carousel-prev { left: -16px; }
 .books-carousel-next { right: -16px; }
 
-/* Book card in carousel */
+/* Kartu buku di carousel */
 .books-carousel .book-card {
     min-width: 190px;
     max-width: 190px;
@@ -1302,7 +1314,7 @@ ul, ol { list-style: none; }
     margin-bottom: 20px;
 }
 
-/* Pagination */
+/* Paginasi */
 .pagination-wrapper {
     margin-top: 48px;
     display: flex;
@@ -1449,7 +1461,7 @@ ul, ol { list-style: none; }
     color: #fff;
 }
 
-/* Order summary */
+/* Ringkasan pesanan */
 .order-summary {
     background: #fff;
     border-radius: var(--radius-lg);
@@ -1489,7 +1501,7 @@ ul, ol { list-style: none; }
 .cart-empty h2 { font-size: 22px; color: var(--text-dark); margin-bottom: 10px; }
 .cart-empty p { color: var(--text-light); margin-bottom: 24px; }
 
-/* Cart Pagination */
+/* Paginasi Keranjang */
 .cart-pagination {
     display: flex;
     justify-content: center;
@@ -1516,114 +1528,6 @@ ul, ol { list-style: none; }
     background: var(--charcoal);
     color: #fff;
     border-color: var(--charcoal);
-}
-
-/* ============================================
-   CONTACT PAGE
-   ============================================ */
-.contact-wrapper {
-    max-width: 800px;
-    margin: 0 auto;
-}
-.contact-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
-    margin-bottom: 40px;
-}
-.contact-card {
-    background: #fff;
-    padding: 28px 20px;
-    border-radius: var(--radius-lg);
-    text-align: center;
-    border: 1px solid rgba(0,0,0,0.04);
-    transition: all var(--transition);
-}
-.contact-card:hover {
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-3px);
-}
-.contact-card i {
-    font-size: 32px;
-    color: var(--green-dark);
-    margin-bottom: 12px;
-    display: block;
-}
-.contact-card h3 { font-size: 15px; font-weight: 700; color: var(--text-dark); margin-bottom: 6px; }
-.contact-card p { font-size: 13px; color: var(--text-light); margin: 0; }
-.whatsapp-card i { color: #25D366; }
-.whatsapp-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    margin-top: 12px;
-    padding: 8px 18px;
-    background: #25D366;
-    color: #fff;
-    border-radius: 50px;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all var(--transition);
-}
-.whatsapp-btn i {
-    font-size: 14px;
-    margin-bottom: 0;
-    display: inline;
-}
-.whatsapp-btn:hover { background: #1ebe5d; transform: scale(1.05); }
-.contact-form-card {
-    background: #fff;
-    padding: 36px;
-    border-radius: var(--radius-lg);
-    border: 1px solid rgba(0,0,0,0.04);
-    max-width: 680px;
-    margin: 0 auto;
-}
-.contact-form-card h2 {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--text-dark);
-    margin-bottom: 24px;
-    text-align: center;
-}
-.form-group {
-    margin-bottom: 18px;
-}
-.form-label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 6px;
-}
-.form-label .required { color: var(--danger); }
-.form-input {
-    width: 100%;
-    padding: 12px 16px;
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-family: inherit;
-    transition: all var(--transition);
-    outline: none;
-    background: #fff;
-}
-.form-input:focus {
-    border-color: var(--green-pastel);
-    box-shadow: 0 0 0 3px rgba(168,213,162,0.15);
-}
-.form-input.error { border-color: var(--danger); }
-.form-input.is-invalid { border-color: var(--danger); }
-.form-error {
-    color: var(--danger);
-    font-size: 12px;
-    margin-top: 4px;
-    display: block;
-}
-.form-actions {
-    text-align: center;
-    margin-top: 24px;
 }
 
 /* ============================================
@@ -1750,7 +1654,7 @@ ul, ol { list-style: none; }
     flex-shrink: 0;
 }
 
-/* Inbox Card Layout */
+/* Layout Kartu Inbox */
 .inbox-card {
     background: #fff;
     border: 1px solid rgba(0,0,0,0.06);
@@ -1799,7 +1703,7 @@ ul, ol { list-style: none; }
     border-color: #dc3545;
 }
 
-/* Inbox pagination */
+/* Paginasi inbox */
 .inbox-pagination {
     display: flex;
     justify-content: center;
@@ -1922,7 +1826,7 @@ ul, ol { list-style: none; }
     margin-bottom: 20px;
 }
 
-/* Address cards */
+/* Kartu alamat */
 .saved-addresses { display: flex; flex-direction: column; gap: 12px; }
 .address-card { display: block; cursor: pointer; }
 .address-card input[type="radio"] { position: absolute; opacity: 0; }
@@ -1959,7 +1863,7 @@ ul, ol { list-style: none; }
 .btn-edit-address:hover { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
 .btn-delete-address:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
 
-/* Order items in checkout */
+/* Item pesanan di checkout */
 .order-items { display: flex; flex-direction: column; gap: 10px; }
 .order-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
 .order-item:last-child { border-bottom: none; }
@@ -1970,7 +1874,7 @@ ul, ol { list-style: none; }
 .order-item-detail p { font-size: 13px; color: var(--text-light); margin: 0; }
 .order-item-price { font-size: 15px; font-weight: 700; color: var(--green-dark); white-space: nowrap; }
 
-/* Address form & empty */
+/* Form & alamat kosong */
 .address-empty { text-align: center; padding: 28px 16px; color: var(--text-light); }
 .address-empty i { font-size: 40px; display: block; margin-bottom: 10px; color: var(--green-pastel); }
 .address-form-container { margin-top: 24px; padding-top: 24px; border-top: 2px solid rgba(0,0,0,0.06); }
@@ -1979,7 +1883,7 @@ ul, ol { list-style: none; }
 .address-form-actions .btn { flex: 1; padding: 12px; }
 .checkout-warning { color: var(--danger); font-size: 13px; margin-top: 10px; text-align: center; }
 
-/* Payment Method Selection in Checkout */
+/* Pilihan Metode Pembayaran di Checkout */
 .payment-method-section {
     margin-top: 24px;
     padding-top: 20px;
@@ -2313,7 +2217,7 @@ ul, ol { list-style: none; }
     font-weight: 500;
 }
 
-/* Main Layout */
+/* Layout Utama */
 .book-detail-main {
     display: grid;
     grid-template-columns: 380px 1fr;
@@ -2321,7 +2225,7 @@ ul, ol { list-style: none; }
     margin-bottom: 48px;
 }
 
-/* Cover */
+/* Gambar Cover */
 .book-detail-cover {
     position: sticky;
     top: 100px;
@@ -2341,7 +2245,7 @@ ul, ol { list-style: none; }
     display: block;
 }
 
-/* Info Section */
+/* Bagian Info */
 .detail-author {
     font-size: 15px;
     color: var(--green-dark);
@@ -2381,7 +2285,7 @@ ul, ol { list-style: none; }
     margin-bottom: 20px;
 }
 
-/* Action Row */
+/* Baris Aksi */
 .detail-action-row {
     display: flex;
     gap: 12px;
@@ -2419,7 +2323,7 @@ ul, ol { list-style: none; }
     color: var(--green-dark);
 }
 
-/* Sections */
+/* Bagian-Bagian */
 .detail-section {
     margin-bottom: 24px;
 }
@@ -2432,7 +2336,7 @@ ul, ol { list-style: none; }
     letter-spacing: 0.5px;
 }
 
-/* Format Buttons */
+/* Tombol Format */
 .format-options {
     display: flex;
     gap: 10px;
@@ -2459,7 +2363,7 @@ ul, ol { list-style: none; }
     font-weight: 600;
 }
 
-/* Store Info */
+/* Info Toko */
 .store-info-card {
     display: flex;
     align-items: center;
@@ -2496,7 +2400,7 @@ ul, ol { list-style: none; }
     color: var(--green-dark);
 }
 
-/* Stock */
+/* Stok */
 .detail-stock {
     padding: 10px 16px;
     border-radius: var(--radius-md);
@@ -2516,7 +2420,7 @@ ul, ol { list-style: none; }
     color: #c62828;
 }
 
-/* Cart Actions */
+/* Aksi Keranjang */
 .detail-cart-actions {
     display: flex;
     gap: 16px;
@@ -2608,7 +2512,7 @@ ul, ol { list-style: none; }
     display: block;
 }
 
-/* Description */
+/* Deskripsi */
 .description-content {
     font-size: 15px;
     line-height: 1.8;
@@ -2619,7 +2523,7 @@ ul, ol { list-style: none; }
     font-style: italic;
 }
 
-/* Book Details Table */
+/* Tabel Detail Buku */
 .book-details-table {
     width: 100%;
     border-collapse: collapse;
@@ -2717,7 +2621,7 @@ ul, ol { list-style: none; }
     color: var(--text-light);
 }
 
-/* Write Review */
+/* Tulis Ulasan */
 .write-review-section {
     background: #fafafa;
     padding: 24px;
@@ -2784,7 +2688,7 @@ ul, ol { list-style: none; }
     align-self: flex-start;
 }
 
-/* Review List */
+/* Daftar Ulasan */
 .review-list {
     display: flex;
     flex-direction: column;
@@ -2847,7 +2751,7 @@ ul, ol { list-style: none; }
     display: block;
 }
 
-/* Related Books */
+/* Buku Terkait */
 .related-books-section {
     margin-bottom: 48px;
 }

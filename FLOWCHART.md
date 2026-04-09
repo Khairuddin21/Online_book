@@ -1,9 +1,9 @@
-# 🗺 Flowchart Keseluruhan Sistem — Book.com
+# 🗺 Flowchart Keseluruhan Sistem — 6BUCKS.litera
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════════════════╗
 ║                                                                                          ║
-║                              🌐 WEBSITE BOOK.COM                                         ║
+║                              🌐 WEBSITE 6BUCKS.LITERA                                     ║
 ║                         http://localhost/Online_book/public                               ║
 ║                                                                                          ║
 ╠══════════════════════════════════════════════════════════════════════════════════════════╣

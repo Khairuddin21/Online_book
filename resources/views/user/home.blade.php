@@ -3,11 +3,11 @@
 @section('title', 'Beranda')
 
 @section('content')
-<!-- Welcome Banner -->
+<!-- Banner Selamat Datang -->
 <div class="user-container" style="padding-bottom: 0;">
     <div class="welcome-banner">
         <div class="welcome-text">
-            <h2>Selamat Datang di Book.com</h2>
+            <h2>Selamat Datang di 6BUCKS.litera</h2>
             <p>Temukan ribuan koleksi buku terbaik dari berbagai genre. Mulai petualangan membacamu hari ini!</p>
             <div class="welcome-actions">
                 <a href="{{ route('user.books') }}" class="btn btn-primary">
@@ -31,10 +31,10 @@
     </div>
 </div>
 
-<!-- Hero Slider Section -->
+<!-- Bagian Slider Hero -->
 <div class="user-container" style="padding-top: 0;">
     <div class="hero-slider-wrapper">
-        <!-- Main Carousel -->
+        <!-- Carousel Utama -->
         <div class="main-carousel">
             <div class="carousel-slides">
                 <div class="carousel-slide active">
@@ -57,7 +57,7 @@
             </div>
         </div>
         
-        <!-- Side Promo Cards -->
+        <!-- Kartu Promo Samping -->
         <div class="side-promos">
             <div class="promo-card-small" style="background: url('{{ asset('gambar/home asset/milo.jpg') }}') center/cover;">
             </div>
@@ -68,9 +68,9 @@
     </div>
 </div>
 
-<!-- Main Content Container -->
+<!-- Kontainer Konten Utama -->
 <div class="user-container">
-    <!-- Categories Section -->
+    <!-- Bagian Kategori -->
     <section class="categories-section" id="categories">
         <h2 class="section-title">Kategori Populer</h2>
         <div class="categories-grid">
@@ -106,7 +106,7 @@
         </div>
     </section>
 
-    <!-- Promotional Banners Slider -->
+    <!-- Slider Banner Promo -->
     <section class="promo-banners-section">
         <div class="promo-banners-slider">
             <div class="promo-banner-track">
@@ -130,7 +130,7 @@
         </div>
     </section>
 
-    <!-- Featured Books Section -->
+    <!-- Bagian Buku Unggulan -->
     <section class="books-section">
         <div class="books-section-header">
             <h2 class="section-title">Buku Terbaru & Terpopuler</h2>
@@ -168,7 +168,7 @@
         </div>
     </section>
 
-    <!-- Promo Features -->
+    <!-- Fitur Promo -->
     <section class="promo-features">
         <div class="promo-feature-card">
             <div class="promo-feature-icon"><i class="fas fa-shipping-fast"></i></div>
@@ -187,7 +187,7 @@
         </div>
     </section>
 
-    <!-- Featured Banner -->
+    <!-- Banner Utama -->
     <section class="featured-section">
         <div class="featured-content">
             <div class="featured-text">
@@ -204,7 +204,7 @@
         </div>
     </section>
 
-    <!-- Testimonials Section -->
+    <!-- Bagian Testimoni -->
     <section class="testimonial-section">
         <h2 class="section-title" style="text-align: center;">Apa Kata Mereka</h2>
         <div class="testimonial-grid">
@@ -252,7 +252,7 @@
         </div>
     </section>
 
-    <!-- Blog Section -->
+    <!-- Bagian Blog -->
     <section class="blog-section">
         <div class="blog-header">
             <h2 class="section-title" style="margin-bottom: 0;">Blog & Artikel</h2>
@@ -301,7 +301,7 @@
         </div>
     </section>
 
-    <!-- Newsletter Section -->
+    <!-- Bagian Langganan Newsletter -->
     <section class="newsletter-section">
         <div class="newsletter-deco newsletter-deco-1"></div>
         <div class="newsletter-deco newsletter-deco-2"></div>
@@ -323,7 +323,7 @@
     </section>
 </div>
 
-<!-- Newsletter Success Modal -->
+<!-- Modal Sukses Newsletter -->
 <div class="nl-modal-overlay" id="nlModalOverlay">
     <div class="nl-modal" id="nlModal">
         <button class="nl-modal-close" id="nlModalClose"><i class="fas fa-times"></i></button>

@@ -7,18 +7,18 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Jalanin migrasi
      */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Rename id to id_user
+            // Ganti nama kolom id jadi id_user
             $table->renameColumn('id', 'id_user');
             
-            // Rename name to nama
+            // Ganti nama kolom name jadi nama
             $table->renameColumn('name', 'nama');
             
-            // Add new columns
+            // Tambahin kolom baru
             $table->enum('role', ['admin', 'user'])->default('user')->after('password');
             $table->text('alamat')->nullable()->after('role');
             $table->string('no_hp', 20)->nullable()->after('alamat');
@@ -26,7 +26,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Balikin migrasi
      */
     public function down(): void
     {

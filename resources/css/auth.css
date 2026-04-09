@@ -1,4 +1,4 @@
-/* Auth Pages - Modern Split Layout */
+/* Halaman Auth - Layout Split Modern */
 
 :root {
     --primary-blue: #1e40af;
@@ -71,7 +71,7 @@ body::after {
     }
 }
 
-/* Auth Container - Wrapper Card */
+/* Container Auth - Kartu Pembungkus */
 .auth-container {
     width: 100%;
     max-width: 1400px;
@@ -87,7 +87,7 @@ body::after {
     border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-/* Close Button */
+/* Tombol Tutup */
 .auth-close-btn {
     position: absolute;
     top: 20px;
@@ -121,14 +121,14 @@ body::after {
     font-size: 20px;
 }
 
-/* Auth Wrapper - Split Layout */
+/* Wrapper Auth - Layout Split */
 .auth-wrapper {
     display: grid;
     grid-template-columns: 45% 55%;
     min-height: 600px;
 }
 
-/* Left Side - Illustration & Branding */
+/* Sisi Kiri - Ilustrasi & Branding */
 .auth-left {
     background: linear-gradient(135deg, var(--gradient-start) 0%, var(--secondary-blue) 50%, var(--light-blue) 100%);
     position: relative;
@@ -151,7 +151,7 @@ body::after {
     z-index: 0;
 }
 
-/* Brand Logo */
+/* Logo Brand */
 .auth-brand {
     position: relative;
     z-index: 2;
@@ -177,7 +177,7 @@ body::after {
     font-size: 32px;
 }
 
-/* Illustration */
+/* Ilustrasi */
 .auth-illustration {
     position: relative;
     z-index: 2;
@@ -225,7 +225,7 @@ body::after {
     }
 }
 
-/* Info Text */
+/* Teks Info */
 .auth-info {
     position: relative;
     z-index: 2;
@@ -249,7 +249,7 @@ body::after {
     margin: 0 auto;
 }
 
-/* Social Icons */
+/* Ikon Sosmed */
 .auth-social-icons {
     position: relative;
     z-index: 2;
@@ -279,7 +279,7 @@ body::after {
     transform: translateY(-3px);
 }
 
-/* Copyright */
+/* Hak Cipta */
 .auth-copyright {
     position: relative;
     z-index: 2;
@@ -290,7 +290,7 @@ body::after {
     padding-top: 20px;
 }
 
-/* Right Side - Form */
+/* Sisi Kanan - Form */
 .auth-right {
     background: white;
     display: flex;
@@ -322,7 +322,7 @@ body::after {
     font-size: 15px;
 }
 
-/* Alerts */
+/* Notifikasi */
 .alert {
     padding: 15px 20px;
     border-radius: 12px;
@@ -425,7 +425,7 @@ body::after {
     color: #cbd5e1;
 }
 
-/* Password Input */
+/* Input Password */
 .password-input {
     position: relative;
 }
@@ -451,7 +451,7 @@ body::after {
     color: var(--secondary-blue);
 }
 
-/* Form Options */
+/* Opsi Form */
 .form-options {
     display: flex;
     justify-content: space-between;
@@ -487,7 +487,7 @@ body::after {
     text-decoration: underline;
 }
 
-/* Password Requirements */
+/* Persyaratan Password */
 .password-requirements {
     background: #eff6ff;
     border: 1px solid #bfdbfe;
@@ -530,7 +530,7 @@ body::after {
     transition: all 0.3s ease;
 }
 
-/* Invalid state - default */
+/* Status belum valid - default */
 .password-requirements ul li.invalid {
     color: #dc2626;
 }
@@ -539,7 +539,7 @@ body::after {
     color: #dc2626;
 }
 
-/* Valid state */
+/* Status udah valid */
 .password-requirements ul li.valid {
     color: #10b981;
 }
@@ -548,7 +548,7 @@ body::after {
     color: #10b981;
 }
 
-/* Form Checkbox */
+/* Checkbox Form */
 .form-checkbox {
     margin-bottom: 25px;
 }
@@ -586,7 +586,7 @@ body::after {
     text-decoration: underline;
 }
 
-/* Submit Button */
+/* Tombol Submit */
 .btn-submit {
     width: 100%;
     padding: 16px 24px;
@@ -622,7 +622,7 @@ body::after {
     transform: translateX(5px);
 }
 
-/* Divider */
+/* Garis Pemisah */
 .auth-divider {
     display: flex;
     align-items: center;
@@ -643,7 +643,7 @@ body::after {
     padding: 0 15px;
 }
 
-/* Social Login */
+/* Login Sosmed */
 .social-login {
     display: flex;
     flex-direction: column;
@@ -703,7 +703,7 @@ body::after {
     text-decoration: underline;
 }
 
-/* Responsive */
+/* Responsif */
 @media (max-width: 1024px) {
     body {
         padding: 20px;

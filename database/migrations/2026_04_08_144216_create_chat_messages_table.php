@@ -11,17 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pesanan', function (Blueprint $table) {
-            $table->id('id_pesanan');
-            $table->unsignedBigInteger('id_user')->nullable();
-            $table->timestamp('tanggal_pesanan')->useCurrent();
-            $table->decimal('total_harga', 12, 2)->nullable();
-            $table->enum('status', ['menunggu', 'diproses', 'dikirim', 'selesai', 'dibatalkan'])->default('menunggu');
-            
+        Schema::create('chat_messages', function (Blueprint $table) {
+            $table->id('id_chat');
+            $table->unsignedBigInteger('id_user');
+            $table->enum('pengirim', ['user', 'admin']);
+            $table->text('pesan');
+            $table->boolean('dibaca')->default(false);
+            $table->timestamp('waktu')->useCurrent();
+
             $table->foreign('id_user')
                   ->references('id_user')
                   ->on('users')
                   ->onDelete('cascade');
+
+            $table->index(['id_user', 'waktu']);
         });
     }
 
@@ -30,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pesanan');
+        Schema::dropIfExists('chat_messages');
     }
 };

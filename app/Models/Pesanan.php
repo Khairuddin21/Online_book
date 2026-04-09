@@ -19,7 +19,7 @@ class Pesanan extends Model
         'status',
         'snap_token',
         'metode_pembayaran',
-        'bukti_cod',
+        'bukti_offline',
     ];
 
     protected $casts = [
@@ -28,7 +28,7 @@ class Pesanan extends Model
     ];
 
     /**
-     * Get the user that owns this pesanan
+     * Ambil user yang punya pesanan ini
      */
     public function user(): BelongsTo
     {
@@ -36,7 +36,7 @@ class Pesanan extends Model
     }
 
     /**
-     * Get all details for this pesanan
+     * Ambil semua detail buat pesanan ini
      */
     public function details(): HasMany
     {
@@ -44,7 +44,7 @@ class Pesanan extends Model
     }
     
     /**
-     * Alias for details relationship
+     * Alias buat relasi details
      */
     public function pesananDetails(): HasMany
     {
@@ -52,7 +52,7 @@ class Pesanan extends Model
     }
 
     /**
-     * Get the pembayaran for this pesanan
+     * Ambil pembayaran buat pesanan ini
      */
     public function pembayaran(): HasOne
     {
@@ -60,13 +60,13 @@ class Pesanan extends Model
     }
     
     /**
-     * Get the alamat pengiriman (if exists in session or related data)
-     * Note: alamat stored in session during checkout
+     * Ambil alamat pengiriman (kalo ada di session atau data terkait)
+     * Catatan: alamat disimpen di session waktu checkout
      */
     public function alamatPengiriman()
     {
-        // Return null for now as alamat is stored in session
-        // Could be enhanced to store id_alamat in pesanan table
+        // Balikin null dulu soalnya alamat disimpen di session
+        // Ntar bisa ditambahin kolom id_alamat di tabel pesanan
         return null;
     }
 }

@@ -7,11 +7,12 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Auth;
 use App\Models\PesanKontak;
+use App\Models\ChatMessage;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
-     * Register any application services.
+     * Daftarin service aplikasi
      */
     public function register(): void
     {
@@ -19,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bootstrap any application services.
+     * Bootstrap service aplikasi
      */
     public function boot(): void
     {
@@ -28,14 +29,20 @@ class AppServiceProvider extends ServiceProvider
         View::composer('user.layout', function ($view) {
             $inboxCount = 0;
             if (Auth::check()) {
-                $inboxCount = PesanKontak::where('id_user', Auth::id())
-                    ->whereNotNull('balasan_admin')
-                    ->where(function ($q) {
-                        $q->whereNull('dibaca_user')->orWhere('dibaca_user', false);
-                    })
+                $inboxCount = ChatMessage::where('id_user', Auth::id())
+                    ->where('pengirim', 'admin')
+                    ->where('dibaca', false)
                     ->count();
             }
             $view->with('inboxNotifCount', $inboxCount);
+        });
+
+        View::composer('admin.layout', function ($view) {
+            $chatNotifCount = ChatMessage::where('pengirim', 'user')
+                ->where('dibaca', false)
+                ->distinct('id_user')
+                ->count('id_user');
+            $view->with('adminChatNotifCount', $chatNotifCount);
         });
     }
 }

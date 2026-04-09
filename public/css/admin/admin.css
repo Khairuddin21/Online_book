@@ -3,7 +3,7 @@
    Matching landing & user theme
    ============================================ */
 
-/* CSS Variables */
+/* Variabel CSS */
 :root {
     --green-dark: #6b9e65;
     --green-deeper: #4a7c44;
@@ -32,7 +32,7 @@
     --success-light: #f0fdf4;
 }
 
-/* Reset & Base */
+/* Reset & Dasar */
 *, *::before, *::after {
     margin: 0;
     padding: 0;
@@ -95,7 +95,7 @@ a { text-decoration: none; color: inherit; }
     justify-content: center;
 }
 
-/* Sidebar Navigation */
+/* Navigasi Sidebar */
 .admin-sidebar nav {
     flex: 1;
     padding: 16px 0;
@@ -150,7 +150,7 @@ a { text-decoration: none; color: inherit; }
     border-radius: 0 4px 4px 0;
 }
 
-/* Sidebar Section Labels */
+/* Label Bagian Sidebar */
 .sidebar-label {
     font-size: 10px;
     font-weight: 700;
@@ -214,7 +214,7 @@ a { text-decoration: none; color: inherit; }
     font-size: 14px;
 }
 
-/* Mobile Toggle */
+/* Toggle HP */
 .mobile-toggle {
     display: none;
     background: none;
@@ -236,7 +236,7 @@ a { text-decoration: none; color: inherit; }
 
 .sidebar-overlay.active { display: block; }
 
-/* Content Area */
+/* Area Konten */
 .admin-content {
     padding: 28px 32px 40px;
     flex: 1;
@@ -670,7 +670,7 @@ select.form-input { cursor: pointer; }
 .badge-red { background: var(--danger-light); color: #991b1b; border: 1px solid #fecdd3; }
 .badge-gray { background: var(--green-bg); color: var(--text-muted); border: 1px solid var(--border-color); }
 
-/* Status Badges */
+/* Badge Status */
 .status-menunggu { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
 .status-diproses { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 .status-dikirim { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }

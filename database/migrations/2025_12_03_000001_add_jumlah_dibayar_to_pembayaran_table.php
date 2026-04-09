@@ -6,23 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Jalanin migrasi
-     */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
+        Schema::table('pembayaran', function (Blueprint $table) {
+            $table->decimal('jumlah_dibayar', 12, 2)->nullable()->after('jumlah');
         });
     }
 
-    /**
-     * Balikin migrasi
-     */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            //
+        Schema::table('pembayaran', function (Blueprint $table) {
+            $table->dropColumn('jumlah_dibayar');
         });
     }
 };

@@ -66,8 +66,8 @@
                     <span style="font-weight: 700; color: var(--green-deeper);">Rp {{ number_format($order->total_harga, 0, ',', '.') }}</span>
                 </td>
                 <td style="text-align: center;">
-                    @if($order->metode_pembayaran === 'cod')
-                        <span class="badge badge-yellow" style="font-size:10px; margin-bottom:4px; display:inline-block;"><i class="fas fa-money-bill-wave"></i> COD</span><br>
+                    @if($order->metode_pembayaran === 'offline')
+                        <span class="badge badge-yellow" style="font-size:10px; margin-bottom:4px; display:inline-block;"><i class="fas fa-store"></i> Offline</span><br>
                     @endif
                     @if($order->pembayaran)
                         @if($order->pembayaran->status_verifikasi == 'valid')

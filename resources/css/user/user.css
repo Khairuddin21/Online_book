@@ -1,4 +1,4 @@
-/* User/Customer Styles - Blue Theme (Matching Landing Page) */
+/* Style User/Customer - Tema Biru (Sesuai Halaman Landing) */
 :root {
     --user-primary: #1e40af;
     --user-secondary: #3b82f6;
@@ -25,13 +25,13 @@ body {
     color: var(--text-dark);
 }
 
-/* Announcement Banner */
+/* Banner Pengumuman */
 .announcement-banner {
     display: flex;
     align-items: center;
     gap: 12px;
-    background: #eef2ff; /* light indigo */
-    border: 1px solid #dbeafe; /* light blue border */
+    background: #eef2ff; /* biru muda */
+    border: 1px solid #dbeafe; /* border biru muda */
     color: var(--user-dark);
     padding: 12px 16px;
     border-radius: 12px;
@@ -49,7 +49,7 @@ body {
     font-size: 16px;
 }
 
-/* Hero Slider */
+/* Slider Hero */
 .hero-slider-wrapper {
     display: grid;
     grid-template-columns: 2fr 1fr;
@@ -198,7 +198,7 @@ body {
     opacity: 0.9;
 }
 
-/* Responsive */
+/* Responsif */
 @media (max-width: 992px) {
     .hero-slider-wrapper {
         grid-template-columns: 1fr;
@@ -338,7 +338,7 @@ body {
     font-weight: bold;
 }
 
-/* User Menu Dropdown */
+/* Dropdown Menu User */
 .user-menu {
     position: relative;
 }
@@ -402,7 +402,7 @@ body {
     margin: 0;
 }
 
-/* Alert Messages */
+/* Pesan Notifikasi */
 .alert {
     padding: 15px 20px;
     border-radius: 8px;
@@ -449,7 +449,7 @@ body {
 }
 
 
-/* Hero Section */
+/* Bagian Hero */
 .hero-section {
     background: linear-gradient(135deg, var(--user-primary) 0%, var(--user-secondary) 100%);
     color: white;
@@ -468,14 +468,14 @@ body {
     opacity: 0.9;
 }
 
-/* Main Content */
+/* Konten Utama */
 .user-container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 40px 30px;
 }
 
-/* Categories */
+/* Kategori */
 .categories-section {
     margin-bottom: 50px;
 }
@@ -536,7 +536,7 @@ body {
     color: #000000;
 }
 
-/* Promotional Banners Slider */
+/* Slider Banner Promo */
 .promo-banners-section {
     max-width: 1400px;
     margin: 50px auto;
@@ -638,7 +638,7 @@ body {
     background: rgba(255,255,255,0.8);
 }
 
-/* Books Grid */
+/* Grid Buku */
 .books-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
@@ -699,7 +699,7 @@ body {
     gap: 10px;
 }
 
-/* Buttons */
+/* Tombol-Tombol */
 .btn {
     padding: 10px 20px;
     border: none;
@@ -792,7 +792,7 @@ body {
     color: #999;
 }
 
-/* Responsive */
+/* Responsif */
 @media (max-width: 768px) {
     .navbar-menu {
         display: none;
@@ -812,7 +812,7 @@ body {
     }
 }
 
-/* Featured Section */
+/* Bagian Unggulan */
 .featured-section {
     background: linear-gradient(135deg, #fff5eb 0%, #ffe8d1 100%);
     padding: 60px 30px;
@@ -852,7 +852,7 @@ body {
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-/* Promotional Banners */
+/* Banner Promo */
 .promo-section {
     margin: 50px 0;
 }
@@ -894,7 +894,7 @@ body {
     line-height: 1.6;
 }
 
-/* Testimonials */
+/* Testimoni */
 .testimonial-section {
     background: white;
     padding: 60px 30px;
@@ -961,7 +961,7 @@ body {
     font-size: 14px;
 }
 
-/* Stats Section */
+/* Bagian Statistik */
 .stats-section {
     background: var(--user-primary);
     color: white;
@@ -990,7 +990,7 @@ body {
     opacity: 0.9;
 }
 
-/* Blog Section */
+/* Bagian Blog */
 .blog-section {
     margin-bottom: 50px;
 }
@@ -1099,7 +1099,7 @@ body {
     font-style: italic;
 }
 
-/* Newsletter */
+/* Newsletter / Langganan */
 .newsletter-section {
     background: linear-gradient(135deg, var(--user-secondary) 0%, var(--user-primary) 100%);
     color: white;
@@ -1156,7 +1156,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Loading Animation */
+/* Animasi Loading */
 .loading {
     display: inline-block;
     width: 20px;
@@ -1171,7 +1171,7 @@ body {
     to { transform: rotate(360deg); }
 }
 
-/* Responsive Enhancements */
+/* Peningkatan Responsif */
 @media (max-width: 992px) {
     .featured-content {
         grid-template-columns: 1fr;

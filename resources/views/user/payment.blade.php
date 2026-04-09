@@ -6,7 +6,7 @@
 <div class="user-container" style="min-height: 60vh; padding: 40px 20px;">
     <h1 class="section-title" style="text-align: center; margin-bottom: 40px;">Pembayaran</h1>
     
-    <!-- Progress Steps -->
+    <!-- Langkah-Langkah Pembayaran -->
     <div class="checkout-steps">
         <div class="step completed">
             <div class="step-number">
@@ -36,7 +36,7 @@
     @endif
     
     <div style="display: grid; grid-template-columns: 1fr 400px; gap: 30px; margin-top: 40px; align-items: start;">
-        <!-- Order Details -->
+        <!-- Detail Pesanan -->
         <div>
             <div class="payment-section">
                 <h3 class="payment-section-title">
@@ -70,7 +70,7 @@
                 </div>
             </div>
 
-            <!-- Payment Info -->
+            <!-- Info Pembayaran -->
             <div class="payment-section" style="margin-top: 25px;">
                 <h3 class="payment-section-title">
                     <i class="fas fa-shield-alt"></i> Pembayaran Aman
@@ -95,7 +95,7 @@
             </div>
         </div>
         
-        <!-- Payment Summary (Sticky) -->
+        <!-- Ringkasan Pembayaran (Nempel di Atas) -->
         <div class="payment-summary">
             <h3 class="payment-section-title" style="margin-bottom: 20px;">Rincian Pembayaran</h3>
             
@@ -124,10 +124,10 @@
     </div>
 </div>
 
-<!-- Midtrans Snap JS -->
+<!-- Script Midtrans Snap -->
 <script src="{{ config('midtrans.is_production') ? 'https://app.midtrans.com/snap/snap.js' : 'https://app.sandbox.midtrans.com/snap/snap.js' }}" data-client-key="{{ $clientKey }}"></script>
 
-<!-- Invoice Modal -->
+<!-- Modal Invoice -->
 <div id="invoiceOverlay" class="invoice-overlay" style="display:none;">
     <div class="invoice-modal">
         <div class="invoice-header">
@@ -140,7 +140,7 @@
 
         <div class="invoice-receipt">
             <div class="receipt-top">
-                <h3><i class="fas fa-book-open"></i> Book.com</h3>
+                <h3><i class="fas fa-book-open"></i> 6BUCKS.litera</h3>
                 <p>Struk Pembayaran</p>
             </div>
 
@@ -172,7 +172,7 @@
             <div class="receipt-divider"></div>
 
             <div class="receipt-items" id="inv-items">
-                <!-- items injected by JS -->
+                <!-- item dimasukin pake JS -->
             </div>
 
             <div class="receipt-divider"></div>
@@ -184,8 +184,11 @@
         </div>
 
         <div class="invoice-actions">
+            <a href="#" id="btnDownloadInvoice" class="btn-invoice-download" style="display:none;">
+                <i class="fas fa-file-download"></i> Download Invoice
+            </a>
             <button type="button" class="btn-invoice-close" id="btnInvoiceClose">
-                <i class="fas fa-shopping-bag"></i> Lihat Pesanan Saya
+                Lihat Pesanan Saya
             </button>
         </div>
     </div>
@@ -677,10 +680,36 @@
 .invoice-actions {
     padding: 15px 25px 25px;
     text-align: center;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-invoice-download {
+    flex: 1;
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    border: 1.5px solid #a8d5a2;
+    border-radius: 12px;
+    cursor: pointer;
+    background: white;
+    color: #2d6a4f;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s;
+    text-decoration: none;
+}
+.btn-invoice-download:hover {
+    background: #f0faf4;
+    border-color: #2d6a4f;
+    transform: translateY(-2px);
 }
 
 .btn-invoice-close {
-    width: 100%;
+    flex: 1;
     padding: 14px;
     font-size: 15px;
     font-weight: 700;
@@ -827,6 +856,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const overlay = document.getElementById('invoiceOverlay');
         overlay.style.display = 'flex';
+
+        // Set download invoice link
+        const btnDownload = document.getElementById('btnDownloadInvoice');
+        btnDownload.href = '/orders/' + invoice.id_pesanan + '/invoice';
+        btnDownload.style.display = 'inline-flex';
 
         document.getElementById('btnInvoiceClose').addEventListener('click', function() {
             window.location.href = redirectUrl;

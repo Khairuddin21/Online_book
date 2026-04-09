@@ -1,4 +1,4 @@
-/* ===== AUTH CSS - PASTEL GREEN SPLIT-SCREEN THEME ===== */
+/* ===== CSS AUTH - TEMA SPLIT-SCREEN HIJAU PASTEL ===== */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
@@ -45,7 +45,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* ===== AUTH CONTAINER ===== */
+/* ===== CONTAINER AUTH ===== */
 .auth-container {
     width: 100%;
     max-width: 1000px;
@@ -85,7 +85,7 @@ body {
     min-height: 600px;
 }
 
-/* ===== LEFT PANEL - GRADIENT ===== */
+/* ===== PANEL KIRI - GRADIEN ===== */
 .auth-left {
     background: linear-gradient(225deg, #9ecca6 0%, #7ba88a 30%, #8aab9a 45%, #8fa8b5 65%, #5a8a62 85%, #3a5a40 100%);
     padding: 40px;
@@ -159,7 +159,7 @@ body {
     letter-spacing: -0.01em;
 }
 
-/* ===== RIGHT PANEL - FORM ===== */
+/* ===== PANEL KANAN - FORM ===== */
 .auth-right {
     padding: 40px 48px;
     display: flex;
@@ -204,7 +204,7 @@ body {
     line-height: 1.5;
 }
 
-/* ===== ALERTS ===== */
+/* ===== NOTIFIKASI ===== */
 .alert {
     padding: 12px 16px;
     border-radius: 10px;
@@ -304,7 +304,7 @@ body {
     box-shadow: 0 0 0 3px rgba(168, 213, 162, 0.2);
 }
 
-/* ===== PASSWORD INPUT ===== */
+/* ===== INPUT PASSWORD ===== */
 .password-input {
     position: relative;
     display: flex;
@@ -333,7 +333,7 @@ body {
     color: var(--gray-600);
 }
 
-/* ===== PASSWORD REQUIREMENTS ===== */
+/* ===== PERSYARATAN PASSWORD ===== */
 .password-requirements {
     background: var(--gray-50);
     border-radius: 10px;
@@ -389,7 +389,7 @@ body {
     color: var(--success);
 }
 
-/* ===== FORM OPTIONS (Remember + Forgot) ===== */
+/* ===== OPSI FORM (Ingat Saya + Lupa Password) ===== */
 .form-options {
     display: flex;
     align-items: center;
@@ -430,7 +430,7 @@ body {
     color: var(--green-deep);
 }
 
-/* ===== CHECKBOX (Terms) ===== */
+/* ===== CHECKBOX (Syarat & Ketentuan) ===== */
 .form-checkbox {
     margin-top: -4px;
 }
@@ -468,7 +468,7 @@ body {
     text-decoration: underline;
 }
 
-/* ===== SUBMIT BUTTON ===== */
+/* ===== TOMBOL SUBMIT ===== */
 .btn-submit {
     width: 100%;
     padding: 12px;
@@ -507,7 +507,7 @@ body {
     transform: translateX(3px);
 }
 
-/* ===== DIVIDER ===== */
+/* ===== GARIS PEMISAH ===== */
 .auth-divider {
     display: flex;
     align-items: center;
@@ -530,7 +530,7 @@ body {
     white-space: nowrap;
 }
 
-/* ===== SOCIAL LOGIN ===== */
+/* ===== LOGIN SOSMED ===== */
 .social-login {
     display: flex;
     gap: 12px;
@@ -584,7 +584,7 @@ body {
     text-decoration: underline;
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== RESPONSIF ===== */
 @media (max-width: 768px) {
     body {
         padding: 0;

@@ -11,7 +11,7 @@
 
     @if($cartItems->count() > 0)
     <div class="cart-layout">
-        <!-- Cart Items -->
+        <!-- Daftar Item Keranjang -->
         <div>
             <div class="cart-items">
                 @foreach($cartItems as $item)
@@ -83,7 +83,7 @@
             @endif
         </div>
 
-        <!-- Order Summary -->
+        <!-- Ringkasan Pesanan -->
         <div class="order-summary">
             <h3 class="order-summary-title">
                 <i class="fas fa-receipt"></i> Ringkasan Pesanan
